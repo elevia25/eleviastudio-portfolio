@@ -1,19 +1,22 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import * as THREE from "three";
 import Portfolio from "./Portfolio";
+import Image from "next/image";
 
-const LOGO_URL =
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuDs6n0IDeLXO6-ptmwGEkrb9BByHRdSGuBhaHkUX9jFoMjEOQGz3rsrHaiX03hJF9W-OVpt_C6ulh7n-n5pHz-scuBxXR6ErIPnoRh6gdhZc4SHcKsTOT_t9HkUsmL5DzxLpRYAvI0qn0ooYCgxWn4yvwZbxEJP_0bw6HdeGLaptvjvcXUDrHpy5KC55dobQfTXLrO3TEbM7iKQpu8Cj9t0eEgmGpSYD1aJcXXSzuaMUTvT7JeUxJdcqVlhaylzgBfeL0NNgYX5FKA";
+const LOGO_URL = "/elevia_studio_logo.png";
 
 const OBSIDIAN_HOUSE_URL =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuCIsD3BPm5nqVaMw9NNo7YjgQv2whp3-inVHmZ8ODaapZPa3pnWdCqRlnhZADdij0Vw_OArIL9s0n-GS26Hxr9J05QIqx_8SZAqOIZMJGR5fpgao6n8vyF_gDTSTCJcZhDqrmP0Zjo2wGtSrXxskagxXmUQZvOeHE98mKKexpsOC-Q8oBu8gvGML8Pa515jw2uiqdawyVQm6p1aN34wevEXiMiZN6Lz5F6VPeduEUZn73On516pVtcjt0KjPIMjG-HXuYrZLdUr5VA";
 
 const CHRONOS_ELITE_URL =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuDzwkfMYhNQhgNsGOZk0EcSKZdjtN5cJhUzLE5Y4rI46A1SYCuEscp0syfHui2kDVF0hoCqUs9B1Loyf2rXl-VmsCXv6LyGuy6wQHVM1RTttQs29bdm5XUALTpnGBgex2_LIG6-BxJOQ-5SEbDXXD3hmpU9ilmJrRmlOs36DjgA2EADUMhJtOe1WzcqWVmztUq4FM7g6SfcUqU64cnHRoQJcYJIye7fZq_YK6zAVLgfrRn5egJ_3dpEN-jCuP8QdNSl5sOgQvV0HeY";
+
+const FOUNDER_ONE_IMAGE = "/founder-1.jpg";
+const FOUNDER_TWO_IMAGE = "/founder-2.jpg";
 
 type SplitCharactersProps = {
   text: string;
@@ -63,6 +66,7 @@ export default function StudioPage() {
   const cursorRef = useRef<HTMLDivElement>(null);
   const backgroundCanvasRef = useRef<HTMLCanvasElement>(null);
   const threeContainerRef = useRef<HTMLDivElement>(null);
+  const [activeFounder, setActiveFounder] = useState<1 | 2 | null>(null);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -103,7 +107,9 @@ export default function StudioPage() {
     cursorAnimationFrame = window.requestAnimationFrame(updateCursor);
 
     const hoverTargets = Array.from(
-      root.querySelectorAll<HTMLElement>("a, button, .project-tile"),
+      root.querySelectorAll<HTMLElement>(
+        "a, button, .project-tile, .founder-card",
+      ),
     );
 
     const cursorHoverHandlers = hoverTargets.map((element) => {
@@ -246,6 +252,61 @@ export default function StudioPage() {
           });
         });
 
+      const founderStack = root.querySelector<HTMLElement>(".founder-stack");
+      const founderOne = root.querySelector<HTMLElement>(".founder-entry-one");
+      const founderTwo = root.querySelector<HTMLElement>(".founder-entry-two");
+      const founderLocation = root.querySelector<HTMLElement>(
+        ".founder-location-badge",
+      );
+
+      if (founderStack && founderOne && founderTwo) {
+        const founderTimeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: founderStack,
+            start: "top 82%",
+            once: true,
+          },
+        });
+
+        founderTimeline
+          .from(
+            founderOne,
+            {
+              opacity: 0,
+              y: -180,
+              rotate: -7,
+              duration: 1.25,
+              ease: "power4.out",
+            },
+            0,
+          )
+          .from(
+            founderTwo,
+            {
+              opacity: 0,
+              y: 180,
+              rotate: 7,
+              duration: 1.25,
+              ease: "power4.out",
+            },
+            0.12,
+          );
+
+        if (founderLocation) {
+          founderTimeline.from(
+            founderLocation,
+            {
+              opacity: 0,
+              scale: 0.85,
+              y: 24,
+              duration: 0.7,
+              ease: "back.out(1.7)",
+            },
+            0.65,
+          );
+        }
+      }
+
       root.querySelectorAll<HTMLElement>(".counter").forEach((element) => {
         const target = Number(element.dataset.target ?? 0);
         const counter = { value: 0 };
@@ -306,12 +367,9 @@ export default function StudioPage() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             alt="Elevia Studio Logo"
-            className="h-6 w-auto object-contain md:h-8"
+            className="h-10 w-auto object-contain md:h-12"
             src={LOGO_URL}
           />
-          <span className="font-display-lg text-[18px] uppercase tracking-tighter text-on-surface">
-            ELEVIA STUDIO
-          </span>
         </a>
 
         <div className="hidden gap-10 md:flex">
@@ -361,19 +419,21 @@ export default function StudioPage() {
           aria-hidden="true"
         />
 
-        <div className="relative z-10 max-w-7xl space-y-10">
+        <div className="relative z-10 max-w-8xl space-y-10">
           <div className="overflow-hidden">
             <h1 className="split-text font-display-lg text-display-lg-mobile uppercase md:text-display-lg">
               <SplitCharacters text="Architecting " />
               <br className="hidden md:block" />
-              <SplitCharacters text="Visual Power" />
+              <SplitCharacters text="Visual" />
+              <br className="hidden md:block" />
+              <SplitCharacters text="Power" />
             </h1>
           </div>
 
           <div className="reveal-slide-up flex items-center justify-center gap-6">
             <span className="h-[2px] w-16 bg-primary" />
             <p className="font-label-technical text-label-technical tracking-[0.4em] text-primary">
-              LONDON — NEW YORK — DUBAI
+              AHMEDABAD — INDIA — GLOBAL
             </p>
             <span className="h-[2px] w-16 bg-primary" />
           </div>
@@ -398,7 +458,7 @@ export default function StudioPage() {
                 STRATEGIC VISION
               </span>
               <h2 className="split-text font-headline-md-mobile leading-[1.1] md:font-headline-md">
-                <SplitCharacters text="Elevia Studio is a high-performance creative collective defining the aesthetic frontier for global luxury brands." />
+                <SplitCharacters text="Elevia Studio is an Ahmedabad-based creative collective defining the aesthetic frontier for ambitious global brands." />
               </h2>
             </div>
 
@@ -415,33 +475,102 @@ export default function StudioPage() {
                 style={{ transitionDelay: "0.1s" }}
               >
                 <p className="font-body-lg text-on-surface-variant">
-                  Merging the architectural rigor of classical design with the
-                  velocity of modern tech, we create brand experiences that
-                  command authority.
+                  From Ahmedabad, India, we merge architectural rigor with
+                  modern technology to create brand experiences that travel
+                  globally and command authority.
                 </p>
               </div>
             </div>
           </div>
 
-          <div
-            className="reveal-slide-up relative aspect-square md:col-span-5"
-            style={{ transitionDelay: "0.2s" }}
-          >
-            <div className="sharp-edge absolute inset-0 flex items-center justify-center bg-surface-container/30 p-12 backdrop-blur-lg">
-              <div className="space-y-6 text-center">
-                <div
-                  className="counter font-display-lg text-7xl text-primary"
-                  data-target="12"
-                >
-                  0
+          <div className="founder-stack relative min-h-[520px] md:col-span-5 md:min-h-[660px]">
+            <div
+              className={`founder-entry-one absolute left-0 top-0 w-[60%] transition-[z-index] duration-300 ${
+                activeFounder === 1
+                  ? "z-40"
+                  : activeFounder === 2
+                    ? "z-10"
+                    : "z-20"
+              }`}
+              onMouseEnter={() => setActiveFounder(1)}
+              onMouseLeave={() => setActiveFounder(null)}
+              onFocus={() => setActiveFounder(1)}
+              onBlur={() => setActiveFounder(null)}
+            >
+              <article
+                className="founder-card group relative overflow-hidden border border-primary/20 bg-surface-container/70 p-2 shadow-[0_25px_80px_rgba(2,6,23,0.65)] transition-all duration-500 ease-out hover:-translate-y-2 hover:scale-[1.02] hover:border-primary hover:shadow-[0_0_22px_rgba(234,179,8,0.72),0_28px_90px_rgba(2,6,23,0.78)] focus-within:border-primary focus-within:shadow-[0_0_22px_rgba(234,179,8,0.72)]"
+                tabIndex={0}
+              >
+                <div className="relative aspect-[4/5] overflow-hidden bg-surface-container-highest">
+                  {/* Keep founder1.png inside the public directory. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <Image
+                    src={FOUNDER_ONE_IMAGE}
+                    width={200}
+                    height={200}
+                    alt="Elevia Studio founder portrait one"
+                    className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105 group-focus-within:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent opacity-90" />
+                  <div className="absolute inset-x-0 bottom-0 p-5 md:p-6">
+                    <span className="mb-2 block font-label-technical text-[10px] tracking-[0.3em] text-primary">
+                      FOUNDER 01
+                    </span>
+                    <p className="font-headline-md-mobile text-xl uppercase text-on-surface md:text-2xl">
+                      Creative Leadership
+                    </p>
+                  </div>
                 </div>
-                <div className="font-label-caps text-label-caps tracking-[0.3em] text-on-surface">
-                  GLOBAL AWARDS
+              </article>
+            </div>
+
+            <div
+              className={`founder-entry-two absolute bottom-0 right-0 w-[60%] transition-[z-index] duration-300 ${
+                activeFounder === 2
+                  ? "z-40"
+                  : activeFounder === 1
+                    ? "z-10"
+                    : "z-10"
+              }`}
+              onMouseEnter={() => setActiveFounder(2)}
+              onMouseLeave={() => setActiveFounder(null)}
+              onFocus={() => setActiveFounder(2)}
+              onBlur={() => setActiveFounder(null)}
+            >
+              <article
+                className="founder-card group relative overflow-hidden border border-primary/20 bg-surface-container/70 p-2 shadow-[0_25px_80px_rgba(2,6,23,0.65)] transition-all duration-500 ease-out hover:-translate-y-2 hover:scale-[1.02] hover:border-primary hover:shadow-[0_0_22px_rgba(234,179,8,0.72),0_28px_90px_rgba(2,6,23,0.78)] focus-within:border-primary focus-within:shadow-[0_0_22px_rgba(234,179,8,0.72)]"
+                tabIndex={0}
+              >
+                <div className="relative aspect-[4/5] overflow-hidden bg-surface-container-highest">
+                  {/* Keep founder.2.png inside the public directory. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <Image
+                    width={200}
+                    height={200}
+                    src={FOUNDER_TWO_IMAGE}
+                    alt="Elevia Studio founder portrait two"
+                    className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105 group-focus-within:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent opacity-90" />
+                  <div className="absolute inset-x-0 bottom-0 p-5 md:p-6">
+                    <span className="mb-2 block font-label-technical text-[10px] tracking-[0.3em] text-primary">
+                      FOUNDER 02
+                    </span>
+                    <p className="font-headline-md-mobile text-xl uppercase text-on-surface md:text-2xl">
+                      Motion &amp; Strategy
+                    </p>
+                  </div>
                 </div>
-                <p className="font-body-md text-on-surface-variant">
-                  Validated excellence in design and strategy.
-                </p>
-              </div>
+              </article>
+            </div>
+
+            <div className="founder-location-badge pointer-events-none absolute bottom-4 left-4 z-50 border border-primary/40 bg-surface/85 px-5 py-4 backdrop-blur-xl md:bottom-8 md:left-8">
+              <span className="mb-2 block font-label-technical text-[9px] tracking-[0.3em] text-primary">
+                BASED IN
+              </span>
+              <strong className="font-label-caps text-[11px] tracking-[0.22em] text-on-surface">
+                AHMEDABAD, INDIA
+              </strong>
             </div>
           </div>
         </section>
@@ -607,7 +736,7 @@ export default function StudioPage() {
               ELEVIA STUDIO
             </span>
             <p className="max-w-xs font-body-md text-on-surface-variant">
-              © 2024. Pushing visual boundaries through cinematic storytelling
+              © 2025. Pushing visual boundaries through cinematic storytelling
               and advanced motion design.
             </p>
           </div>
