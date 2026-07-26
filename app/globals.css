@@ -1,26 +1,281 @@
 @import "tailwindcss";
 
+/* -------------------------------------------------------------------------- */
+/* THEME CONFIGURATION (Replaces tailwind.config.ts)                          */
+/* -------------------------------------------------------------------------- */
+
+@theme {
+  /* Dark mode settings */
+  --color-scheme: dark;
+
+  /* Colors */
+  --color-inverse-surface: #e5e2e1;
+  --color-primary-container: #1e293b;
+  --color-error-container: #93000a;
+  --color-on-tertiary-container: #496bff;
+  --color-surface-container-lowest: #0b1120;
+  --color-surface: #0f172a;
+  --color-on-primary: #0f172a;
+  --color-surface-bright: #1e293b;
+  --color-surface-container-high: #1e293b;
+  --color-tertiary-fixed: #dde1ff;
+  --color-on-tertiary-fixed-variant: #0033c0;
+  --color-on-primary-container: #eab308;
+  --color-surface-variant: #1e293b;
+  --color-primary-fixed: #eab308;
+  --color-on-error-container: #ffdad6;
+  --color-inverse-on-surface: #0f172a;
+  --color-surface-dim: #0f172a;
+  --color-on-primary-fixed-variant: #474646;
+  --color-secondary-container: #334155;
+  --color-on-surface-variant: #94a3b8;
+  --color-surface-container-highest: #334155;
+  --color-primary: #eab308;
+  --color-on-error: #690005;
+  --color-secondary: #eab308;
+  --color-inverse-primary: #854d0e;
+  --color-on-tertiary: #00228a;
+  --color-outline: #475569;
+  --color-background: #0f172a;
+  --color-surface-container: #1e293b;
+  --color-tertiary-fixed-dim: #b9c3ff;
+  --color-outline-variant: #334155;
+  --color-surface-container-low: #1e293b;
+  --color-on-background: #f8fafc;
+  --color-surface-tint: #eab308;
+  --color-on-secondary-fixed-variant: #574500;
+  --color-on-primary-fixed: #0f172a;
+  --color-tertiary: #b9c3ff;
+  --color-tertiary-container: #00052b;
+  --color-on-secondary: #0f172a;
+  --color-error: #ffb4ab;
+  --color-secondary-fixed-dim: #eab308;
+  --color-on-secondary-container: #fefce8;
+  --color-secondary-fixed: #fef08a;
+  --color-on-secondary-fixed: #0f172a;
+  --color-primary-fixed-dim: #eab308;
+  --color-on-surface: #f8fafc;
+  --color-on-tertiary-fixed: #001257;
+
+  /* Border Radius */
+  --radius: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-full: 9999px;
+
+  /* Custom Spacing utilities (e.g. p-gutter, gap-section-gap) */
+  --spacing-gutter: 32px;
+  --spacing-page-margin-desktop: 80px;
+  --spacing-section-gap: 160px;
+  --spacing-page-margin-mobile: 24px;
+  --spacing-element-gap: 24px;
+
+  /* Font Families */
+  --font-body-lg: var(--font-hanken-grotesk), sans-serif;
+  --font-headline-md-mobile: var(--font-syne), sans-serif;
+  --font-headline-md: var(--font-syne), sans-serif;
+  --font-display-lg: var(--font-syne), sans-serif;
+  --font-label-technical: var(--font-jetbrains-mono), monospace;
+  --font-body-md: var(--font-hanken-grotesk), sans-serif;
+  --font-label-caps: var(--font-jetbrains-mono), monospace;
+  --font-display-lg-mobile: var(--font-syne), sans-serif;
+
+  /* Font Sizes + Line Heights + Letter Spacings */
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 1.6;
+
+  --text-headline-md-mobile: 32px;
+  --text-headline-md-mobile--line-height: 1.2;
+
+  --text-headline-md: 48px;
+  --text-headline-md--line-height: 1.1;
+
+  --text-display-lg: 112px;
+  --text-display-lg--line-height: 0.9;
+  --text-display-lg--letter-spacing: -0.05em;
+
+  --text-label-technical: 12px;
+  --text-label-technical--line-height: 120%;
+  --text-label-technical--letter-spacing: 0.2em;
+
+  --text-body-md: 15px;
+  --text-body-md--line-height: 1.6;
+
+  --text-label-caps: 11px;
+  --text-label-caps--line-height: 140%;
+  --text-label-caps--letter-spacing: 0.2em;
+
+  --text-display-lg-mobile: 48px;
+  --text-display-lg-mobile--line-height: 1;
+  --text-display-lg-mobile--letter-spacing: -0.02em;
+}
+
+/* Enable class-based Dark Mode variant */
+@variant dark (&:where(.dark, .dark *));
+
+/* -------------------------------------------------------------------------- */
+/* GLOBAL STYLES & CUSTOM UTILITIES                                           */
+/* -------------------------------------------------------------------------- */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  background-color: #0f172a;
+  color: #f8fafc;
+  overflow-x: hidden;
+  cursor: none;
+  font-family: var(--font-hanken-grotesk), sans-serif;
+}
+
+button,
+a,
+.project-tile {
+  cursor: none;
+}
+
+#bg-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+  pointer-events: none;
+}
+
+.threejs-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.threejs-container canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.custom-cursor {
+  width: 20px;
+  height: 20px;
+  background-color: #eab308;
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: normal;
+  transition:
+    transform 0.3s cubic-bezier(0.23, 1, 0.32, 1),
+    background-color 0.3s ease;
+  will-change: left, top, transform;
+}
+
+.custom-cursor.hovering {
+  transform: scale(3.5);
+  background-color: rgb(234 179 8 / 30%);
+  border: 1px solid #eab308;
+  backdrop-filter: blur(2px);
+}
+
+.scroll-line {
+  height: 60px;
+  width: 2px;
+  background: #eab308;
+  animation: scroll-anim 2s infinite cubic-bezier(0.65, 0, 0.35, 1);
+  transform-origin: top;
+}
+
+@keyframes scroll-anim {
+  0% {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+
+  50% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+
+  50.1% {
+    transform: scaleY(1);
+    transform-origin: bottom;
+  }
+
+  100% {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+}
+
+.project-tile {
+  perspective: 1000px;
+  background: rgb(30 41 59 / 40%);
+  backdrop-filter: blur(10px);
+  transition: background 0.4s ease;
+}
+
+.project-tile:hover {
+  background: rgb(30 41 59 / 70%);
+}
+
+.tile-inner {
+  transition: transform 0.1s ease-out;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.sharp-edge {
+  border: 1px solid rgb(234 179 8 / 15%);
+}
+
+.char {
+  display: inline-block;
+  white-space: pre;
+}
+
+.parallax-img-container {
+  overflow: hidden;
+  position: relative;
+}
+
+.parallax-img {
+  transform: scale(1.1);
+  transition: transform 0.1s ease-out;
+  will-change: transform;
+}
+
+.magnetic-btn {
+  display: inline-block;
+  transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: transform;
+}
+
+@media (max-width: 767px),
+(pointer: coarse) {
+
+  body,
+  button,
+  a,
+  .project-tile {
+    cursor: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .scroll-line {
+    animation: none;
+  }
 }
