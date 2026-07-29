@@ -585,10 +585,10 @@ export default function StudioPage() {
       >
         <div className="flex flex-col items-start justify-between md:flex-row">
           <div className="mb-12 md:mb-0">
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               alt="Elevia Studio Logo"
-              className="h-11 w-auto object-contain md:h-13"
-              fill
+              className="h-12 w-auto object-contain md:h-14"
               src={LOGO_URL}
             />
             <p className="max-w-xs font-body-md text-primary">
