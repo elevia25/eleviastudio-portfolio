@@ -6,14 +6,9 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import * as THREE from "three";
 import Portfolio from "./Portfolio";
 import Image from "next/image";
+import FloatingLibrarySection from "./LogoTransitions";
 
-const LOGO_URL = "/elevia_studio_logo.png";
-
-const OBSIDIAN_HOUSE_URL =
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuCIsD3BPm5nqVaMw9NNo7YjgQv2whp3-inVHmZ8ODaapZPa3pnWdCqRlnhZADdij0Vw_OArIL9s0n-GS26Hxr9J05QIqx_8SZAqOIZMJGR5fpgao6n8vyF_gDTSTCJcZhDqrmP0Zjo2wGtSrXxskagxXmUQZvOeHE98mKKexpsOC-Q8oBu8gvGML8Pa515jw2uiqdawyVQm6p1aN34wevEXiMiZN6Lz5F6VPeduEUZn73On516pVtcjt0KjPIMjG-HXuYrZLdUr5VA";
-
-const CHRONOS_ELITE_URL =
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuDzwkfMYhNQhgNsGOZk0EcSKZdjtN5cJhUzLE5Y4rI46A1SYCuEscp0syfHui2kDVF0hoCqUs9B1Loyf2rXl-VmsCXv6LyGuy6wQHVM1RTttQs29bdm5XUALTpnGBgex2_LIG6-BxJOQ-5SEbDXXD3hmpU9ilmJrRmlOs36DjgA2EADUMhJtOe1WzcqWVmztUq4FM7g6SfcUqU64cnHRoQJcYJIye7fZq_YK6zAVLgfrRn5egJ_3dpEN-jCuP8QdNSl5sOgQvV0HeY";
+const LOGO_URL = "/elevia_logo.png";
 
 const FOUNDER_ONE_IMAGE = "/founder-1.jpg";
 const FOUNDER_TWO_IMAGE = "/founder-2.jpg";
@@ -33,32 +28,6 @@ function SplitCharacters({ text }: SplitCharactersProps) {
       <span className="sr-only">{text}</span>
     </>
   );
-}
-
-function compileShader(
-  gl: WebGLRenderingContext,
-  type: number,
-  source: string,
-): WebGLShader | null {
-  const shader = gl.createShader(type);
-
-  if (!shader) {
-    return null;
-  }
-
-  gl.shaderSource(shader, source);
-  gl.compileShader(shader);
-
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    console.error(
-      "WebGL shader compilation failed:",
-      gl.getShaderInfoLog(shader),
-    );
-    gl.deleteShader(shader);
-    return null;
-  }
-
-  return shader;
 }
 
 export default function StudioPage() {
@@ -108,7 +77,7 @@ export default function StudioPage() {
 
     const hoverTargets = Array.from(
       root.querySelectorAll<HTMLElement>(
-        "a, button, .project-tile, .founder-card",
+        "a, button, .project-tile, .project-stack-card, .founder-card, [data-cursor-interactive='true']",
       ),
     );
 
@@ -120,11 +89,14 @@ export default function StudioPage() {
       return { element, enter, leave };
     });
 
-    const shaderCleanup = initialiseBackgroundShader(backgroundCanvas, mouse);
+    const backgroundCleanup = initialiseBackgroundParticles(
+      backgroundCanvas,
+      mouse,
+    );
     const threeCleanup = initialiseHeroSculpture(threeContainer, mouse);
 
     const magneticCleanups = Array.from(
-      root.querySelectorAll<HTMLElement>(".magnetic-btn"),
+      root.querySelectorAll<HTMLElement>(".magnetic-btn, .magnetic-target"),
     ).map((button) => {
       const move = (event: MouseEvent) => {
         const rect = button.getBoundingClientRect();
@@ -336,7 +308,7 @@ export default function StudioPage() {
       animationContext.revert();
       magneticCleanups.forEach((cleanup) => cleanup());
       projectCleanups.forEach((cleanup) => cleanup());
-      shaderCleanup();
+      backgroundCleanup();
       threeCleanup();
       cursorHoverHandlers.forEach(({ element, enter, leave }) => {
         element.removeEventListener("mouseenter", enter);
@@ -349,7 +321,10 @@ export default function StudioPage() {
   }, []);
 
   return (
-    <div ref={rootRef}>
+    <div
+      ref={rootRef}
+      className="relative isolate min-h-screen overflow-x-clip bg-white text-on-background"
+    >
       <canvas ref={backgroundCanvasRef} id="bg-canvas" aria-hidden="true" />
       <div
         ref={cursorRef}
@@ -411,7 +386,7 @@ export default function StudioPage() {
 
       <header
         id="top"
-        className="relative flex h-screen w-full flex-col items-center justify-center px-page-margin-mobile text-center"
+        className="relative z-10 flex h-screen w-full flex-col items-center justify-center px-page-margin-mobile text-center"
       >
         <div
           ref={threeContainerRef}
@@ -447,7 +422,7 @@ export default function StudioPage() {
         </div>
       </header>
 
-      <main>
+      <main className="relative z-10">
         <section
           id="about"
           className="grid grid-cols-1 items-center gap-gutter border-b border-outline-variant/10 bg-surface-container-lowest/20 px-page-margin-mobile py-section-gap md:grid-cols-12 md:px-page-margin-desktop"
@@ -498,7 +473,7 @@ export default function StudioPage() {
               onBlur={() => setActiveFounder(null)}
             >
               <article
-                className="founder-card group relative overflow-hidden border border-primary/20 bg-surface-container/70 p-2 shadow-[0_25px_80px_rgba(2,6,23,0.65)] transition-all duration-500 ease-out hover:-translate-y-2 hover:scale-[1.02] hover:border-primary hover:shadow-[0_0_22px_rgba(234,179,8,0.72),0_28px_90px_rgba(2,6,23,0.78)] focus-within:border-primary focus-within:shadow-[0_0_22px_rgba(234,179,8,0.72)]"
+                className="founder-card group relative overflow-hidden border border-primary/20 bg-surface-container/70 p-2 shadow-[0_24px_70px_rgba(51,65,85,0.18)] transition-all duration-500 ease-out hover:-translate-y-2 hover:scale-[1.02] hover:border-primary hover:shadow-[0_0_24px_rgba(184,134,11,0.5),0_28px_80px_rgba(51,65,85,0.22)] focus-within:border-primary focus-within:shadow-[0_0_22px_rgba(234,179,8,0.72)]"
                 tabIndex={0}
               >
                 <div className="relative aspect-[4/5] overflow-hidden bg-surface-container-highest">
@@ -538,7 +513,7 @@ export default function StudioPage() {
               onBlur={() => setActiveFounder(null)}
             >
               <article
-                className="founder-card group relative overflow-hidden border border-primary/20 bg-surface-container/70 p-2 shadow-[0_25px_80px_rgba(2,6,23,0.65)] transition-all duration-500 ease-out hover:-translate-y-2 hover:scale-[1.02] hover:border-primary hover:shadow-[0_0_22px_rgba(234,179,8,0.72),0_28px_90px_rgba(2,6,23,0.78)] focus-within:border-primary focus-within:shadow-[0_0_22px_rgba(234,179,8,0.72)]"
+                className="founder-card group relative overflow-hidden border border-primary/20 bg-surface-container/70 p-2 shadow-[0_24px_70px_rgba(51,65,85,0.18)] transition-all duration-500 ease-out hover:-translate-y-2 hover:scale-[1.02] hover:border-primary hover:shadow-[0_0_24px_rgba(184,134,11,0.5),0_28px_80px_rgba(51,65,85,0.22)] focus-within:border-primary focus-within:shadow-[0_0_22px_rgba(234,179,8,0.72)]"
                 tabIndex={0}
               >
                 <div className="relative aspect-[4/5] overflow-hidden bg-surface-container-highest">
@@ -575,130 +550,8 @@ export default function StudioPage() {
           </div>
         </section>
         <Portfolio />
-        <section
-          id="portfolio"
-          className="px-page-margin-mobile py-section-gap md:px-page-margin-desktop"
-        >
-          <div className="mb-16 flex flex-col items-end justify-between gap-8 md:flex-row">
-            <div className="max-w-2xl space-y-4 self-start">
-              <span className="reveal-slide-up font-label-technical text-label-technical text-primary">
-                ARCHIVE
-              </span>
-              <h3 className="split-text font-headline-md text-headline-md-mobile uppercase md:text-headline-md">
-                <SplitCharacters text="Selected Works" />
-              </h3>
-            </div>
-
-            <div className="reveal-slide-up flex flex-wrap gap-4">
-              {["ALL PROJECTS", "STRATEGY", "DESIGN"].map((label) => (
-                <button
-                  key={label}
-                  type="button"
-                  className="magnetic-btn border border-outline-variant/30 bg-surface-container/50 px-6 py-3 font-label-caps text-label-caps text-on-surface backdrop-blur-md transition-colors hover:border-primary"
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            <article className="project-tile reveal-slide-up group flex flex-col overflow-hidden border border-outline-variant/10">
-              <div className="tile-inner">
-                <div className="parallax-img-container relative aspect-[4/3] overflow-hidden bg-surface-container-highest">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    className="parallax-img h-full w-full object-cover"
-                    alt="A high-end cinematic shot of a modern architectural structure in a desert landscape at dusk."
-                    src={OBSIDIAN_HOUSE_URL}
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center bg-surface/60 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                    <span className="border border-primary px-6 py-2 font-label-caps text-label-caps text-primary">
-                      DETAILS
-                    </span>
-                  </div>
-                </div>
-                <div className="border-t border-outline-variant/10 bg-surface-container/50 p-6">
-                  <div className="mb-2 flex items-center justify-between">
-                    <h4 className="font-headline-md-mobile text-lg font-bold uppercase tracking-tight">
-                      Obsidian House
-                    </h4>
-                    <span className="bg-primary/10 px-2 py-1 font-label-technical text-[10px] text-primary">
-                      2024
-                    </span>
-                  </div>
-                  <p className="font-label-technical text-[11px] text-on-surface-variant">
-                    ARCHITECTURAL BRANDING
-                  </p>
-                </div>
-              </div>
-            </article>
-
-            <article
-              className="project-tile reveal-slide-up group flex flex-col overflow-hidden border border-outline-variant/10"
-              style={{ transitionDelay: "0.1s" }}
-            >
-              <div className="tile-inner">
-                <div className="parallax-img-container relative aspect-[4/3] overflow-hidden bg-surface-container-highest">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    className="parallax-img h-full w-full object-cover"
-                    alt="A macro studio shot of a high-end luxury watch face with intricate mechanical details."
-                    src={CHRONOS_ELITE_URL}
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center bg-surface/60 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                    <span className="border border-primary px-6 py-2 font-label-caps text-label-caps text-primary">
-                      DETAILS
-                    </span>
-                  </div>
-                </div>
-                <div className="border-t border-outline-variant/10 bg-surface-container/50 p-6">
-                  <div className="mb-2 flex items-center justify-between">
-                    <h4 className="font-headline-md-mobile text-lg font-bold uppercase tracking-tight">
-                      Chronos Elite
-                    </h4>
-                    <span className="bg-primary/10 px-2 py-1 font-label-technical text-[10px] text-primary">
-                      2024
-                    </span>
-                  </div>
-                  <p className="font-label-technical text-[11px] text-on-surface-variant">
-                    DIGITAL ECOMMERCE
-                  </p>
-                </div>
-              </div>
-            </article>
-
-            <article
-              className="project-tile reveal-slide-up group flex flex-col overflow-hidden border border-outline-variant/10"
-              style={{ transitionDelay: "0.2s" }}
-            >
-              <div className="tile-inner">
-                <div className="parallax-img-container relative aspect-[4/3] overflow-hidden bg-surface-container-highest">
-                  <div className="flex h-full w-full items-center justify-center bg-[#162033]/50">
-                    <span className="font-label-caps text-on-surface-variant">
-                      UPCOMING WORK
-                    </span>
-                  </div>
-                </div>
-                <div className="border-t border-outline-variant/10 bg-surface-container/50 p-6">
-                  <div className="mb-2 flex items-center justify-between">
-                    <h4 className="font-headline-md-mobile text-lg font-bold uppercase tracking-tight">
-                      Aethelred Labs
-                    </h4>
-                    <span className="bg-primary/10 px-2 py-1 font-label-technical text-[10px] text-primary">
-                      COMING SOON
-                    </span>
-                  </div>
-                  <p className="font-label-technical text-[11px] text-on-surface-variant">
-                    VISUAL IDENTITY
-                  </p>
-                </div>
-              </div>
-            </article>
-          </div>
-        </section>
-
-        <section
+        <FloatingLibrarySection />
+        {/* <section
           id="services"
           className="border-y border-outline-variant/10 bg-surface-container-low/30 px-page-margin-mobile py-section-gap text-center backdrop-blur-lg md:px-page-margin-desktop"
         >
@@ -723,7 +576,7 @@ export default function StudioPage() {
               </a>
             </div>
           </div>
-        </section>
+        </section> */}
       </main>
 
       <footer
@@ -732,12 +585,13 @@ export default function StudioPage() {
       >
         <div className="flex flex-col items-start justify-between md:flex-row">
           <div className="mb-12 md:mb-0">
-            <span className="mb-6 block font-display-lg text-4xl text-on-surface">
-              ELEVIA STUDIO
-            </span>
-            <p className="max-w-xs font-body-md text-on-surface-variant">
-              © 2025. Pushing visual boundaries through cinematic storytelling
-              and advanced motion design.
+            <Image
+              alt="Elevia Studio Logo"
+              className="h-11 w-auto object-contain md:h-13"
+              src={LOGO_URL}
+            />
+            <p className="max-w-xs font-body-md text-primary">
+              Creative Branding & Marketing Agency
             </p>
           </div>
 
@@ -796,144 +650,129 @@ export default function StudioPage() {
   );
 }
 
-function initialiseBackgroundShader(
+function initialiseBackgroundParticles(
   canvas: HTMLCanvasElement,
   mouse: { x: number; y: number },
 ) {
-  const gl = canvas.getContext("webgl");
+  const context = canvas.getContext("2d");
 
-  if (!gl) {
-    console.warn("WebGL is unavailable; the animated background is disabled.");
-    return () => undefined;
-  }
-
-  const vertexShaderSource = `
-    attribute vec2 a_position;
-    varying vec2 v_texCoord;
-
-    void main() {
-      v_texCoord = a_position * 0.5 + 0.5;
-      v_texCoord.y = 1.0 - v_texCoord.y;
-      gl_Position = vec4(a_position, 0.0, 1.0);
-    }
-  `;
-
-  const fragmentShaderSource = `
-    precision highp float;
-    uniform float u_time;
-    uniform vec2 u_resolution;
-    uniform vec2 u_mouse;
-    varying vec2 v_texCoord;
-
-    void main() {
-      vec2 uv = v_texCoord;
-      vec2 mousePosition = u_mouse / u_resolution;
-      float t = u_time * 0.15;
-      vec2 p = uv * 2.0 - 1.0;
-      p.x *= u_resolution.x / u_resolution.y;
-
-      float noise = 0.0;
-      vec2 q = p;
-
-      for (float i = 1.0; i < 4.0; i++) {
-        q.x += 0.5 * sin(i * q.y + t);
-        q.y += 0.5 * cos(i * q.x + t);
-        noise += sin(length(q) * 2.0) / i;
-      }
-
-      vec3 color1 = vec3(0.06, 0.09, 0.16);
-      vec3 color2 = vec3(0.12, 0.15, 0.22);
-      vec3 accent = vec3(0.92, 0.70, 0.03);
-      float distanceFromMouse = length(p - (mousePosition * 2.0 - 1.0));
-      float mask = smoothstep(0.6, 0.0, distanceFromMouse);
-      vec3 finalColor = mix(color1, color2, noise * 0.5 + 0.5);
-      finalColor += accent * mask * 0.15;
-      finalColor += accent * (noise * 0.05);
-
-      gl_FragColor = vec4(finalColor, 1.0);
-    }
-  `;
-
-  const vertexShader = compileShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-  const fragmentShader = compileShader(
-    gl,
-    gl.FRAGMENT_SHADER,
-    fragmentShaderSource,
-  );
-
-  if (!vertexShader || !fragmentShader) {
-    return () => undefined;
-  }
-
-  const program = gl.createProgram();
-  const positionBuffer = gl.createBuffer();
-
-  if (!program || !positionBuffer) {
-    gl.deleteShader(vertexShader);
-    gl.deleteShader(fragmentShader);
-    return () => undefined;
-  }
-
-  gl.attachShader(program, vertexShader);
-  gl.attachShader(program, fragmentShader);
-  gl.linkProgram(program);
-
-  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    console.error(
-      "WebGL program linking failed:",
-      gl.getProgramInfoLog(program),
+  if (!context) {
+    console.warn(
+      "Canvas 2D is unavailable; background particles are disabled.",
     );
-    gl.deleteProgram(program);
-    gl.deleteBuffer(positionBuffer);
-    gl.deleteShader(vertexShader);
-    gl.deleteShader(fragmentShader);
     return () => undefined;
   }
 
-  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  gl.bufferData(
-    gl.ARRAY_BUFFER,
-    new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
-    gl.STATIC_DRAW,
-  );
+  const reducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+  const isMobile = window.matchMedia("(max-width: 767px)").matches;
+  const particleCount = reducedMotion ? 0 : isMobile ? 42 : 88;
+  const targetFrameInterval = 1000 / 30;
 
-  const positionLocation = gl.getAttribLocation(program, "a_position");
-  const timeLocation = gl.getUniformLocation(program, "u_time");
-  const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
-  const mouseLocation = gl.getUniformLocation(program, "u_mouse");
+  type Particle = {
+    x: number;
+    y: number;
+    radius: number;
+    velocityX: number;
+    velocityY: number;
+    gold: boolean;
+    alpha: number;
+  };
+
+  let width = window.innerWidth;
+  let height = window.innerHeight;
+  let dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  let particles: Particle[] = [];
+  let animationFrame = 0;
+  let lastFrame = 0;
+  let pageVisible = !document.hidden;
+
+  const createParticles = () => {
+    particles = Array.from({ length: particleCount }, (_, index) => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      radius: index % 7 === 0 ? 1.8 : 0.8 + Math.random() * 0.9,
+      velocityX: (Math.random() - 0.5) * 0.12,
+      velocityY: (Math.random() - 0.5) * 0.12,
+      gold: index % 6 === 0,
+      alpha: 0.12 + Math.random() * 0.18,
+    }));
+  };
 
   const resize = () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    gl.viewport(0, 0, canvas.width, canvas.height);
+    width = window.innerWidth;
+    height = window.innerHeight;
+    dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+
+    canvas.width = Math.max(1, Math.floor(width * dpr));
+    canvas.height = Math.max(1, Math.floor(height * dpr));
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+
+    context.setTransform(dpr, 0, 0, dpr, 0, 0);
+    createParticles();
+  };
+
+  const draw = (time: number) => {
+    animationFrame = window.requestAnimationFrame(draw);
+
+    if (!pageVisible || time - lastFrame < targetFrameInterval) {
+      return;
+    }
+
+    lastFrame = time;
+    context.clearRect(0, 0, width, height);
+
+    const mouseInfluenceX = (mouse.x / Math.max(width, 1) - 0.5) * 0.08;
+    const mouseInfluenceY = (mouse.y / Math.max(height, 1) - 0.5) * 0.08;
+
+    for (const particle of particles) {
+      particle.x += particle.velocityX + mouseInfluenceX;
+      particle.y += particle.velocityY + mouseInfluenceY;
+
+      if (particle.x < -12) particle.x = width + 12;
+      if (particle.x > width + 12) particle.x = -12;
+      if (particle.y < -12) particle.y = height + 12;
+      if (particle.y > height + 12) particle.y = -12;
+
+      context.beginPath();
+      context.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+      context.fillStyle = particle.gold
+        ? `rgba(184, 134, 11, ${particle.alpha + 0.08})`
+        : `rgba(51, 65, 85, ${particle.alpha})`;
+      context.fill();
+    }
+
+    const glow = context.createRadialGradient(
+      mouse.x,
+      mouse.y,
+      0,
+      mouse.x,
+      mouse.y,
+      Math.min(width, height) * 0.28,
+    );
+    glow.addColorStop(0, "rgba(184, 134, 11, 0.055)");
+    glow.addColorStop(1, "rgba(184, 134, 11, 0)");
+
+    context.fillStyle = glow;
+    context.fillRect(0, 0, width, height);
+  };
+
+  const handleVisibility = () => {
+    pageVisible = !document.hidden;
   };
 
   resize();
   window.addEventListener("resize", resize, { passive: true });
-
-  let animationFrame = 0;
-
-  const render = (time: number) => {
-    gl.useProgram(program);
-    gl.enableVertexAttribArray(positionLocation);
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-    gl.uniform1f(timeLocation, time * 0.001);
-    gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
-    gl.uniform2f(mouseLocation, mouse.x, canvas.height - mouse.y);
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
-    animationFrame = window.requestAnimationFrame(render);
-  };
-
-  animationFrame = window.requestAnimationFrame(render);
+  document.addEventListener("visibilitychange", handleVisibility);
+  animationFrame = window.requestAnimationFrame(draw);
 
   return () => {
     window.cancelAnimationFrame(animationFrame);
     window.removeEventListener("resize", resize);
-    gl.deleteBuffer(positionBuffer);
-    gl.deleteProgram(program);
-    gl.deleteShader(vertexShader);
-    gl.deleteShader(fragmentShader);
+    document.removeEventListener("visibilitychange", handleVisibility);
+    context.clearRect(0, 0, width, height);
   };
 }
 
@@ -943,28 +782,31 @@ function initialiseHeroSculpture(
 ) {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  const renderer = new THREE.WebGLRenderer({
+    alpha: true,
+    antialias: true,
+    powerPreference: "high-performance",
+  });
 
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  container.appendChild(renderer.domElement);
+  renderer.setClearColor(0xffffff, 0);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.35));
+  container.replaceChildren(renderer.domElement);
 
-  // Detail 15 from the source would create billions of triangles and freeze a browser.
-  // Detail 5 preserves the same smooth wireframe appearance at a safe GPU cost.
-  const geometry = new THREE.IcosahedronGeometry(1.2, 5);
+  const geometry = new THREE.IcosahedronGeometry(1.2, 3);
   const material = new THREE.MeshPhongMaterial({
-    color: 0xeab308,
+    color: 0xb8860b,
     wireframe: true,
     transparent: true,
-    opacity: 0.25,
-    emissive: 0xeab308,
-    emissiveIntensity: 0.1,
+    opacity: 0.26,
+    emissive: 0xb8860b,
+    emissiveIntensity: 0.08,
   });
 
   const mesh = new THREE.Mesh(geometry, material);
   scene.add(mesh);
 
-  const light = new THREE.PointLight(0xffffff, 1.5, 100);
-  light.position.set(10, 10, 10);
+  const light = new THREE.PointLight(0xffffff, 1.15, 100);
+  light.position.set(8, 8, 10);
   scene.add(light);
   camera.position.z = 3.5;
 
@@ -972,33 +814,62 @@ function initialiseHeroSculpture(
     const width = Math.max(container.clientWidth, 1);
     const height = Math.max(container.clientHeight, 1);
     renderer.setSize(width, height, false);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.35));
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
   };
 
-  resize();
-  window.addEventListener("resize", resize, { passive: true });
-
+  let sectionVisible = true;
+  let pageVisible = !document.hidden;
   let animationFrame = 0;
+  let lastFrame = 0;
+  const targetFrameInterval = 1000 / 30;
 
-  const animate = () => {
-    mesh.rotation.x += 0.0015;
-    mesh.rotation.y += 0.002;
+  const visibilityObserver = new IntersectionObserver(
+    ([entry]) => {
+      sectionVisible = entry.isIntersecting;
+    },
+    { rootMargin: "120px 0px 120px 0px" },
+  );
 
-    const targetX = (mouse.x / window.innerWidth - 0.5) * 2;
-    const targetY = -(mouse.y / window.innerHeight - 0.5) * 2;
-    mesh.position.x += (targetX - mesh.position.x) * 0.05;
-    mesh.position.y += (targetY - mesh.position.y) * 0.05;
-
-    renderer.render(scene, camera);
-    animationFrame = window.requestAnimationFrame(animate);
+  const handleVisibility = () => {
+    pageVisible = !document.hidden;
   };
 
+  const animate = (time: number) => {
+    animationFrame = window.requestAnimationFrame(animate);
+
+    if (
+      !sectionVisible ||
+      !pageVisible ||
+      time - lastFrame < targetFrameInterval
+    ) {
+      return;
+    }
+
+    lastFrame = time;
+    mesh.rotation.x += 0.0024;
+    mesh.rotation.y += 0.0032;
+
+    const targetX = (mouse.x / window.innerWidth - 0.5) * 1.65;
+    const targetY = -(mouse.y / window.innerHeight - 0.5) * 1.65;
+    mesh.position.x += (targetX - mesh.position.x) * 0.045;
+    mesh.position.y += (targetY - mesh.position.y) * 0.045;
+
+    renderer.render(scene, camera);
+  };
+
+  resize();
+  visibilityObserver.observe(container);
+  window.addEventListener("resize", resize, { passive: true });
+  document.addEventListener("visibilitychange", handleVisibility);
   animationFrame = window.requestAnimationFrame(animate);
 
   return () => {
     window.cancelAnimationFrame(animationFrame);
+    visibilityObserver.disconnect();
     window.removeEventListener("resize", resize);
+    document.removeEventListener("visibilitychange", handleVisibility);
     geometry.dispose();
     material.dispose();
     renderer.dispose();

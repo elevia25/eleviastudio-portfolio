@@ -26,7 +26,7 @@ const jetBrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "ELEVIA STUDIO | Cinematic Excellence Portfolio",
   description:
-    "Elevia Studio portfolio — cinematic storytelling, strategic design, and advanced motion experiences.",
+    "Elevia Studio — an Ahmedabad-based creative studio delivering cinematic storytelling, strategic design, and motion experiences.",
 };
 
 export default function RootLayout({
@@ -37,12 +37,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`
-        dark
-        ${syne.variable}
-        ${hankenGrotesk.variable}
-        ${jetBrainsMono.variable}
-      `}
+      className={`${syne.variable} ${hankenGrotesk.variable} ${jetBrainsMono.variable}`}
     >
       <head>
         <link
@@ -50,7 +45,6 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-
       <body className="bg-background font-body-md text-on-background antialiased selection:bg-primary selection:text-on-primary">
         {children}
       </body>
