@@ -588,6 +588,7 @@ export default function StudioPage() {
             <Image
               alt="Elevia Studio Logo"
               className="h-11 w-auto object-contain md:h-13"
+              fill
               src={LOGO_URL}
             />
             <p className="max-w-xs font-body-md text-primary">
