@@ -89,10 +89,10 @@ export default function StudioPage() {
       return { element, enter, leave };
     });
 
-    const backgroundCleanup = initialiseBackgroundParticles(
-      backgroundCanvas,
-      mouse,
-    );
+    // const backgroundCleanup = initialiseBackgroundParticles(
+    //   backgroundCanvas,
+    //   mouse,
+    // );
     const threeCleanup = initialiseHeroSculpture(threeContainer, mouse);
 
     const magneticCleanups = Array.from(
@@ -308,7 +308,7 @@ export default function StudioPage() {
       animationContext.revert();
       magneticCleanups.forEach((cleanup) => cleanup());
       projectCleanups.forEach((cleanup) => cleanup());
-      backgroundCleanup();
+      // backgroundCleanup();
       threeCleanup();
       cursorHoverHandlers.forEach(({ element, enter, leave }) => {
         element.removeEventListener("mouseenter", enter);
@@ -651,131 +651,131 @@ export default function StudioPage() {
   );
 }
 
-function initialiseBackgroundParticles(
-  canvas: HTMLCanvasElement,
-  mouse: { x: number; y: number },
-) {
-  const context = canvas.getContext("2d");
+// function initialiseBackgroundParticles(
+//   canvas: HTMLCanvasElement,
+//   mouse: { x: number; y: number },
+// ) {
+//   const context = canvas.getContext("2d");
 
-  if (!context) {
-    console.warn(
-      "Canvas 2D is unavailable; background particles are disabled.",
-    );
-    return () => undefined;
-  }
+//   if (!context) {
+//     console.warn(
+//       "Canvas 2D is unavailable; background particles are disabled.",
+//     );
+//     return () => undefined;
+//   }
 
-  const reducedMotion = window.matchMedia(
-    "(prefers-reduced-motion: reduce)",
-  ).matches;
-  const isMobile = window.matchMedia("(max-width: 767px)").matches;
-  const particleCount = reducedMotion ? 0 : isMobile ? 42 : 88;
-  const targetFrameInterval = 1000 / 30;
+//   const reducedMotion = window.matchMedia(
+//     "(prefers-reduced-motion: reduce)",
+//   ).matches;
+//   const isMobile = window.matchMedia("(max-width: 767px)").matches;
+//   const particleCount = reducedMotion ? 0 : isMobile ? 42 : 88;
+//   const targetFrameInterval = 1000 / 30;
 
-  type Particle = {
-    x: number;
-    y: number;
-    radius: number;
-    velocityX: number;
-    velocityY: number;
-    gold: boolean;
-    alpha: number;
-  };
+//   type Particle = {
+//     x: number;
+//     y: number;
+//     radius: number;
+//     velocityX: number;
+//     velocityY: number;
+//     gold: boolean;
+//     alpha: number;
+//   };
 
-  let width = window.innerWidth;
-  let height = window.innerHeight;
-  let dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-  let particles: Particle[] = [];
-  let animationFrame = 0;
-  let lastFrame = 0;
-  let pageVisible = !document.hidden;
+//   let width = window.innerWidth;
+//   let height = window.innerHeight;
+//   let dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+//   let particles: Particle[] = [];
+//   let animationFrame = 0;
+//   let lastFrame = 0;
+//   let pageVisible = !document.hidden;
 
-  const createParticles = () => {
-    particles = Array.from({ length: particleCount }, (_, index) => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      radius: index % 7 === 0 ? 1.8 : 0.8 + Math.random() * 0.9,
-      velocityX: (Math.random() - 0.5) * 0.12,
-      velocityY: (Math.random() - 0.5) * 0.12,
-      gold: index % 6 === 0,
-      alpha: 0.12 + Math.random() * 0.18,
-    }));
-  };
+//   const createParticles = () => {
+//     particles = Array.from({ length: particleCount }, (_, index) => ({
+//       x: Math.random() * width,
+//       y: Math.random() * height,
+//       radius: index % 7 === 0 ? 1.8 : 0.8 + Math.random() * 0.9,
+//       velocityX: (Math.random() - 0.5) * 0.12,
+//       velocityY: (Math.random() - 0.5) * 0.12,
+//       gold: index % 6 === 0,
+//       alpha: 0.12 + Math.random() * 0.18,
+//     }));
+//   };
 
-  const resize = () => {
-    width = window.innerWidth;
-    height = window.innerHeight;
-    dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+//   const resize = () => {
+//     width = window.innerWidth;
+//     height = window.innerHeight;
+//     dpr = Math.min(window.devicePixelRatio || 1, 1.5);
 
-    canvas.width = Math.max(1, Math.floor(width * dpr));
-    canvas.height = Math.max(1, Math.floor(height * dpr));
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
+//     canvas.width = Math.max(1, Math.floor(width * dpr));
+//     canvas.height = Math.max(1, Math.floor(height * dpr));
+//     canvas.style.width = `${width}px`;
+//     canvas.style.height = `${height}px`;
 
-    context.setTransform(dpr, 0, 0, dpr, 0, 0);
-    createParticles();
-  };
+//     context.setTransform(dpr, 0, 0, dpr, 0, 0);
+//     createParticles();
+//   };
 
-  const draw = (time: number) => {
-    animationFrame = window.requestAnimationFrame(draw);
+//   const draw = (time: number) => {
+//     animationFrame = window.requestAnimationFrame(draw);
 
-    if (!pageVisible || time - lastFrame < targetFrameInterval) {
-      return;
-    }
+//     if (!pageVisible || time - lastFrame < targetFrameInterval) {
+//       return;
+//     }
 
-    lastFrame = time;
-    context.clearRect(0, 0, width, height);
+//     lastFrame = time;
+//     context.clearRect(0, 0, width, height);
 
-    const mouseInfluenceX = (mouse.x / Math.max(width, 1) - 0.5) * 0.08;
-    const mouseInfluenceY = (mouse.y / Math.max(height, 1) - 0.5) * 0.08;
+//     const mouseInfluenceX = (mouse.x / Math.max(width, 1) - 0.5) * 0.08;
+//     const mouseInfluenceY = (mouse.y / Math.max(height, 1) - 0.5) * 0.08;
 
-    for (const particle of particles) {
-      particle.x += particle.velocityX + mouseInfluenceX;
-      particle.y += particle.velocityY + mouseInfluenceY;
+//     for (const particle of particles) {
+//       particle.x += particle.velocityX + mouseInfluenceX;
+//       particle.y += particle.velocityY + mouseInfluenceY;
 
-      if (particle.x < -12) particle.x = width + 12;
-      if (particle.x > width + 12) particle.x = -12;
-      if (particle.y < -12) particle.y = height + 12;
-      if (particle.y > height + 12) particle.y = -12;
+//       if (particle.x < -12) particle.x = width + 12;
+//       if (particle.x > width + 12) particle.x = -12;
+//       if (particle.y < -12) particle.y = height + 12;
+//       if (particle.y > height + 12) particle.y = -12;
 
-      context.beginPath();
-      context.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-      context.fillStyle = particle.gold
-        ? `rgba(184, 134, 11, ${particle.alpha + 0.08})`
-        : `rgba(51, 65, 85, ${particle.alpha})`;
-      context.fill();
-    }
+//       context.beginPath();
+//       context.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+//       context.fillStyle = particle.gold
+//         ? `rgba(184, 134, 11, ${particle.alpha + 0.08})`
+//         : `rgba(51, 65, 85, ${particle.alpha})`;
+//       context.fill();
+//     }
 
-    const glow = context.createRadialGradient(
-      mouse.x,
-      mouse.y,
-      0,
-      mouse.x,
-      mouse.y,
-      Math.min(width, height) * 0.28,
-    );
-    glow.addColorStop(0, "rgba(184, 134, 11, 0.055)");
-    glow.addColorStop(1, "rgba(184, 134, 11, 0)");
+//     const glow = context.createRadialGradient(
+//       mouse.x,
+//       mouse.y,
+//       0,
+//       mouse.x,
+//       mouse.y,
+//       Math.min(width, height) * 0.28,
+//     );
+//     glow.addColorStop(0, "rgba(184, 134, 11, 0.055)");
+//     glow.addColorStop(1, "rgba(184, 134, 11, 0)");
 
-    context.fillStyle = glow;
-    context.fillRect(0, 0, width, height);
-  };
+//     context.fillStyle = glow;
+//     context.fillRect(0, 0, width, height);
+//   };
 
-  const handleVisibility = () => {
-    pageVisible = !document.hidden;
-  };
+//   const handleVisibility = () => {
+//     pageVisible = !document.hidden;
+//   };
 
-  resize();
-  window.addEventListener("resize", resize, { passive: true });
-  document.addEventListener("visibilitychange", handleVisibility);
-  animationFrame = window.requestAnimationFrame(draw);
+//   resize();
+//   window.addEventListener("resize", resize, { passive: true });
+//   document.addEventListener("visibilitychange", handleVisibility);
+//   animationFrame = window.requestAnimationFrame(draw);
 
-  return () => {
-    window.cancelAnimationFrame(animationFrame);
-    window.removeEventListener("resize", resize);
-    document.removeEventListener("visibilitychange", handleVisibility);
-    context.clearRect(0, 0, width, height);
-  };
-}
+//   return () => {
+//     window.cancelAnimationFrame(animationFrame);
+//     window.removeEventListener("resize", resize);
+//     document.removeEventListener("visibilitychange", handleVisibility);
+//     context.clearRect(0, 0, width, height);
+//   };
+// }
 
 function initialiseHeroSculpture(
   container: HTMLDivElement,
