@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, MotionValue, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 
@@ -10,78 +10,73 @@ const FLOATING_ITEMS = [
     id: 1,
     type: "poster",
     image: "/holi-poster.png",
-    x: -35,
-    y: -25,
+    x: -30,
+    y: -20,
     rotate: -4,
   },
   {
     id: 2,
     type: "poster",
     image: "/rath-yatra.png",
-    x: 35,
-    y: -22,
+    x: 30,
+    y: -18,
     rotate: 5,
   },
   {
     id: 3,
     type: "poster",
     image: "/republic-day.png",
-    x: -30,
-    y: 28,
+    x: -26,
+    y: 22,
     rotate: -6,
   },
   {
     id: 4,
     type: "poster",
     image: "/holi.png",
-    x: 32,
-    y: 25,
+    x: 28,
+    y: 20,
     rotate: 3,
   },
 
-  // --- BRAND LOGOS ---
+  // --- BRAND LOGOS (Transparent / Standalone) ---
   {
     id: 5,
     type: "logo",
     logo: "/designer-point.png",
-    bg: "bg-white",
-    x: -22,
-    y: -28,
+    x: -20,
+    y: -22,
     rotate: -2,
   },
   {
     id: 6,
     type: "logo",
     logo: "/dreams-archery.png",
-    bg: "bg-white",
-    x: 22,
-    y: -30,
+    x: 20,
+    y: -24,
     rotate: 3,
   },
   {
     id: 7,
     type: "logo",
     logo: "/the-sea.png",
-    bg: "bg-white",
-    x: -15,
-    y: 32,
+    x: -14,
+    y: 26,
     rotate: 2,
   },
   {
     id: 8,
     type: "logo",
     logo: "/mighty-digital.png",
-    bg: "bg-white",
-    x: 18,
-    y: 28,
+    x: 16,
+    y: 22,
     rotate: -3,
   },
   {
     id: 9,
     type: "logo",
     logo: "/designing.png",
-    bg: "bg-white",
-    x: 28,
+    x: 24,
     y: 0,
     rotate: -3,
   },
@@ -89,8 +84,7 @@ const FLOATING_ITEMS = [
     id: 10,
     type: "logo",
     logo: "/kailash.png",
-    bg: "bg-white",
-    x: -28,
+    x: -24,
     y: 0,
     rotate: -3,
   },
@@ -105,25 +99,31 @@ function FloatingCard({
   scrollYProgress: MotionValue<number>;
   multiplier: number;
 }) {
-  // Movement occurs early during initial scroll (0.0 to 0.25)
   const x = useTransform(scrollYProgress, [0, 0.25], [0, item.x * multiplier]);
   const y = useTransform(scrollYProgress, [0, 0.25], [0, item.y * multiplier]);
 
   const baseScale = useTransform(scrollYProgress, [0, 0.15], [0, 1]);
   const baseOpacity = useTransform(scrollYProgress, [0, 0.1], [0, 1]);
 
-  // --- STRICT SYNCHRONIZATION ---
-  // Logos stay visible from start (0.0) through Text Step 1, then fade out (0.30 -> 0.38)
+  // Logos hit absolute opacity 0 at scroll offset 0.34
   const logoOpacity = useTransform(
     scrollYProgress,
-    [0.0, 0.3, 0.38],
-    [1, 1, 0],
+    [0.05, 0.12, 0.26, 0.32],
+    [0, 1, 1, 0],
   );
-  const logoScale = useTransform(scrollYProgress, [0.3, 0.38], [1, 0.6]);
+  const logoScale = useTransform(scrollYProgress, [0.28, 0.34], [1, 0.5]);
 
-  // Posters fade in right as Text Step 2 starts (0.35 -> 0.42)
-  const posterOpacity = useTransform(scrollYProgress, [0.32, 0.42], [0, 1]);
-  const posterScale = useTransform(scrollYProgress, [0.32, 0.42], [0.7, 1]);
+  // Posters start fading in at 0.36 AFTER logos are 100% gone
+  const posterOpacity = useTransform(
+    scrollYProgress,
+    [0.37, 0.44, 0.58, 0.65],
+    [0, 1, 1, 0],
+  );
+  const posterScale = useTransform(
+    scrollYProgress,
+    [0.36, 0.44, 0.58, 0.65],
+    [0.7, 1, 0.3, 0],
+  );
 
   const bounceDuration = 3 + (item.id % 3) * 0.5;
 
@@ -146,24 +146,25 @@ function FloatingCard({
         }}
       >
         {item.type === "logo" ? (
-          /* --- LOGO ITEM --- */
+          /* --- STANDALONE BRAND LOGO --- */
           <motion.div
-            style={{ opacity: logoOpacity, scale: logoScale }}
-            whileHover={{ scale: 1.1 }}
-            className={`relative flex items-center justify-center w-16 h-16 md:w-24 md:h-24 p-3 rounded-2xl shadow-xl border border-slate-200/80 bg-white/90 backdrop-blur-md transition-shadow hover:shadow-2xl ${item.bg}`}
+            style={{
+              opacity: logoOpacity,
+              scale: logoScale,
+            }}
+            whileHover={{ scale: 1.15, rotate: item.rotate }}
+            className="relative w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-36 lg:h-36 p-2 transition-all duration-300 drop-shadow-md hover:drop-shadow-xl"
           >
-            <div className="relative w-full h-full">
-              <Image
-                src={item.logo ?? ""}
-                alt="Brand Logo"
-                fill
-                className="object-contain"
-                sizes="(max-width: 768px) 64px, 96px"
-              />
-            </div>
+            <Image
+              src={item.logo ?? ""}
+              alt="Brand Logo"
+              fill
+              className="object-contain"
+              sizes="(max-width: 640px) 64px, (max-width: 768px) 96px, (max-width: 1024px) 112px, 144px"
+            />
           </motion.div>
         ) : (
-          /* --- POSTER ITEM --- */
+          /* --- OPTIMIZED RESPONSIVE POSTER --- */
           <motion.div
             style={{
               opacity: posterOpacity,
@@ -171,14 +172,14 @@ function FloatingCard({
               rotate: item.rotate,
             }}
             whileHover={{ scale: 1.08, rotate: 0, zIndex: 50 }}
-            className="relative w-28 h-48 md:w-44 md:h-72 rounded-2xl overflow-hidden shadow-2xl border-2 border-white/80 bg-neutral-100 group transition-all duration-300"
+            className="relative w-20 h-32 sm:w-28 sm:h-44 md:w-36 md:h-56 lg:w-40 lg:h-60 rounded-lg md:rounded-xl overflow-hidden shadow-xl border border-white/80 bg-neutral-100 group transition-all duration-300"
           >
             <Image
               src={item.image ?? ""}
               alt="Agency Portfolio Poster"
               fill
               className="object-cover"
-              sizes="(max-width: 768px) 112px, 176px"
+              sizes="(max-width: 640px) 80px, (max-width: 768px) 112px, (max-width: 1024px) 144px, 160px"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </motion.div>
@@ -190,11 +191,18 @@ function FloatingCard({
 
 export default function FloatingLibrarySection() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [screenMultiplier, setScreenMultiplier] = useState(10);
+  const [screenMultiplier, setScreenMultiplier] = useState(8);
 
   useEffect(() => {
     const updateMultiplier = () => {
-      setScreenMultiplier(window.innerWidth < 768 ? 4.2 : 10);
+      const width = window.innerWidth;
+      if (width < 640) {
+        setScreenMultiplier(3.2); // Mobile
+      } else if (width < 1024) {
+        setScreenMultiplier(5.5); // Tablet
+      } else {
+        setScreenMultiplier(8.5); // Desktop fit
+      }
     };
 
     updateMultiplier();
@@ -207,43 +215,40 @@ export default function FloatingLibrarySection() {
     offset: ["start start", "end end"],
   });
 
-  // --- PERFECTLY TIMED TEXT TRANSFORMATIONS ---
+  // --- STAGE TRANSITIONS ---
 
-  // STEP 1: LOGOS STAGE (0.05 -> 0.30 scroll)
-  // Shows "180+ Creative Logos" while LOGOS are displayed
+  // STAGE 1 (0.00 – 0.33): Logos Headline
   const text1Opacity = useTransform(
     scrollYProgress,
-    [0.08, 0.15, 0.28, 0.35, 0.43, 0.51],
-    [0, 1, 1, 1, 1, 0],
+    [0.05, 0.12, 0.26, 0.32],
+    [0, 1, 1, 0],
   );
   const text1Y = useTransform(
     scrollYProgress,
-    [0.08, 0.15, 0.35],
-    [40, 0, -40],
+    [0.05, 0.12, 0.26, 0.32],
+    [20, 0, 0, -40],
   );
 
-  // STEP 2: POSTERS STAGE (0.38 -> 0.65 scroll)
-  // Shows "150+ Reels Edited & Shot" while POSTERS are displayed
+  // STAGE 2 (0.37 – 0.65): Reels/Posters Headline
   const text2Opacity = useTransform(
     scrollYProgress,
-    [0.38, 0.45, 0.58, 0.65],
+    [0.37, 0.44, 0.58, 0.65],
     [0, 1, 1, 0],
   );
-  const text2Scale = useTransform(scrollYProgress, [0.38, 0.45], [0.85, 1]);
+  const text2Scale = useTransform(scrollYProgress, [0.37, 0.44], [0.85, 1]);
   const text2Y = useTransform(
     scrollYProgress,
-    [0.38, 0.45, 0.65],
-    [40, 0, -40],
+    [0.37, 0.44, 0.58, 0.65],
+    [20, 0, 0, -40],
   );
 
-  // STEP 3: FINAL STAGE (0.68 -> 1.0 scroll)
-  // Shows "5+ Complete Websites"
+  // STAGE 3 (0.69 – 1.00): Websites Headline
   const text3Opacity = useTransform(
     scrollYProgress,
-    [0.68, 0.75, 1.0],
+    [0.69, 0.76, 1.0],
     [0, 1, 1],
   );
-  const text3Y = useTransform(scrollYProgress, [0.68, 0.75], [40, 0]);
+  const text3Y = useTransform(scrollYProgress, [0.69, 0.76], [40, 0]);
 
   return (
     <div ref={containerRef} className="relative h-[450vh] bg-slate-50">
@@ -260,12 +265,12 @@ export default function FloatingLibrarySection() {
           ))}
         </div>
 
-        {/* --- SCROLLING HEADLINES LAYER --- */}
-        <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 pointer-events-none">
+        {/* --- RESPONSIVE HEADLINES LAYER --- */}
+        <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 pointer-events-none w-full max-w-5xl">
           {/* STEP 1: Matches LOGOS */}
           <motion.h3
             style={{ opacity: text1Opacity, y: text1Y }}
-            className="absolute text-3xl md:text-5xl font-bold text-slate-900 tracking-tight drop-shadow-md"
+            className="absolute text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 tracking-tight drop-shadow-md px-2"
           >
             20+ Creative Logos
           </motion.h3>
@@ -273,15 +278,15 @@ export default function FloatingLibrarySection() {
           {/* STEP 2: Matches POSTERS */}
           <motion.h1
             style={{ opacity: text2Opacity, y: text2Y, scale: text2Scale }}
-            className="absolute text-4xl md:text-7xl font-extrabold text-slate-400 tracking-tight drop-shadow-md"
+            className="absolute text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-500 tracking-tight drop-shadow-md px-2"
           >
-            10+ Reels Edited & Shot
+            10+ Story Poster
           </motion.h1>
 
           {/* STEP 3: Final Callout */}
           <motion.h2
             style={{ opacity: text3Opacity, y: text3Y }}
-            className="absolute text-4xl md:text-6xl font-bold text-slate-900 tracking-tight drop-shadow-md"
+            className="absolute text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 tracking-tight drop-shadow-md px-2"
           >
             10+ Complete Websites
           </motion.h2>

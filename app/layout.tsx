@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Hanken_Grotesk, JetBrains_Mono, Syne } from "next/font/google";
+import { Hanken_Grotesk, JetBrains_Mono, Syne, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 
 const syne = Syne({
@@ -22,7 +22,12 @@ const jetBrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   display: "swap",
 });
-
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: ["400", "400"], // Specify weights you need
+  variable: "--font-instrument",
+  display: "swap",
+});
 export const metadata: Metadata = {
   title: "ELEVIA STUDIO | Cinematic Excellence Portfolio",
   description:
@@ -37,13 +42,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${syne.variable} ${hankenGrotesk.variable} ${jetBrainsMono.variable}`}
+      className={`${syne.variable} ${instrumentSerif.variable} ${hankenGrotesk.variable} ${jetBrainsMono.variable}`}
     >
       <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=optional"
-          rel="stylesheet"
-        />
+    
       </head>
       <body className="bg-background font-body-md text-on-background antialiased selection:bg-primary selection:text-on-primary">
         {children}

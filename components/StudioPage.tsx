@@ -423,6 +423,9 @@ export default function StudioPage() {
       </header>
 
       <main className="relative z-10">
+        <Portfolio />
+        <FloatingLibrarySection />
+
         <section
           id="about"
           className="grid grid-cols-1 items-center gap-gutter border-b border-outline-variant/10 bg-surface-container-lowest/20 px-page-margin-mobile py-section-gap md:grid-cols-12 md:px-page-margin-desktop"
@@ -549,34 +552,7 @@ export default function StudioPage() {
             </div>
           </div>
         </section>
-        <Portfolio />
-        <FloatingLibrarySection />
-        {/* <section
-          id="services"
-          className="border-y border-outline-variant/10 bg-surface-container-low/30 px-page-margin-mobile py-section-gap text-center backdrop-blur-lg md:px-page-margin-desktop"
-        >
-          <div className="mx-auto max-w-5xl space-y-12">
-            <h2 className="split-text font-display-lg text-display-lg-mobile uppercase leading-[0.95] tracking-tight md:text-[80px]">
-              <SplitCharacters text="Let's Build the " />
-              <br />
-              <SplitCharacters text="Exceptional" />
-            </h2>
-            <div className="reveal-slide-up flex flex-col justify-center gap-6 md:flex-row">
-              <a
-                href="#contact"
-                className="magnetic-btn bg-primary px-12 py-5 font-label-caps text-label-caps font-bold tracking-[0.2em] text-on-primary transition-all duration-300 hover:-translate-y-[2px]"
-              >
-                START COLLABORATION
-              </a>
-              <a
-                href="#portfolio"
-                className="magnetic-btn border-2 border-primary px-12 py-5 font-label-caps text-label-caps font-bold tracking-[0.2em] text-primary transition-all duration-300 hover:bg-primary hover:text-on-primary"
-              >
-                VIEW SERVICES
-              </a>
-            </div>
-          </div>
-        </section> */}
++
       </main>
 
       <footer
