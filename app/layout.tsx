@@ -1,18 +1,11 @@
 import type { Metadata } from "next";
-import { Hanken_Grotesk, JetBrains_Mono, Syne, Instrument_Serif } from "next/font/google";
+import { JetBrains_Mono, Syne, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 
 const syne = Syne({
   subsets: ["latin"],
   weight: ["400", "500", "700", "800"],
   variable: "--font-syne",
-  display: "swap",
-});
-
-const hankenGrotesk = Hanken_Grotesk({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-hanken-grotesk",
   display: "swap",
 });
 
@@ -42,7 +35,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${syne.variable} ${instrumentSerif.variable} ${hankenGrotesk.variable} ${jetBrainsMono.variable}`}
+      className={`${syne.variable} ${instrumentSerif.variable} ${jetBrainsMono.variable}`}
     >
       <head>
     

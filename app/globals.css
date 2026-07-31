@@ -123,8 +123,8 @@
 
 /* next/font variables must be resolved inline by Tailwind v4. */
 @theme inline {
-  --font-body-lg: var(--font-hanken-grotesk), sans-serif;
-  --font-body-md: var(--font-hanken-grotesk), sans-serif;
+  --font-body-lg: var(--font-instrument), sans-serif;
+  --font-body-md: var(--font-instrument), sans-serif;
 
   --font-headline-md: var(--font-syne), sans-serif;
   --font-headline-md-mobile: var(--font-syne), sans-serif;

@@ -223,6 +223,12 @@ export default function FloatingLibrarySection() {
     [0.05, 0.12, 0.26, 0.32],
     [0, 1, 1, 0],
   );
+  const text1Scale = useTransform(
+    scrollYProgress,
+    [0.05, 0.12, 0.26, 0.32],
+    [0.35, 0.5, 0.75, 1],
+  );
+
   const text1Y = useTransform(
     scrollYProgress,
     [0.05, 0.12, 0.26, 0.32],
@@ -269,7 +275,7 @@ export default function FloatingLibrarySection() {
         <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 pointer-events-none w-full max-w-5xl">
           {/* STEP 1: Matches LOGOS */}
           <motion.h3
-            style={{ opacity: text1Opacity, y: text1Y }}
+            style={{ opacity: text1Opacity, y: text1Y, scale: text1Scale }}
             className="absolute text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 tracking-tight drop-shadow-md px-2"
           >
             20+ Creative Logos
