@@ -1,16 +1,10 @@
 "use client";
 
 import { gsap } from "gsap";
-import type { CSSProperties } from "react";
 import { useLayoutEffect, useRef } from "react";
 
 type IntroProps = {
   onComplete: () => void;
-};
-
-type ZipPanelStyle = CSSProperties & {
-  "--zip-y": string;
-  "--zip-gap": string;
 };
 
 export default function Intro({ onComplete }: IntroProps) {
@@ -22,15 +16,25 @@ export default function Intro({ onComplete }: IntroProps) {
   const leftDoorRef = useRef<HTMLDivElement>(null);
   const rightDoorRef = useRef<HTMLDivElement>(null);
 
+  /*
+   * This strip covers the permanently open gap between the panels.
+   * Moving it downward reveals the Hero without animating clip-path.
+   */
+  const seamCoverRef = useRef<HTMLDivElement>(null);
+
   const zipperTrackRef = useRef<HTMLDivElement>(null);
   const zipperHeadRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     const root = rootRef.current;
+
     const counter = counterRef.current;
     const welcome = welcomeRef.current;
+
     const leftDoor = leftDoorRef.current;
     const rightDoor = rightDoorRef.current;
+
+    const seamCover = seamCoverRef.current;
     const zipperTrack = zipperTrackRef.current;
     const zipperHead = zipperHeadRef.current;
 
@@ -40,34 +44,40 @@ export default function Intro({ onComplete }: IntroProps) {
       !welcome ||
       !leftDoor ||
       !rightDoor ||
+      !seamCover ||
       !zipperTrack ||
       !zipperHead
     ) {
       return;
     }
 
-    const previousOverflow = document.body.style.overflow;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+
     document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
 
     const progress = {
       value: 0,
     };
 
+    let previousPercentage = -1;
+
     const context = gsap.context(() => {
+      /*
+       * Initial transform-only states.
+       */
+
       gsap.set([leftDoor, rightDoor], {
         xPercent: 0,
-        rotationY: 0,
-        scale: 1,
+        x: 0,
+        force3D: true,
       });
 
-      gsap.set(leftDoor, {
-        "--zip-y": "0%",
-        "--zip-gap": "0px",
-      });
-
-      gsap.set(rightDoor, {
-        "--zip-y": "0%",
-        "--zip-gap": "0px",
+      gsap.set(seamCover, {
+        yPercent: 0,
+        autoAlpha: 0,
+        force3D: true,
       });
 
       gsap.set([zipperTrack, zipperHead], {
@@ -77,28 +87,56 @@ export default function Intro({ onComplete }: IntroProps) {
       gsap.set(zipperTrack, {
         scaleY: 0,
         transformOrigin: "top center",
+        force3D: true,
+      });
+
+      gsap.set(zipperHead, {
+        y: 0,
+        force3D: true,
+      });
+
+      gsap.set(welcome, {
+        autoAlpha: 0,
+        y: 24,
+        scale: 0.98,
       });
 
       const timeline = gsap.timeline({
         defaults: {
           overwrite: "auto",
         },
+
         onComplete: () => {
+          document.body.style.overflow = previousBodyOverflow;
+          document.documentElement.style.overflow = previousHtmlOverflow;
+
           onComplete();
-          document.body.style.overflow = previousOverflow;
         },
       });
 
       /*
-       * Percentage animation
+       * 1. Percentage
+       *
+       * Previous duration: 2.5 seconds
+       * New duration: 1.65 seconds
        */
 
       timeline.to(progress, {
         value: 100,
-        duration: 2.5,
+        duration: 1.65,
         ease: "power2.out",
+
         onUpdate: () => {
-          counter.textContent = `${Math.round(progress.value)}%`;
+          const percentage = Math.round(progress.value);
+
+          /*
+           * Avoid unnecessary DOM writes when the rounded value
+           * has not changed.
+           */
+          if (percentage !== previousPercentage) {
+            counter.textContent = `${percentage}%`;
+            previousPercentage = percentage;
+          }
         },
       });
 
@@ -106,39 +144,44 @@ export default function Intro({ onComplete }: IntroProps) {
         counter,
         {
           autoAlpha: 0,
-          y: -35,
-          scale: 0.96,
-          duration: 0.5,
+          y: -24,
+          scale: 0.97,
+          duration: 0.28,
           ease: "power2.in",
         },
-        "+=0.2",
+        "+=0.05",
       );
 
       /*
-       * Welcome animation
+       * 2. Welcome
+       *
+       * No animated blur filter.
        */
 
       timeline.fromTo(
         welcome,
         {
           autoAlpha: 0,
-          y: 35,
-          filter: "blur(10px)",
+          y: 24,
+          scale: 0.98,
         },
         {
           autoAlpha: 1,
           y: 0,
-          filter: "blur(0px)",
-          duration: 0.85,
+          scale: 1,
+          duration: 0.5,
           ease: "power3.out",
         },
       );
 
-      timeline.to({}, { duration: 1 });
+      /*
+       * Shorter welcome hold.
+       */
+
+      timeline.to({}, { duration: 0.42 });
 
       /*
-       * The welcome text starts disappearing while the zipper
-       * opens from the top toward the bottom.
+       * 3. Zipper opening
        */
 
       timeline.addLabel("unzip");
@@ -147,77 +190,102 @@ export default function Intro({ onComplete }: IntroProps) {
         welcome,
         {
           autoAlpha: 0,
-          y: -22,
-          filter: "blur(8px)",
-          duration: 0.48,
+          y: -16,
+          scale: 0.985,
+          duration: 0.26,
           ease: "power2.in",
         },
         "unzip",
       );
 
+      /*
+       * Display the zipper only when the unzip animation begins.
+       */
+
       timeline.set(
-        [zipperTrack, zipperHead],
+        [seamCover, zipperTrack, zipperHead],
         {
           autoAlpha: 1,
         },
-        "unzip+=0.05",
+        "unzip+=0.02",
+      );
+      timeline.to(
+        leftDoor,
+        {
+          x: () => (window.innerWidth < 768 ? -4 : -6),
+          duration: 0.78,
+          ease: "power3.inOut",
+          force3D: true,
+        },
+        "unzip+=0.02",
+      );
+
+      timeline.to(
+        rightDoor,
+        {
+          x: () => (window.innerWidth < 768 ? 4 : 6),
+          duration: 0.78,
+          ease: "power3.inOut",
+          force3D: true,
+        },
+        "unzip+=0.02",
+      );
+      /*
+       * Move the azure seam cover down.
+       *
+       * Because the actual panels already have a center gap,
+       * moving this cover exposes the Hero from top to bottom.
+       */
+
+      timeline.to(
+        seamCover,
+        {
+          yPercent: 102,
+          duration: 0.78,
+          ease: "power3.inOut",
+          force3D: true,
+        },
+        "unzip+=0.02",
       );
 
       timeline.to(
         zipperTrack,
         {
           scaleY: 1,
-          duration: 1.15,
-          ease: "power2.inOut",
+          duration: 0.78,
+          ease: "power3.inOut",
+          force3D: true,
         },
-        "unzip+=0.05",
+        "unzip+=0.02",
       );
 
       timeline.to(
         zipperHead,
         {
           y: () => Math.max(window.innerHeight - 52, 0),
-          duration: 1.15,
-          ease: "power2.inOut",
+          duration: 0.78,
+          ease: "power3.inOut",
+          force3D: true,
         },
-        "unzip+=0.05",
-      );
-
-      timeline.to(
-        leftDoor,
-        {
-          "--zip-y": "100%",
-          "--zip-gap": "12px",
-          duration: 1.15,
-          ease: "power2.inOut",
-        },
-        "unzip+=0.05",
-      );
-
-      timeline.to(
-        rightDoor,
-        {
-          "--zip-y": "100%",
-          "--zip-gap": "12px",
-          duration: 1.15,
-          ease: "power2.inOut",
-        },
-        "unzip+=0.05",
+        "unzip+=0.02",
       );
 
       /*
-       * After the zipper reaches the bottom, move both panels
-       * away and slightly backward.
+       * 4. Slide both sides away.
+       *
+       * Begin just before the zipper reaches the bottom,
+       * so the sequence feels continuous.
        */
 
-      timeline.addLabel("doors", "unzip+=1.18");
+      timeline.addLabel("doors", "unzip+=0.72");
 
       timeline.to(
         zipperHead,
         {
           autoAlpha: 0,
-          scale: 0.75,
-          duration: 0.18,
+          scale: 0.8,
+          duration: 0.12,
+          ease: "power2.out",
         },
         "doors",
       );
@@ -226,7 +294,8 @@ export default function Intro({ onComplete }: IntroProps) {
         zipperTrack,
         {
           autoAlpha: 0,
-          duration: 0.18,
+          duration: 0.12,
+          ease: "power2.out",
         },
         "doors",
       );
@@ -234,64 +303,75 @@ export default function Intro({ onComplete }: IntroProps) {
       timeline.to(
         leftDoor,
         {
-          xPercent: -108,
-          rotationY: -8,
-          scale: 0.97,
-          duration: 1.25,
-          ease: "expo.inOut",
+          xPercent: -112,
+          x: () => (window.innerWidth < 768 ? -4 : -6),
+          duration: 0.82,
+          ease: "power4.inOut",
           force3D: true,
         },
-        "doors+=0.05",
+        "doors+=0.02",
       );
 
       timeline.to(
         rightDoor,
         {
-          xPercent: 108,
-          rotationY: 8,
-          scale: 0.97,
-          duration: 1.25,
-          ease: "expo.inOut",
+          xPercent: 112,
+          x: () => (window.innerWidth < 768 ? 4 : 6),
+          duration: 0.82,
+          ease: "power4.inOut",
           force3D: true,
         },
-        "doors+=0.05",
+        "doors+=0.02",
       );
     }, root);
 
     return () => {
-      document.body.style.overflow = previousOverflow;
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+
       context.revert();
     };
   }, [onComplete]);
 
-  const leftPanelStyle: ZipPanelStyle = {
-    "--zip-y": "0%",
-    "--zip-gap": "0px",
-    transformOrigin: "100% 50%",
-    clipPath: `
-      polygon(
-        0 0,
-        calc(100% - var(--zip-gap)) 0,
-        calc(100% - var(--zip-gap)) var(--zip-y),
-        100% calc(var(--zip-y) + 4%),
-        100% 100%,
-        0 100%
+  const leftPanelBackground = {
+    background: `
+      radial-gradient(
+        circle at 12% 12%,
+        rgba(121, 153, 165, 0.2) 0%,
+        rgba(121, 153, 165, 0.08) 30%,
+        transparent 55%
+      ),
+      radial-gradient(
+        circle at 90% 90%,
+        rgba(5, 15, 20, 0.3) 0%,
+        transparent 55%
+      ),
+      linear-gradient(
+        135deg,
+        #294651 0%,
+        #213943 48%,
+        #192f38 100%
       )
     `,
   };
-
-  const rightPanelStyle: ZipPanelStyle = {
-    "--zip-y": "0%",
-    "--zip-gap": "0px",
-    transformOrigin: "0% 50%",
-    clipPath: `
-      polygon(
-        var(--zip-gap) 0,
-        100% 0,
-        100% 100%,
-        0 100%,
-        0 calc(var(--zip-y) + 4%),
-        var(--zip-gap) var(--zip-y)
+  const rightPanelBackground = {
+    background: `
+      radial-gradient(
+        circle at 88% 12%,
+        rgba(121, 153, 165, 0.2) 0%,
+        rgba(121, 153, 165, 0.08) 30%,
+        transparent 55%
+      ),
+      radial-gradient(
+        circle at 10% 90%,
+        rgba(5, 15, 20, 0.3) 0%,
+        transparent 55%
+      ),
+      linear-gradient(
+        225deg,
+        #294651 0%,
+        #213943 48%,
+        #192f38 100%
       )
     `,
   };
@@ -299,209 +379,142 @@ export default function Intro({ onComplete }: IntroProps) {
   return (
     <div
       ref={rootRef}
-      className="fixed inset-0 z-50 overflow-hidden"
-      style={{
-        perspective: "2000px",
-      }}
+      className="
+        fixed
+        inset-0
+        z-50
+        isolate
+        overflow-hidden
+      "
     >
-      {/* Dark azure-gray panels */}
-
-      <div className="absolute inset-0 flex overflow-hidden">
-        <div
-          ref={leftDoorRef}
-          className="
-            relative
-            h-full
-            w-[calc(50%+1px)]
-            shrink-0
-            overflow-hidden
-            bg-[#213943]
-          "
-          style={leftPanelStyle}
-        >
-          <div
-            className="
-              absolute
-              left-[-18%]
-              top-[-22%]
-              h-[70vw]
-              max-h-225
-              w-[70vw]
-              max-w-225
-              rounded-full
-              bg-[#66828d]/15
-              blur-[100px]
-            "
-          />
-
-          <div
-            className="
-              absolute
-              bottom-[-30%]
-              right-[-30%]
-              h-[60vw]
-              max-h-190
-              w-[60vw]
-              max-w-190
-              rounded-full
-              bg-black/25
-              blur-[110px]
-            "
-          />
-
-          <div className="absolute inset-0 bg-linear-to-br from-white/[0.035] via-transparent to-black/15" />
-        </div>
-        <div
-          ref={rightDoorRef}
-          className="
-            relative
-            -ml-0.5
-            h-full
-            w-[calc(50%+1px)]
-            shrink-0
-            overflow-hidden
-            bg-[#213943]
-          "
-          style={rightPanelStyle}
-        >
-          <div
-            className="
-              absolute
-              right-[-18%]
-              top-[-22%]
-              h-[70vw]
-              max-h-225
-              w-[70vw]
-              max-w-225
-              rounded-full
-              bg-[#66828d]/15
-              blur-[100px]
-            "
-          />
-
-          <div
-            className="
-              absolute
-              bottom-[-30%]
-              left-[-30%]
-              h-[60vw]
-              max-h-190
-              w-[60vw]
-              max-w-190
-              rounded-full
-              bg-black/25
-              blur-[110px]
-            "
-          />
-
-          <div className="absolute inset-0 bg-linear-to-bl from-white/[0.035] via-transparent to-black/15" />
-        </div>
-      </div>
-
-      {/* Zipper track */}
+      {/* Left panel */}
 
       <div
-        ref={zipperTrackRef}
+        ref={leftDoorRef}
+        className="
+          absolute
+          inset-y-0
+          left-0
+          z-0
+          overflow-hidden
+          transform-gpu
+          will-change-transform
+        "
+        style={{
+          width: "50%",
+          ...leftPanelBackground,
+        }}
+      >
+        <div className="absolute inset-0 bg-linear-to-br from-white/[0.035] via-transparent to-black/10" />
+      </div>
+
+      {/* Right panel */}
+
+      <div
+        ref={rightDoorRef}
+        className="
+          absolute
+          inset-y-0
+          right-0
+          z-0
+          overflow-hidden
+          transform-gpu
+          will-change-transform
+        "
+        style={{
+          width: "50%",
+          ...rightPanelBackground,
+        }}
+      >
+        <div className="absolute inset-0 bg-linear-to-bl from-white/[0.035] via-transparent to-black/10" />
+      </div>
+
+      {/*
+       * Azure seam cover
+       *
+       * The left and right panels have a 12px transparent gap.
+       * This element covers that gap until it slides downward.
+       */}
+
+      <div
+        ref={seamCoverRef}
         className="
         invisible
         pointer-events-none
         absolute
         left-1/2
         top-0
-        z-20
-        h-full
-        w-2.5
+        z-10
+        h-[105%]
+        w-3
         -translate-x-1/2
+        transform-gpu
+        bg-[#213943]
         opacity-0
         will-change-transform
+        md:w-4
         "
-      >
-        <div
-          className="
-            absolute
-            left-0.5
-            top-0
-            h-full
-            w-px
-            bg-linear-to-b
-            from-white/80
-            via-[#9ab5bf]/80
-            to-white/30
-          "
-        />
-
-        <div
-          className="
-            absolute
-            right-0.5
-            top-0
-            h-full
-            w-px
-            bg-linear-to-b
-            from-white/80
-            via-[#9ab5bf]/80
-            to-white/30
-          "
-        />
-
-        <div className="absolute inset-0 bg-white/15 blur-md" />
-      </div>
-
-      {/* Zipper handle */}
-
-      <div
-        ref={zipperHeadRef}
-        className="
-          invisible
-          pointer-events-none
-          absolute
-          left-1/2
-          top-3
-          z-30
-          opacity-0
-          flex
-          h-9
-          w-7
-          -translate-x-1/2
-          items-center
-          justify-center
-          rounded-full
-          border
-          border-white/35
-          bg-[#78939d]
-          shadow-[0_7px_22px_rgba(0,0,0,0.45),inset_1px_1px_2px_rgba(255,255,255,0.35)]
-        "
-      >
-        <div className="h-3 w-1.5 rounded-full border border-white/55" />
-      </div>
+      />
 
       {/* Percentage and welcome content */}
 
-      <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-5">
+      <div
+        className="
+          pointer-events-none
+          absolute
+          inset-0
+          z-20
+          flex
+          items-center
+          justify-center
+          overflow-hidden
+          px-4
+        "
+      >
         <div
           ref={counterRef}
           className="
-    whitespace-nowrap
-    text-[clamp(9rem,25vw,30rem)]
-    font-light
-    leading-[0.78]
-    -tracking-widest
-    text-[#78939d]
-    will-change-transform
-  "
+            whitespace-nowrap
+            text-[clamp(9rem,25vw,30rem)]
+            font-light
+            leading-[0.78]
+            tracking-[-0.1em]
+            text-[#78939d]
+            transform-gpu
+            will-change-transform
+          "
           style={{
             textShadow: `
-      12px 12px 22px rgba(4, 14, 19, 0.82),
-      -7px -7px 18px rgba(132, 169, 182, 0.24),
-      1px 1px 1px rgba(255, 255, 255, 0.08)
-    `,
+              10px 10px 20px rgba(4, 14, 19, 0.76),
+              -5px -5px 14px rgba(132, 169, 182, 0.2),
+              1px 1px 1px rgba(255, 255, 255, 0.07)
+            `,
           }}
         >
           0%
         </div>
 
-        <div ref={welcomeRef} className="absolute px-5 text-center opacity-0">
-          <p className="text-xs font-medium uppercase tracking-[0.7em] text-white/65 sm:text-sm">
+        <div
+          ref={welcomeRef}
+          className="
+            absolute
+            px-5
+            text-center
+            opacity-0
+            transform-gpu
+            will-change-transform
+          "
+        >
+          <p
+            className="
+              text-xs
+              font-medium
+              uppercase
+              tracking-[0.7em]
+              text-white/65
+              sm:text-sm
+            "
+          >
             Welcome To
           </p>
 
@@ -518,6 +531,84 @@ export default function Intro({ onComplete }: IntroProps) {
             Elevia Studio
           </h1>
         </div>
+      </div>
+
+      {/* Zipper track */}
+
+      <div
+        ref={zipperTrackRef}
+        className="
+          invisible
+          pointer-events-none
+          absolute
+          left-1/2
+          top-0
+          z-30
+          h-full
+          w-2.5
+          -translate-x-1/2
+          transform-gpu
+          opacity-0
+          will-change-transform
+        "
+      >
+        <div
+          className="
+            absolute
+            left-0.5
+            top-0
+            h-full
+            w-px
+            bg-linear-to-b
+            from-white/75
+            via-[#9ab5bf]/75
+            to-white/25
+          "
+        />
+
+        <div
+          className="
+            absolute
+            right-0.5
+            top-0
+            h-full
+            w-px
+            bg-linear-to-b
+            from-white/75
+            via-[#9ab5bf]/75
+            to-white/25
+          "
+        />
+      </div>
+
+      {/* Zipper handle */}
+
+      <div
+        ref={zipperHeadRef}
+        className="
+          invisible
+          pointer-events-none
+          absolute
+          left-1/2
+          top-3
+          z-40
+          flex
+          h-9
+          w-7
+          -translate-x-1/2
+          transform-gpu
+          items-center
+          justify-center
+          rounded-full
+          border
+          border-white/30
+          bg-[#78939d]
+          opacity-0
+          shadow-[0_6px_14px_rgba(0,0,0,0.35),inset_1px_1px_2px_rgba(255,255,255,0.25)]
+          will-change-transform
+        "
+      >
+        <div className="h-3 w-1.5 rounded-full border border-white/50" />
       </div>
     </div>
   );
