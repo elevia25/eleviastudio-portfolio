@@ -10,7 +10,13 @@ const LogoDiceSection = dynamic(() => import("../components/LogoDiceSection"), {
   ssr: false,
   loading: () => null,
 });
-
+const SocialMediaManagementSection = dynamic(
+  () => import("../components/SocialMediaManagementSection"),
+  {
+    ssr: false,
+    loading: () => null,
+  },
+);
 export default function Home() {
   const [finished, setFinished] = useState(false);
 
@@ -24,7 +30,12 @@ export default function Home() {
 
       <Hero visible={finished} />
 
-      {finished && <LogoDiceSection />}
+      {finished && (
+        <>
+          <LogoDiceSection />
+          <SocialMediaManagementSection />
+        </>
+      )}
     </main>
   );
 }

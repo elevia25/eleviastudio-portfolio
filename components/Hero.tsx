@@ -41,12 +41,6 @@ export default function Hero({ visible }: { visible: boolean }) {
       </video>
 
       <div className="absolute inset-0 bg-black/35" />
-
-      <div className="relative z-10 flex h-full items-center justify-center">
-        <h1 className="text-center text-6xl font-light text-white md:text-8xl">
-          Elevia Studio
-        </h1>
-      </div>
     </motion.section>
   );
 }

@@ -7,7 +7,7 @@ import * as THREE from "three";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Portfolio from "./Portfolio";
 import Image from "next/image";
-import FloatingLibrarySection from "./LogoTransitions";
+import FloatingLibrarySection from "./SocialMediaManagementSection";
 
 const LOGO_URL = "/elevia_logo.png";
 const FOUNDER_ONE_IMAGE = "/founder-1.jpg";
