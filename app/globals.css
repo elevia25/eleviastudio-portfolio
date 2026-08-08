@@ -150,7 +150,6 @@ body {
   margin: 0;
   min-height: 100%;
   overflow-x: hidden;
-  cursor: none;
   background: #ffffff;
   color: #334155;
   font-family: var(--font-instrument), sans-serif;
@@ -162,7 +161,6 @@ a,
 .project-tile,
 .project-stack-card,
 .founder-card {
-  cursor: none;
 }
 
 #bg-canvas {

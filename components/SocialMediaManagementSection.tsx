@@ -273,26 +273,33 @@ export default function SocialMediaManagementSection() {
                   window.innerHeight * (window.innerWidth < 640 ? 5.4 : 6),
                 )}`,
 
-              pin: stage,
+              /*
+               * IMPORTANT:
+               * Pin the actual flow section, not the inner stage.
+               */
+              pin: section,
               pinSpacing: true,
+
               scrub: 1.05,
               anticipatePin: 1,
               invalidateOnRefresh: true,
+
+              snap: {
+                snapTo: "labelsDirectional",
+
+                duration: {
+                  min: 0.25,
+                  max: 0.65,
+                },
+
+                delay: 0.1,
+                ease: "power3.inOut",
+              },
 
               onEnter: startFloating,
               onEnterBack: startFloating,
               onLeave: pauseFloating,
               onLeaveBack: pauseFloating,
-
-              snap: {
-                snapTo: "labelsDirectional",
-                duration: {
-                  min: 0.25,
-                  max: 0.65,
-                },
-                delay: 0.1,
-                ease: "power3.inOut",
-              },
             },
           });
 
@@ -505,7 +512,10 @@ export default function SocialMediaManagementSection() {
     <section
       ref={sectionRef}
       aria-label="Social media management"
-      className="relative h-svh w-full bg-[#102A33]"
+      className="relative isolate
+      z-0
+      h-svh
+      w-fulll bg-[#102A33]"
     >
       <div
         ref={stageRef}
@@ -726,6 +736,7 @@ export default function SocialMediaManagementSection() {
                   items-center
                   justify-center
                   rounded-[1.6rem]
+
                   border
                   border-white/15
                   bg-white/9

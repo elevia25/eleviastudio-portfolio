@@ -10,6 +10,7 @@ const LogoDiceSection = dynamic(() => import("../components/LogoDiceSection"), {
   ssr: false,
   loading: () => null,
 });
+
 const SocialMediaManagementSection = dynamic(
   () => import("../components/SocialMediaManagementSection"),
   {
@@ -17,6 +18,44 @@ const SocialMediaManagementSection = dynamic(
     loading: () => null,
   },
 );
+
+const SelectedWorkConceptA = dynamic(
+  () => import("../components/SelectedWorkConceptA"),
+  {
+    ssr: false,
+    loading: () => null,
+  },
+);
+
+const SelectedWorkConceptB = dynamic(
+  () => import("../components/SelectedWorkConceptB"),
+  {
+    ssr: false,
+    loading: () => null,
+  },
+);
+
+const ReelsShowcaseSection = dynamic(
+  () => import("../components/ReelsShowcaseSection"),
+  {
+    ssr: false,
+    loading: () => null,
+  },
+);
+
+const AboutUsSection = dynamic(() => import("../components/AboutUsSection"), {
+  ssr: false,
+  loading: () => null,
+});
+
+/*
+ * Change only this:
+ *
+ * "A" = animated visual metaphor version
+ * "B" = editorial version
+ */
+const ACTIVE_WORK_CONCEPT: "A" | "B" = "B";
+
 export default function Home() {
   const [finished, setFinished] = useState(false);
 
@@ -26,14 +65,31 @@ export default function Home() {
 
   return (
     <main className="relative bg-[#faf7ef]">
-      {!finished && <Intro onComplete={handleIntroComplete} />}
+      {/* Keep Hero rendered below Intro */}
+      <Hero visible />
 
-      <Hero visible={finished} />
+      {!finished && <Intro onComplete={handleIntroComplete} />}
 
       {finished && (
         <>
+          {/* 01 */}
           <LogoDiceSection />
+
+          {/* 02 */}
           <SocialMediaManagementSection />
+
+          {/* 03 - Selected Work */}
+          {ACTIVE_WORK_CONCEPT === "A" ? (
+            <SelectedWorkConceptA />
+          ) : (
+            <SelectedWorkConceptB />
+          )}
+
+          {/* 04 - Reels */}
+          <ReelsShowcaseSection />
+
+          {/* 05 */}
+          <AboutUsSection />
         </>
       )}
     </main>
