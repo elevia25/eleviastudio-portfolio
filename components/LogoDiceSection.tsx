@@ -310,7 +310,7 @@ export default function LogoDiceSection() {
     scene.add(
       hemisphereLight,
       keyLight,
-      fillLight,
+      // fillLight,
     );
 
     /*

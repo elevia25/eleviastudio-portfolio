@@ -1,97 +1,29 @@
-"use client";
-
-import dynamic from "next/dynamic";
-import { useCallback, useState } from "react";
-
 import Intro from "@/components/Intro";
 import Hero from "@/components/Hero";
-
-const LogoDiceSection = dynamic(() => import("../components/LogoDiceSection"), {
-  ssr: false,
-  loading: () => null,
-});
-
-const SocialMediaManagementSection = dynamic(
-  () => import("../components/SocialMediaManagementSection"),
-  {
-    ssr: false,
-    loading: () => null,
-  },
-);
-
-const SelectedWorkConceptA = dynamic(
-  () => import("../components/SelectedWorkConceptA"),
-  {
-    ssr: false,
-    loading: () => null,
-  },
-);
-
-const SelectedWorkConceptB = dynamic(
-  () => import("../components/SelectedWorkConceptB"),
-  {
-    ssr: false,
-    loading: () => null,
-  },
-);
-
-const ReelsShowcaseSection = dynamic(
-  () => import("../components/ReelsShowcaseSection"),
-  {
-    ssr: false,
-    loading: () => null,
-  },
-);
-
-const AboutUsSection = dynamic(() => import("../components/AboutUsSection"), {
-  ssr: false,
-  loading: () => null,
-});
-
-/*
- * Change only this:
- *
- * "A" = animated visual metaphor version
- * "B" = editorial version
- */
-const ACTIVE_WORK_CONCEPT: "A" | "B" = "B";
+import LogoDiceSection from "@/components/LogoDiceSection";
+import SocialMediaManagementSection from "@/components/SocialMediaManagementSection";
+import SelectedWorkConceptA from "@/components/SelectedWorkConceptA";
+import ReelsShowcaseSection from "@/components/ReelsShowcaseSection";
+import AboutUsSection from "@/components/AboutUsSection";
+import PackagingShowcaseSection from "@/components/PackagingShowcaseSection";
 
 export default function Home() {
-  const [finished, setFinished] = useState(false);
-
-  const handleIntroComplete = useCallback(() => {
-    setFinished(true);
-  }, []);
-
   return (
-    <main className="relative bg-[#faf7ef]">
-      {/* Keep Hero rendered below Intro */}
-      <Hero visible />
+    <Intro>
+      <main className="relative bg-[#faf7ef]">
+        <Hero visible />
 
-      {!finished && <Intro onComplete={handleIntroComplete} />}
+        <LogoDiceSection />
 
-      {finished && (
-        <>
-          {/* 01 */}
-          <LogoDiceSection />
+        <SocialMediaManagementSection />
+        <PackagingShowcaseSection />
 
-          {/* 02 */}
-          <SocialMediaManagementSection />
+        <SelectedWorkConceptA />
 
-          {/* 03 - Selected Work */}
-          {ACTIVE_WORK_CONCEPT === "A" ? (
-            <SelectedWorkConceptA />
-          ) : (
-            <SelectedWorkConceptB />
-          )}
+        <ReelsShowcaseSection />
 
-          {/* 04 - Reels */}
-          <ReelsShowcaseSection />
-
-          {/* 05 */}
-          <AboutUsSection />
-        </>
-      )}
-    </main>
+        <AboutUsSection />
+      </main>
+    </Intro>
   );
 }

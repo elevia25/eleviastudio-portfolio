@@ -59,9 +59,9 @@ const DESKTOP_POSITIONS: IconPosition[] = [
   { x: -155, y: 245, rotation: -8 },
   { x: 155, y: 245, rotation: 8 },
   { x: 300, y: 125, rotation: -10 },
-  { x: 350, y: -95, rotation: 12 },
-  { x: 205, y: -235, rotation: -7 },
-  { x: -205, y: -235, rotation: 7 },
+  { x: 350, y: -75, rotation: 12 },
+  { x: 205, y: -180, rotation: -7 },
+  { x: -205, y: -180, rotation: 7 },
 ];
 
 const TABLET_POSITIONS: IconPosition[] = [
@@ -727,6 +727,7 @@ export default function SocialMediaManagementSection() {
               <div
                 data-floating-icon
                 className="
+                  relative
                   flex
                   h-[clamp(4.2rem,7vw,6.5rem)]
                   w-[clamp(4.2rem,7vw,6.5rem)]

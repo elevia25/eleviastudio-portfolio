@@ -1,94 +1,81 @@
 "use client";
 
 import { gsap } from "gsap";
-import {
-  type MutableRefObject,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-} from "react";
+import Link from "next/link";
+import { type RefObject, useEffect, useLayoutEffect, useRef } from "react";
 
 type Reel = {
   video: string;
-  poster?: string;
   client: string;
+  link?: string;
   category: string;
 };
 
 const REELS: Reel[] = [
   {
     video: "/reels/reel-01.mp4",
-    poster: "/reels/reel-01.webp",
+    link: "https://www.instagram.com/reel/DWbZx8sSiYh/?igsh=OGRjaGloem9sNmhy",
     client: "Social Campaign",
     category: "Brand Reel",
   },
   {
     video: "/reels/reel-02.mp4",
-    poster: "/reels/reel-02.webp",
+    link: "https://www.instagram.com/reel/DWBqNY2iRQE/?igsh=cnhid216bHBoMXpr",
     client: "Product Story",
     category: "Product Reel",
   },
   {
     video: "/reels/reel-03.mp4",
-    poster: "/reels/reel-03.webp",
     client: "Social Identity",
+    link: "https://www.instagram.com/reel/DUitDX5E_Pa/?igsh=MTJkYnJwaTNsajF1bA==",
     category: "Motion",
   },
   {
     video: "/reels/reel-04.mp4",
-    poster: "/reels/reel-04.webp",
+    link: "https://www.instagram.com/reel/DZsSyect2N7/?igsh=bWg2NWVnOGNoeWdr",
     client: "Campaign",
     category: "Short-form",
   },
   {
     video: "/reels/reel-05.mp4",
-    poster: "/reels/reel-05.webp",
+    link: "https://www.instagram.com/reel/DZCc-hPMpgk/?igsh=MWNoemJlZGNnM2g0bg==",
     client: "Content",
     category: "Social Media",
   },
   {
     video: "/reels/reel-06.mp4",
-    poster: "/reels/reel-06.webp",
-    client: "Creative",
-    category: "Reel",
-  },
-  {
-    video: "/reels/reel-07.mp4",
-    poster: "/reels/reel-07.webp",
-    client: "Creative",
-    category: "Reel",
-  },
-  {
-    video: "/reels/reel-08.mp4",
-    poster: "/reels/reel-08.webp",
+    link: "https://www.instagram.com/reel/Da8OR_YNgFr/?igsh=MTZyaXQ2aXVtencwcA==",
     client: "Creative",
     category: "Reel",
   },
   {
     video: "/reels/reel-09.mp4",
-    poster: "/reels/reel-09.webp",
     client: "Creative",
     category: "Reel",
   },
 ];
-
 export default function ReelsShowcaseSection() {
   const rootRef = useRef<HTMLElement>(null);
   const marqueeRef = useRef<HTMLDivElement>(null);
+  const marqueeTweenRef = useRef<gsap.core.Tween | null>(null);
 
-  const videoRefs = useRef<HTMLVideoElement[]>([]);
+  const videoMapRef = useRef<Map<string, HTMLVideoElement>>(new Map());
 
-  /*
-   * ------------------------------------------------------------------------
-   * Infinite horizontal marquee
-   * ------------------------------------------------------------------------
-   *
-   * No styled-jsx.
-   * No ScrollTrigger.
-   * No requestAnimationFrame loop written by us.
-   *
-   * GSAP handles one compositor-friendly translate transform forever.
-   */
+  const handleMarqueeHover = (isHovered: boolean) => {
+    const marqueeTween = marqueeTweenRef.current;
+
+    if (!marqueeTween) {
+      return;
+    }
+
+    if (isHovered) {
+      marqueeTween.pause();
+      return;
+    }
+
+    marqueeTween.play();
+  };
+
   useLayoutEffect(() => {
     const root = rootRef.current;
     const marquee = marqueeRef.current;
@@ -137,6 +124,8 @@ export default function ReelsShowcaseSection() {
         },
       );
 
+      marqueeTweenRef.current = marqueeTween;
+
       /*
        * Don't keep animating the marquee while this
        * section is far outside the viewport.
@@ -177,7 +166,7 @@ export default function ReelsShowcaseSection() {
    * Only videos close to the viewport are allowed to play.
    */
   useEffect(() => {
-    const videos = videoRefs.current;
+    const videos = videoMapRef.current;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -223,7 +212,7 @@ export default function ReelsShowcaseSection() {
       className="
         relative
         isolate
-        z-[1]
+        z-1
         min-h-svh
         w-full
         overflow-hidden
@@ -235,10 +224,6 @@ export default function ReelsShowcaseSection() {
         lg:py-32
       "
     >
-      {/* ========================================================== */}
-      {/* BACKGROUND TYPOGRAPHY                                      */}
-      {/* ========================================================== */}
-
       <div
         aria-hidden="true"
         className="
@@ -253,17 +238,12 @@ export default function ReelsShowcaseSection() {
           text-[clamp(9rem,27vw,30rem)]
           font-light
           leading-none
-          tracking-[-0.1em]
+          -tracking-widest
           text-[#152d34]/[0.035]
         "
       >
         SOCIAL
       </div>
-
-      {/* ========================================================== */}
-      {/* HEADER                                                     */}
-      {/* ========================================================== */}
-
       <div
         className="
           relative
@@ -272,7 +252,7 @@ export default function ReelsShowcaseSection() {
           mb-14
           flex
           w-full
-          max-w-[1500px]
+          max-w-375
           items-end
           justify-between
           gap-8
@@ -324,18 +304,19 @@ export default function ReelsShowcaseSection() {
           keep brands moving through social feeds.
         </p>
       </div>
-
-      {/* ========================================================== */}
-      {/* INFINITE MARQUEE                                           */}
-      {/* ========================================================== */}
-
       <div
+        tabIndex={0}
+        onMouseEnter={() => handleMarqueeHover(true)}
+        onMouseLeave={() => handleMarqueeHover(false)}
+        onFocus={() => handleMarqueeHover(true)}
+        onBlur={() => handleMarqueeHover(false)}
         className="
           relative
           z-10
           w-full
           overflow-hidden
           py-5
+          outline-none
           md:py-8
         "
       >
@@ -382,17 +363,18 @@ export default function ReelsShowcaseSection() {
         >
           {/* First set */}
 
-          <ReelGroup reels={REELS} videoRefs={videoRefs} group="a" />
+          <ReelGroup reels={REELS} videoRefs={videoMapRef} group="a" />
 
           {/* Duplicate set */}
 
-          <ReelGroup reels={REELS} videoRefs={videoRefs} group="b" ariaHidden />
+          <ReelGroup
+            reels={REELS}
+            videoRefs={videoMapRef}
+            group="b"
+            ariaHidden
+          />
         </div>
       </div>
-
-      {/* ========================================================== */}
-      {/* FOOTER                                                     */}
-      {/* ========================================================== */}
 
       <div
         className="
@@ -402,7 +384,7 @@ export default function ReelsShowcaseSection() {
           mt-12
           flex
           w-full
-          max-w-[1500px]
+          max-w-375
           flex-col
           gap-5
           px-5
@@ -460,10 +442,6 @@ export default function ReelsShowcaseSection() {
   );
 }
 
-/* ========================================================================== */
-/* REEL GROUP                                                                 */
-/* ========================================================================== */
-
 function ReelGroup({
   reels,
   videoRefs,
@@ -472,12 +450,19 @@ function ReelGroup({
 }: {
   reels: Reel[];
 
-  videoRefs: MutableRefObject<HTMLVideoElement[]>;
+  videoRefs: RefObject<Map<string, HTMLVideoElement>>;
 
   group: string;
 
   ariaHidden?: boolean;
 }) {
+  const setVideoRef = (el: HTMLVideoElement | null, key: string) => {
+    if (el) {
+      videoRefs.current.set(key, el);
+    } else {
+      videoRefs.current.delete(key);
+    }
+  };
   return (
     <div
       aria-hidden={ariaHidden ? true : undefined}
@@ -498,39 +483,61 @@ function ReelGroup({
           key={`${group}-${reel.video}`}
           reel={reel}
           index={index}
-          setVideoRef={(video) => {
-            if (!video) {
-              return;
-            }
-
-            if (!videoRefs.current.includes(video)) {
-              videoRefs.current.push(video);
-            }
-          }}
+          group={group}
+          setVideoRef={setVideoRef}
         />
       ))}
     </div>
   );
 }
 
-/* ========================================================================== */
-/* REEL CARD                                                                  */
-/* ========================================================================== */
-
 function ReelCard({
   reel,
   index,
   setVideoRef,
+  group,
 }: {
   reel: Reel;
 
   index: number;
-
-  setVideoRef: (element: HTMLVideoElement | null) => void;
+  group: string;
+  setVideoRef: (el: HTMLVideoElement | null, key: string) => void;
 }) {
   const rotation = [-2.2, 1.1, -0.7, 2, -1.2, 0.8][index % 6];
 
   const verticalOffset = [14, -10, 6, -16, 10, -6][index % 6];
+  const cardKey = `${group}-${index}`;
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  const isVideoInViewport = (video: HTMLVideoElement) => {
+    const rect = video.getBoundingClientRect();
+
+    return (
+      rect.bottom > 0 &&
+      rect.top < window.innerHeight &&
+      rect.right > 0 &&
+      rect.left < window.innerWidth
+    );
+  };
+
+  const handleVideoHover = (isHovered: boolean) => {
+    const video = videoRef.current;
+
+    if (!video) {
+      return;
+    }
+
+    if (isHovered) {
+      video.pause();
+      return;
+    }
+
+    if (isVideoInViewport(video)) {
+      void video.play().catch(() => {
+        /* Ignore browser-specific autoplay rejection. */
+      });
+    }
+  };
 
   return (
     /*
@@ -561,8 +568,8 @@ function ReelCard({
         className="
           group
           relative
-          aspect-[9/16]
-          w-[190px]
+          aspect-9/16
+          w-47.5
           transform-gpu
           overflow-hidden
           rounded-[1.8rem]
@@ -572,19 +579,26 @@ function ReelCard({
           duration-500
           ease-out
           hover:scale-[1.035]
-          sm:w-[220px]
-          md:w-[250px]
-          lg:w-[275px]
+          sm:w-55
+          md:w-62.5
+          lg:w-68.5
         "
       >
-        <video
-          ref={setVideoRef}
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          poster={reel.poster}
-          className="
+        <Link target={"_blank"} href={reel.link ?? ""}>
+          <video
+            ref={(el) => {
+              videoRef.current = el;
+              setVideoRef(el, cardKey);
+            }}
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            onMouseEnter={() => handleVideoHover(true)}
+            onMouseLeave={() => handleVideoHover(false)}
+            onFocus={() => handleVideoHover(true)}
+            onBlur={() => handleVideoHover(false)}
+            className="
             absolute
             inset-0
             h-full
@@ -595,9 +609,10 @@ function ReelCard({
             ease-out
             group-hover:scale-[1.025]
           "
-        >
-          <source src={reel.video} type="video/mp4" />
-        </video>
+          >
+            <source src={reel.video} type="video/mp4" />
+          </video>
+        </Link>
 
         {/* Readability layer */}
 

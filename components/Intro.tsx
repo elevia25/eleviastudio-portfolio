@@ -1,13 +1,13 @@
 "use client";
-
 import { gsap } from "gsap";
-import { useLayoutEffect, useRef } from "react";
+import { type ReactNode, useLayoutEffect, useRef, useState } from "react";
 
 type IntroProps = {
-  onComplete: () => void;
+  children: ReactNode;
 };
 
-export default function Intro({ onComplete }: IntroProps) {
+export default function Intro({ children }: IntroProps) {
+  const [introVisible, setIntroVisible] = useState(true);
   const rootRef = useRef<HTMLDivElement>(null);
 
   const counterRef = useRef<HTMLDivElement>(null);
@@ -110,7 +110,7 @@ export default function Intro({ onComplete }: IntroProps) {
           document.body.style.overflow = previousBodyOverflow;
           document.documentElement.style.overflow = previousHtmlOverflow;
 
-          onComplete();
+          setIntroVisible(false);
         },
       });
 
@@ -331,7 +331,7 @@ export default function Intro({ onComplete }: IntroProps) {
 
       context.revert();
     };
-  }, [onComplete]);
+  }, []);
 
   const leftPanelBackground = {
     background: `
@@ -377,89 +377,100 @@ export default function Intro({ onComplete }: IntroProps) {
   };
 
   return (
-    <div
-      ref={rootRef}
-      className="
-        fixed
-        inset-0
-        z-50
-        isolate
-        overflow-hidden
-      "
-    >
-      {/* Left panel */}
+    <>
+      {children}
+      {introVisible && (
+        <div
+          className="
+            fixed
+            inset-0
+            z-9999
+            overflow-hidden
+          "
+        >
+          <div
+            ref={rootRef}
+            className="
+              fixed
+              inset-0
+              z-50
+              isolate
+              overflow-hidden
+            "
+          >
+            {/* Left panel */}
 
-      <div
-        ref={leftDoorRef}
-        className="
-          absolute
-          inset-y-0
-          left-0
-          z-0
-          overflow-hidden
-          transform-gpu
-          will-change-transform
-        "
-        style={{
-          width: "50%",
-          ...leftPanelBackground,
-        }}
-      >
-        <div className="absolute inset-0 bg-linear-to-br from-white/[0.035] via-transparent to-black/10" />
-      </div>
+            <div
+              ref={leftDoorRef}
+              className="
+                absolute
+                inset-y-0
+                left-0
+                z-0
+                overflow-hidden
+                transform-gpu
+                will-change-transform
+              "
+              style={{
+                width: "50%",
+                ...leftPanelBackground,
+              }}
+            >
+              <div className="absolute inset-0 bg-linear-to-br from-white/[0.035] via-transparent to-black/10" />
+            </div>
 
-      {/* Right panel */}
+            {/* Right panel */}
 
-      <div
-        ref={rightDoorRef}
-        className="
-          absolute
-          inset-y-0
-          right-0
-          z-0
-          overflow-hidden
-          transform-gpu
-          will-change-transform
-        "
-        style={{
-          width: "50%",
-          ...rightPanelBackground,
-        }}
-      >
-        <div className="absolute inset-0 bg-linear-to-bl from-white/[0.035] via-transparent to-black/10" />
-      </div>
+            <div
+              ref={rightDoorRef}
+              className="
+                absolute
+                inset-y-0
+                right-0
+                z-0
+                overflow-hidden
+                transform-gpu
+                will-change-transform
+              "
+              style={{
+                width: "50%",
+                ...rightPanelBackground,
+              }}
+            >
+              <div className="absolute inset-0 bg-linear-to-bl from-white/[0.035] via-transparent to-black/10" />
+            </div>
 
-      {/*
-       * Azure seam cover
-       *
-       * The left and right panels have a 12px transparent gap.
-       * This element covers that gap until it slides downward.
-       */}
+            {/*
+             * Azure seam cover
+             *
+             * The left and right panels have a 12px transparent gap.
+             * This element covers that gap until it slides downward.
+             */}
 
-      <div
-        ref={seamCoverRef}
-        className="
-        invisible
-        pointer-events-none
-        absolute
-        left-1/2
-        top-0
-        z-10
-        h-[105%]
-        w-3
-        -translate-x-1/2
-        transform-gpu
-        bg-[#213943]
-        opacity-0
-        will-change-transform
-        md:w-4
-        "
-      />
+            <div
+              ref={seamCoverRef}
+              className="
+              invisible
+              pointer-events-none
+              absolute
+              left-1/2
+              top-0
+              z-10
+              h-[105%]
+              w-3
+              -translate-x-1/2
+              transform-gpu
+              bg-[#213943]
+              opacity-0
+              will-change-transform
+              md:w-4
+            "
+            />
 
-      {/* Percentage and welcome content */}
+            {/* Percentage and welcome content */}
 
-      <div
-        className="
+            <div
+              className="
           pointer-events-none
           absolute
           inset-0
@@ -470,146 +481,149 @@ export default function Intro({ onComplete }: IntroProps) {
           overflow-hidden
           px-4
         "
-      >
-        <div
-          ref={counterRef}
-          className="
+            >
+              <div
+                ref={counterRef}
+                className="
             whitespace-nowrap
             text-[clamp(9rem,25vw,30rem)]
             font-light
             leading-[0.78]
-            tracking-[-0.1em]
+            -tracking-widest
             text-[#78939d]
             transform-gpu
             will-change-transform
           "
-          style={{
-            textShadow: `
+                style={{
+                  textShadow: `
               10px 10px 20px rgba(4, 14, 19, 0.76),
               -5px -5px 14px rgba(132, 169, 182, 0.2),
               1px 1px 1px rgba(255, 255, 255, 0.07)
             `,
-          }}
-        >
-          0%
-        </div>
+                }}
+              >
+                0%
+              </div>
 
-        <div
-          ref={welcomeRef}
-          className="
-            absolute
-            px-5
-            text-center
-            opacity-0
-            transform-gpu
-            will-change-transform
-          "
-        >
-          <p
-            className="
-              text-xs
-              font-medium
-              uppercase
-              tracking-[0.7em]
-              text-white/65
-              sm:text-sm
+              <div
+                ref={welcomeRef}
+                className="
+                  absolute
+                  px-5
+                  text-center
+                  opacity-0
+                  transform-gpu
+                  will-change-transform
+                "
+              >
+                <p
+                  className="
+                    text-xs
+                    font-medium
+                    uppercase
+                    tracking-[0.7em]
+                    text-white/65
+                    sm:text-sm
+                  "
+                >
+                  Welcome To
+                </p>
+
+                <h1
+                  className="
+                    mt-5
+                    text-[clamp(3.5rem,8vw,8rem)]
+                    font-light
+                    leading-none
+                    tracking-[-0.055em]
+                    text-white
+                  "
+                >
+                  Elevia Studio
+                </h1>
+              </div>
+            </div>
+
+            {/* Zipper track */}
+
+            <div
+              ref={zipperTrackRef}
+              className="
+                invisible
+                pointer-events-none
+                absolute
+                left-1/2
+                top-0
+                z-30
+                h-full
+                w-2.5
+                -translate-x-1/2
+                transform-gpu
+                opacity-0
+                will-change-transform
+              "
+            >
+              <div
+                className="
+                  absolute
+                  left-0.5
+                  top-0
+                  h-full
+                  w-px
+                  bg-linear-to-b
+                  from-white/75
+                  via-[#9ab5bf]/75
+                  to-white/25
+                "
+              />
+
+              <div
+                className="
+                  absolute
+                  right-0.5
+                  top-0
+                  h-full
+                  w-px
+                  bg-linear-to-b
+                  from-white/75
+                  via-[#9ab5bf]/75
+                  to-white/25
+                "
+              />
+            </div>
+
+            {/* Zipper handle */}
+
+            <div
+              ref={zipperHeadRef}
+              className="
+              invisible
+              pointer-events-none
+              absolute
+              left-1/2
+              top-3
+              z-40
+              flex
+              h-9
+              w-7
+              -translate-x-1/2
+              transform-gpu
+              items-center
+              justify-center
+              rounded-full
+              border
+              border-white/30
+              bg-[#78939d]
+              opacity-0
+              shadow-[0_6px_14px_rgba(0,0,0,0.35),inset_1px_1px_2px_rgba(255,255,255,0.25)]
+              will-change-transform
             "
-          >
-            Welcome To
-          </p>
-
-          <h1
-            className="
-              mt-5
-              text-[clamp(3.5rem,8vw,8rem)]
-              font-light
-              leading-none
-              tracking-[-0.055em]
-              text-white
-            "
-          >
-            Elevia Studio
-          </h1>
+            >
+              <div className="h-3 w-1.5 rounded-full border border-white/50" />
+            </div>
+          </div>
         </div>
-      </div>
-
-      {/* Zipper track */}
-
-      <div
-        ref={zipperTrackRef}
-        className="
-          invisible
-          pointer-events-none
-          absolute
-          left-1/2
-          top-0
-          z-30
-          h-full
-          w-2.5
-          -translate-x-1/2
-          transform-gpu
-          opacity-0
-          will-change-transform
-        "
-      >
-        <div
-          className="
-            absolute
-            left-0.5
-            top-0
-            h-full
-            w-px
-            bg-linear-to-b
-            from-white/75
-            via-[#9ab5bf]/75
-            to-white/25
-          "
-        />
-
-        <div
-          className="
-            absolute
-            right-0.5
-            top-0
-            h-full
-            w-px
-            bg-linear-to-b
-            from-white/75
-            via-[#9ab5bf]/75
-            to-white/25
-          "
-        />
-      </div>
-
-      {/* Zipper handle */}
-
-      <div
-        ref={zipperHeadRef}
-        className="
-          invisible
-          pointer-events-none
-          absolute
-          left-1/2
-          top-3
-          z-40
-          flex
-          h-9
-          w-7
-          -translate-x-1/2
-          transform-gpu
-          items-center
-          justify-center
-          rounded-full
-          border
-          border-white/30
-          bg-[#78939d]
-          opacity-0
-          shadow-[0_6px_14px_rgba(0,0,0,0.35),inset_1px_1px_2px_rgba(255,255,255,0.25)]
-          will-change-transform
-        "
-      >
-        <div className="h-3 w-1.5 rounded-full border border-white/50" />
-      </div>
-    </div>
+      )}
+    </>
   );
 }
