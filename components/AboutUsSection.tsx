@@ -28,12 +28,7 @@ const FOUNDERS = [
       </>
     ),
 
-    journey: [
-      "ENGINEER",
-      "PROBLEM SOLVER",
-      "BUILDER",
-      "ELEVIA",
-    ],
+    journey: ["ENGINEER", "PROBLEM SOLVER", "BUILDER", "ELEVIA"],
 
     image: "/about/Ravi.jpeg",
 
@@ -54,19 +49,13 @@ const FOUNDERS = [
         From marketing to making —
         <br />
         I build brands through ideas, content
-        <br className="hidden md:block" />
-        {" "}and creative direction.
+        <br className="hidden md:block" /> and creative direction.
       </>
     ),
 
-    journey: [
-      "IDEAS",
-      "WORDS",
-      "VISUALS",
-      "BRANDS",
-    ],
+    journey: ["IDEAS", "WORDS", "VISUALS", "BRANDS"],
 
-    image: "/about/founder-2.jpg",
+    image: "/about/Khushi.jpeg",
 
     imagePosition: "center center",
   },
@@ -79,38 +68,28 @@ const FOUNDERS = [
 export default function AboutUsSection() {
   const sectionRef = useRef<HTMLElement>(null);
 
-  const headingRef =
-    useRef<HTMLDivElement>(null);
+  const headingRef = useRef<HTMLDivElement>(null);
 
-  const rowRefs =
-    useRef<Array<HTMLDivElement | null>>([]);
+  const rowRefs = useRef<Array<HTMLDivElement | null>>([]);
 
-  const imageRefs =
-    useRef<Array<HTMLDivElement | null>>([]);
+  const imageRefs = useRef<Array<HTMLDivElement | null>>([]);
 
-  const contentRefs =
-    useRef<Array<HTMLDivElement | null>>([]);
+  const contentRefs = useRef<Array<HTMLDivElement | null>>([]);
 
-  const lineRefs =
-    useRef<Array<HTMLDivElement | null>>([]);
+  const lineRefs = useRef<Array<HTMLDivElement | null>>([]);
 
-  const journeyRefs =
-    useRef<Array<HTMLDivElement | null>>([]);
+  const journeyRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   useLayoutEffect(() => {
-    const section =
-      sectionRef.current;
+    const section = sectionRef.current;
 
-    const heading =
-      headingRef.current;
+    const heading = headingRef.current;
 
     if (!section || !heading) {
       return;
     }
 
-    gsap.registerPlugin(
-      ScrollTrigger,
-    );
+    gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
       /* ================================================================
@@ -145,199 +124,165 @@ export default function AboutUsSection() {
          FOUNDER ROWS
          ================================================================ */
 
-      rowRefs.current.forEach(
-        (row, index) => {
-          const image =
-            imageRefs.current[index];
+      rowRefs.current.forEach((row, index) => {
+        const image = imageRefs.current[index];
 
-          const content =
-            contentRefs.current[index];
+        const content = contentRefs.current[index];
 
-          const line =
-            lineRefs.current[index];
+        const line = lineRefs.current[index];
 
-          const journey =
-            journeyRefs.current[index];
+        const journey = journeyRefs.current[index];
 
-          if (
-            !row ||
-            !image ||
-            !content ||
-            !line ||
-            !journey
-          ) {
-            return;
-          }
+        if (!row || !image || !content || !line || !journey) {
+          return;
+        }
 
-          const isReverse =
-            index === 1;
+        const isReverse = index === 1;
 
-          /* ------------------------------------------------------------
+        /* ------------------------------------------------------------
              Initial image
              ------------------------------------------------------------ */
 
-          gsap.set(image, {
-            autoAlpha: 0,
+        gsap.set(image, {
+          autoAlpha: 0,
 
-            y: 70,
+          y: 70,
 
-            x: isReverse
-              ? 35
-              : -35,
+          x: isReverse ? 35 : -35,
 
-            scale: 0.94,
+          scale: 0.94,
 
-            rotation:
-              isReverse
-                ? 1.5
-                : -1.5,
+          rotation: isReverse ? 1.5 : -1.5,
 
-            force3D: true,
-          });
+          force3D: true,
+        });
 
-          /* ------------------------------------------------------------
+        /* ------------------------------------------------------------
              Initial text
              ------------------------------------------------------------ */
 
-          gsap.set(content, {
-            autoAlpha: 0,
+        gsap.set(content, {
+          autoAlpha: 0,
 
-            y: 55,
+          y: 55,
 
-            x: isReverse
-              ? -25
-              : 25,
+          x: isReverse ? -25 : 25,
 
-            filter:
-              "blur(10px)",
+          filter: "blur(10px)",
 
-            force3D: true,
-          });
+          force3D: true,
+        });
 
-          gsap.set(line, {
-            scaleX: 0,
+        gsap.set(line, {
+          scaleX: 0,
 
-            transformOrigin:
-              isReverse
-                ? "right center"
-                : "left center",
-          });
+          transformOrigin: isReverse ? "right center" : "left center",
+        });
 
-          gsap.set(journey.children, {
-            autoAlpha: 0,
+        gsap.set(journey.children, {
+          autoAlpha: 0,
 
-            y: 12,
-          });
+          y: 12,
+        });
 
-          /* ------------------------------------------------------------
+        /* ------------------------------------------------------------
              Timeline
              ------------------------------------------------------------ */
 
-          const timeline =
-            gsap.timeline({
-              scrollTrigger: {
-                trigger: row,
+        const timeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: row,
 
-                start:
-                  "top 76%",
+            start: "top 76%",
 
-                end:
-                  "center 46%",
+            end: "center 46%",
 
-                scrub: 0.85,
+            scrub: 0.85,
 
-                invalidateOnRefresh:
-                  true,
-              },
-            });
+            invalidateOnRefresh: true,
+          },
+        });
 
-          timeline.to(
-            image,
-            {
-              autoAlpha: 1,
+        timeline.to(
+          image,
+          {
+            autoAlpha: 1,
 
-              y: 0,
-              x: 0,
+            y: 0,
+            x: 0,
 
-              scale: 1,
+            scale: 1,
 
-              rotation: 0,
+            rotation: 0,
 
-              duration: 0.9,
+            duration: 0.9,
 
-              ease:
-                "power4.out",
-            },
-            0,
-          );
+            ease: "power4.out",
+          },
+          0,
+        );
 
-          timeline.to(
-            content,
-            {
-              autoAlpha: 1,
+        timeline.to(
+          content,
+          {
+            autoAlpha: 1,
 
-              y: 0,
-              x: 0,
+            y: 0,
+            x: 0,
 
-              filter:
-                "blur(0px)",
+            filter: "blur(0px)",
 
-              duration: 0.82,
+            duration: 0.82,
 
-              ease:
-                "power3.out",
-            },
-            0.1,
-          );
+            ease: "power3.out",
+          },
+          0.1,
+        );
 
-          timeline.to(
-            line,
-            {
-              scaleX: 1,
+        timeline.to(
+          line,
+          {
+            scaleX: 1,
 
-              duration: 0.55,
+            duration: 0.55,
 
-              ease:
-                "power3.out",
-            },
-            0.48,
-          );
+            ease: "power3.out",
+          },
+          0.48,
+        );
 
-          timeline.to(
-            journey.children,
-            {
-              autoAlpha: 1,
+        timeline.to(
+          journey.children,
+          {
+            autoAlpha: 1,
 
-              y: 0,
+            y: 0,
 
-              duration: 0.35,
+            duration: 0.35,
 
-              stagger: 0.065,
+            stagger: 0.065,
 
-              ease:
-                "power2.out",
-            },
-            0.55,
-          );
+            ease: "power2.out",
+          },
+          0.55,
+        );
 
-          /* ------------------------------------------------------------
+        /* ------------------------------------------------------------
              Tiny parallax at end
              ------------------------------------------------------------ */
 
-          timeline.to(
-            image,
-            {
-              y: -18,
+        timeline.to(
+          image,
+          {
+            y: -18,
 
-              duration: 0.45,
+            duration: 0.45,
 
-              ease:
-                "none",
-            },
-            0.78,
-          );
-        },
-      );
+            ease: "none",
+          },
+          0.78,
+        );
+      });
     }, section);
 
     return () => {
@@ -409,24 +354,26 @@ export default function AboutUsSection() {
       {/* ==========================================================
           SECTION HEADER
           ========================================================== */}
-
-      <SectionHeading
-        ref={headingRef}
-        number="08"
-        title="About Us"
-        subtitle="Two people. Different strengths. One studio."
-        className="
-    relative
-    z-20
-
-    mx-auto
-    w-[92vw]
-
-    max-w-[1500px]
-
-    opacity-0
+      <div className="pointer-events-none absolute inset-0 z-10">
+        <SectionHeading
+          ref={headingRef}
+          number="08"
+          title="About Us"
+          subtitle="Two people. Different strengths. One studio."
+          className="
+        absolute
+        left-1/2
+        top-5
+        z-50
+    
+        w-[92vw]
+    
+        -translate-x-1/2
+    
+        md:top-7
   "
-      />
+        />
+      </div>
 
       {/* ==========================================================
           FOUNDER 01 — IMAGE / CONTENT
@@ -552,42 +499,21 @@ function FounderRow({
   lineRef,
   journeyRef,
 }: {
-  founder:
-    (typeof FOUNDERS)[number];
+  founder: (typeof FOUNDERS)[number];
 
   index: number;
 
   reverse: boolean;
 
-  rowRef: (
-    element:
-      | HTMLDivElement
-      | null,
-  ) => void;
+  rowRef: (element: HTMLDivElement | null) => void;
 
-  imageRef: (
-    element:
-      | HTMLDivElement
-      | null,
-  ) => void;
+  imageRef: (element: HTMLDivElement | null) => void;
 
-  contentRef: (
-    element:
-      | HTMLDivElement
-      | null,
-  ) => void;
+  contentRef: (element: HTMLDivElement | null) => void;
 
-  lineRef: (
-    element:
-      | HTMLDivElement
-      | null,
-  ) => void;
+  lineRef: (element: HTMLDivElement | null) => void;
 
-  journeyRef: (
-    element:
-      | HTMLDivElement
-      | null,
-  ) => void;
+  journeyRef: (element: HTMLDivElement | null) => void;
 }) {
   return (
     <div
@@ -628,19 +554,12 @@ function FounderRow({
         className={`
           relative
 
-          ${
-            reverse
-              ? "order-2 md:order-2"
-              : "order-1 md:order-1"
-          }
+          ${reverse ? "order-2 md:order-2" : "order-1 md:order-1"}
 
           will-change-transform
         `}
       >
-        <FounderImage
-          founder={founder}
-          index={index}
-        />
+        <FounderImage founder={founder} index={index} />
       </div>
 
       {/* ========================================================
@@ -650,11 +569,7 @@ function FounderRow({
       <div
         ref={contentRef}
         className={`
-          ${
-            reverse
-              ? "order-1 md:order-1"
-              : "order-2 md:order-2"
-          }
+          ${reverse ? "order-1 md:order-1" : "order-2 md:order-2"}
 
           relative
 
@@ -678,9 +593,7 @@ function FounderRow({
             text-[#213943]/35
           "
         >
-          <span>
-            {founder.number}
-          </span>
+          <span>{founder.number}</span>
 
           <span
             className="
@@ -691,9 +604,7 @@ function FounderRow({
             "
           />
 
-          <span>
-            Founder
-          </span>
+          <span>Founder</span>
         </div>
 
         {/* Name */}
@@ -806,49 +717,44 @@ function FounderRow({
             md:gap-x-4
           "
         >
-          {founder.journey.map(
-            (step, stepIndex) => (
-              <div
-                key={step}
-                className="
+          {founder.journey.map((step, stepIndex) => (
+            <div
+              key={step}
+              className="
                   flex
                   items-center
                   gap-3
                 "
-              >
-                <span
-                  className="
-                    text-[8px]
+            >
+              <span
+                className="
+                    text-[14px]
                     font-medium
                     uppercase
                     tracking-[0.2em]
 
-                    text-[#213943]/55
+                    text-[#213943]
 
-                    md:text-[9px]
+                    md:text-[18px]
                   "
-                >
-                  {step}
-                </span>
+              >
+                {step}
+              </span>
 
-                {stepIndex !==
-                  founder.journey
-                    .length -
-                    1 && (
-                  <span
-                    className="
+              {stepIndex !== founder.journey.length - 1 && (
+                <span
+                  className="
                       text-sm
                       font-light
 
                       text-[#F54A00]/70
                     "
-                  >
-                    →
-                  </span>
-                )}
-              </div>
-            ),
-          )}
+                >
+                  →
+                </span>
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -863,8 +769,7 @@ function FounderImage({
   founder,
   index,
 }: {
-  founder:
-    (typeof FOUNDERS)[number];
+  founder: (typeof FOUNDERS)[number];
 
   index: number;
 }) {

@@ -112,7 +112,7 @@ const SectionHeading = forwardRef<
 
             pt-[0.1em]
 
-            text-[0.2em]
+            text-[0.3em]
             font-medium
 
             tracking-normal
@@ -139,7 +139,7 @@ const SectionHeading = forwardRef<
 
             max-w-[620px]
 
-            text-[11px]
+            text-[16px]
             font-light
             leading-[1.5]
 

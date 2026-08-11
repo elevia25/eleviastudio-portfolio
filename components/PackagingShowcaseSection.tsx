@@ -836,32 +836,34 @@ export default function PackagingShowcaseSection() {
               contentRefs.current[index] = element;
             }}
             className="
-    pointer-events-none
-    absolute
+  pointer-events-none
+  absolute
 
-    left-5
-    top-[18vh]
+  left-5
+  top-[15vh]
 
-    z-30
+  z-30
 
-    w-[88vw]
+  w-[88vw]
 
-    opacity-0
+  opacity-0
 
-    md:left-[5vw]
-    md:top-1/2
+  md:left-[5vw]
+  md:top-0
 
-    md:w-[35vw]
-    md:max-w-[520px]
-
-    md:-translate-y-1/2
-  "
+  md:flex
+  md:h-full
+  md:w-[35vw]
+  md:max-w-[520px]
+  md:flex-col
+  md:justify-center
+"
           >
             {/* NUMBER */}
 
             <div
               className="
-                  mb-3
+                  mb-2
                   flex
                   items-center
                   gap-3
@@ -886,16 +888,16 @@ export default function PackagingShowcaseSection() {
 
             <p
               className="
-                  mb-3
+                  mb-2
 
-                  text-[8px]
+                  text-[12px]
                   uppercase
                   tracking-[0.25em]
 
                   text-[#A879B5]
 
                   md:mb-5
-                  md:text-[9px]
+                  md:text-[16px]
                 "
             >
               {item.category}
@@ -919,7 +921,7 @@ export default function PackagingShowcaseSection() {
 
             <p
               className="
-                  mt-5
+                  mt-2
 
                   max-w-[370px]
 
@@ -930,7 +932,7 @@ export default function PackagingShowcaseSection() {
                   opacity-55
 
                   md:mt-8
-                  md:text-base
+                  md:text-[20px]
                 "
             >
               {item.description}
@@ -940,20 +942,20 @@ export default function PackagingShowcaseSection() {
 
             <div
               className="
-                  mt-5
+                  mt-1
 
                   flex
                   items-center
                   gap-3
 
-                  text-[7px]
+                  text-[12px]
                   uppercase
                   tracking-[0.2em]
 
                   opacity-35
 
                   md:mt-9
-                  md:text-[8px]
+                  md:text-[16px]
                 "
             >
               <span>Print</span>

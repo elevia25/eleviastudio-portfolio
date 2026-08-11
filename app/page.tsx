@@ -1,12 +1,12 @@
 import Intro from "@/components/Intro";
 import Hero from "@/components/Hero";
-import LogoDiceSection from "@/components/LogoDiceSection";
-import SocialMediaManagementSection from "@/components/SocialMediaManagementSection";
-import SelectedWorkConceptA from "@/components/SelectedWorkConceptA";
-import ReelsShowcaseSection from "@/components/ReelsShowcaseSection";
-import AboutUsSection from "@/components/AboutUsSection";
-import PackagingShowcaseSection from "@/components/PackagingShowcaseSection";
-import FeaturedReelSection from "@/components/FeaturedReelSection";
+import LogoDiceSection from "@/components/ui/LogoDiceSection";
+import SocialMediaManagementSection from "@/components/ui/SocialMediaManagementSection";
+import SelectedWorkConceptA from "@/components/ui/SelectedWorkConceptA";
+import ReelsShowcaseSection from "@/components/ui/ReelsShowcaseSection";
+import AboutUsSection from "@/components/ui/AboutUsSection";
+import PackagingShowcaseSection from "@/components/ui/PackagingShowcaseSection";
+import FeaturedReelSection from "@/components/ui/FeaturedReelSection";
 
 export default function Home() {
   return (

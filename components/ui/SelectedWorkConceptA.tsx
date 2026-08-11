@@ -3,25 +3,7 @@
 import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import {
-  ArrowRight,
-  BarChart3,
-  BriefcaseMedical,
-  CalendarDays,
-  FileText,
-  FlaskConical,
-  Headphones,
-  Heart,
-  Home,
-  MapPin,
-  Mic,
-  Plus,
-  Search,
-  ShieldCheck,
-  Trophy,
-  UserRound,
-  WalletCards,
-} from "lucide-react";
+import { ArrowRight, Trophy } from "lucide-react";
 import { useLayoutEffect, useRef } from "react";
 
 /*
@@ -29,7 +11,10 @@ import { useLayoutEffect, useRef } from "react";
  * Change this import to the real path of your existing Elevro HeroCanvas.
  */
 import HeroCanvas from "@/components/HeroCanvas";
-import SectionHeading from "./SectionHeading";
+import SectionHeading, {
+  SECTION_SHELL_CLASS,
+  SECTION_VIEWPORT_CLASS,
+} from "./SectionHeading";
 
 /* ==========================================================================
    TYPES
@@ -588,22 +573,11 @@ export default function SelectedWorkConceptA() {
     <section
       ref={sectionRef}
       aria-label="Selected projects"
-      className="
-        relative
-        isolate
-        z-0
-        h-svh
-        w-full
-      "
+      className={`${SECTION_SHELL_CLASS} z-0 h-svh`}
     >
       <div
         ref={stageRef}
-        className="
-          relative
-          h-svh
-          w-full
-          overflow-hidden
-        "
+        className={SECTION_VIEWPORT_CLASS}
       >
         {/* ========================================================
             GLOBAL TEXTURE
@@ -644,20 +618,7 @@ export default function SelectedWorkConceptA() {
           number="03"
           title="Web Design"
           subtitle="Digital experiences built around the brand."
-          className="
-              absolute
-              left-1/2
-              top-5
-              z-[100]
-
-              w-[92vw]
-
-              -translate-x-1/2
-
-              opacity-0
-
-              md:top-7
-            "
+          className="opacity-0"
         />
 
         {/* ========================================================
@@ -669,20 +630,7 @@ export default function SelectedWorkConceptA() {
           number="04"
           title="App Development"
           subtitle="Turning an idea into something people can use."
-          className="
-            absolute
-            left-1/2
-            top-5
-            z-[100]
-
-            w-[92vw]
-
-            -translate-x-1/2
-
-            opacity-0
-
-            md:top-7
-          "
+          className="opacity-0"
         />
 
         {/* ========================================================
@@ -759,7 +707,7 @@ export default function SelectedWorkConceptA() {
                   absolute
 
                   left-5
-                  top-[18vh]
+                  top-[10.5rem]
 
                   z-30
 
@@ -831,6 +779,9 @@ export default function SelectedWorkConceptA() {
               </div>
             </div>
 
+            {/* ==================================================
+                  VIEW PROJECT
+                  ================================================== */}
 
             {project.href && (
               <a
@@ -861,7 +812,6 @@ export default function SelectedWorkConceptA() {
 
                     md:flex
                     md:right-10
-                    md:bottom-9
                   "
               >
                 View project
@@ -904,98 +854,6 @@ export default function SelectedWorkConceptA() {
     </section>
   );
 }
-
-/* ==========================================================================
-   PORTFOLIO HEADING
-   ========================================================================== */
-
-const PortfolioHeading =
-  /* React forwardRef without another import */
-  ({
-    ref,
-    number,
-    title,
-    description,
-  }: {
-    ref: React.Ref<HTMLDivElement>;
-    number: string;
-    title: string;
-    description: string;
-  }) => {
-    return (
-      <div
-        ref={ref}
-        className="
-          pointer-events-none
-
-          absolute
-
-          left-1/2
-          top-5
-
-          z-[100]
-
-          w-[90vw]
-
-          -translate-x-1/2
-
-          text-center
-
-          opacity-0
-
-          md:top-7
-        "
-      >
-        <div
-          className="
-    flex
-    w-full
-    max-w-full
-    items-start
-    justify-center
-    whitespace-nowrap
-    text-center
-
-    text-[clamp(2.7rem,8vw,7.2rem)]
-
-    leading-[0.78]
-    tracking-[-0.08em]
-  "
-        >
-          <span
-            className="
-      mr-[0.45em]
-      inline-block
-      pt-[0.1em]
-      text-[0.2em]
-      font-medium
-      tracking-normal
-    "
-          >
-            {number}
-          </span>
-
-          <span>{title}</span>
-        </div>
-
-        <p
-          className="
-            mt-2
-
-            text-[10px]
-            font-light
-            tracking-[0.03em]
-
-            opacity-45
-
-            md:text-xs
-          "
-        >
-          {description}
-        </p>
-      </div>
-    );
-  };
 
 /* ==========================================================================
    IDENTITY
@@ -1577,60 +1435,10 @@ function prepareSpecialVisual(layer: HTMLElement) {
   }
 
   /* ----------------------------------------------------------------------
-     SHURUUP
-     ---------------------------------------------------------------------- */
-
-  const shuruupPhone = layer.querySelector<HTMLElement>("[data-shuruup-phone]");
-
-  const shuruupRoutes = Array.from(
-    layer.querySelectorAll<SVGPathElement>("[data-shuruup-route]"),
-  );
-
-  const shuruupNodes = Array.from(
-    layer.querySelectorAll<HTMLElement>("[data-shuruup-node]"),
-  );
-
-  if (shuruupPhone) {
-    gsap.set(shuruupPhone, {
-      autoAlpha: 0,
-
-      y: 80,
-
-      scale: 0.9,
-
-      rotation: 10,
-    });
-  }
-
-  shuruupRoutes.forEach((route) => {
-    gsap.set(route, {
-      strokeDasharray: "1 1",
-
-      strokeDashoffset: 1,
-    });
-  });
-
-  shuruupNodes.forEach((node) => {
-    gsap.set(node, {
-      autoAlpha: 0,
-
-      y: 20,
-
-      scale: 0.9,
-
-      filter: "blur(7px)",
-    });
-  });
-
-  /* ----------------------------------------------------------------------
      ANMOL
      ---------------------------------------------------------------------- */
 
   const anmolPhone = layer.querySelector<HTMLElement>("[data-anmol-phone]");
-
-  const anmolCards = Array.from(
-    layer.querySelectorAll<HTMLElement>("[data-anmol-card]"),
-  );
 
   if (anmolPhone) {
     gsap.set(anmolPhone, {
@@ -1644,13 +1452,6 @@ function prepareSpecialVisual(layer: HTMLElement) {
     });
   }
 
-  anmolCards.forEach((card) => {
-    gsap.set(card, {
-      autoAlpha: 0,
-
-      y: 10,
-    });
-  });
 }
 
 /* ==========================================================================
@@ -1710,90 +1511,7 @@ function appendSpecialVisualAnimation(
      ---------------------------------------------------------------------- */
 
   if (visual === "shuruup") {
-    const phone = layer.querySelector<HTMLElement>("[data-shuruup-phone]");
-
-    const routes = Array.from(
-      layer.querySelectorAll<SVGPathElement>("[data-shuruup-route]"),
-    );
-
-    const nodes = Array.from(
-      layer.querySelectorAll<HTMLElement>("[data-shuruup-node]"),
-    );
-
-    /*
-     * Exactly the requested sequence:
-     *
-     * PHONE
-     *   ↓
-     * ROUTE
-     *   ↓
-     * CARD
-     *   ↓
-     * ROUTE
-     *   ↓
-     * CARD
-     *   ↓
-     * ROUTE
-     *   ↓
-     * CARD
-     */
-
-    if (phone) {
-      timeline.to(
-        phone,
-        {
-          autoAlpha: 1,
-
-          y: 0,
-
-          scale: 1,
-
-          rotation: 5,
-
-          duration: 0.62,
-
-          ease: "power4.out",
-        },
-        "<0.08",
-      );
-    }
-
-    routes.forEach((route, routeIndex) => {
-      timeline.to(
-        route,
-        {
-          strokeDashoffset: 0,
-
-          duration: 0.42,
-
-          ease: "none",
-        },
-        routeIndex === 0 ? "+=0.08" : "+=0.05",
-      );
-
-      const node = nodes[routeIndex];
-
-      if (node) {
-        timeline.to(
-          node,
-          {
-            autoAlpha: 1,
-
-            y: 0,
-
-            scale: 1,
-
-            filter: "blur(0px)",
-
-            duration: 0.38,
-
-            ease: "power3.out",
-          },
-          "-=0.04",
-        );
-      }
-    });
-
+    timeline.to({}, { duration: 0.22 });
     return;
   }
 
@@ -1803,10 +1521,6 @@ function appendSpecialVisualAnimation(
 
   if (visual === "anmol") {
     const phone = layer.querySelector<HTMLElement>("[data-anmol-phone]");
-
-    const cards = Array.from(
-      layer.querySelectorAll<HTMLElement>("[data-anmol-card]"),
-    );
 
     if (phone) {
       timeline.to(
@@ -1828,22 +1542,5 @@ function appendSpecialVisualAnimation(
       );
     }
 
-    if (cards.length > 0) {
-      timeline.to(
-        cards,
-        {
-          autoAlpha: 1,
-
-          y: 0,
-
-          duration: 0.3,
-
-          stagger: 0.055,
-
-          ease: "power3.out",
-        },
-        "<0.2",
-      );
-    }
   }
 }
