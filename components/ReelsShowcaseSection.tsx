@@ -3,6 +3,7 @@
 import { gsap } from "gsap";
 import Link from "next/link";
 import { type RefObject, useEffect, useLayoutEffect, useRef } from "react";
+import SectionHeading from "./SectionHeading";
 
 type Reel = {
   video: string;
@@ -244,6 +245,20 @@ export default function ReelsShowcaseSection() {
       >
         SOCIAL
       </div>
+      <SectionHeading
+        number="07"
+        title="Creatives"
+        subtitle="Visuals built to stop the scroll."
+        className="
+    relative
+    z-20
+    mx-auto
+    w-[92vw]
+    max-w-[1500px]
+    pt-16
+    md:pt-20
+  "
+      />
       <div
         className="
           relative
@@ -261,34 +276,19 @@ export default function ReelsShowcaseSection() {
           md:px-10
         "
       >
-        <div>
-          <p
-            className="
-              mb-5
-              text-[10px]
-              font-medium
-              uppercase
-              tracking-[0.3em]
-              text-[#152d34]/50
-            "
-          >
-            04 / Social Content
-          </p>
-
-          <h2
-            className="
+        <h2
+          className="
               max-w-4xl
               text-[clamp(3.5rem,8vw,8.5rem)]
               font-light
               leading-[0.78]
               tracking-[-0.075em]
             "
-          >
-            Reels that
-            <br />
-            keep moving.
-          </h2>
-        </div>
+        >
+          Reels that
+          <br />
+          keep moving.
+        </h2>
 
         <p
           className="

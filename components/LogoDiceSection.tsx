@@ -5,6 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLayoutEffect, useRef } from "react";
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+import SectionHeading from "./SectionHeading";
 
 const SLIDES = [
   {
@@ -113,14 +114,7 @@ export default function LogoDiceSection() {
     const title = titleRef.current;
     const scrollHint = scrollHintRef.current;
 
-    if (
-      !section ||
-      !stage ||
-      !canvas ||
-      !shadow ||
-      !title ||
-      !scrollHint
-    ) {
+    if (!section || !stage || !canvas || !shadow || !title || !scrollHint) {
       return;
     }
 
@@ -224,18 +218,14 @@ export default function LogoDiceSection() {
      * Six logo faces
      */
 
-    const faceGeometry = new THREE.PlaneGeometry(
-      FACE_SIZE,
-      FACE_SIZE,
-    );
+    const faceGeometry = new THREE.PlaneGeometry(FACE_SIZE, FACE_SIZE);
 
     const textureLoader = new THREE.TextureLoader();
 
     const textures: THREE.Texture[] = [];
     const faceMaterials: THREE.MeshStandardMaterial[] = [];
 
-    const maxAnisotropy =
-      renderer.capabilities.getMaxAnisotropy();
+    const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
 
     FACE_PLACEMENTS.forEach((placement) => {
       const slide = SLIDES[placement.slideIndex];
@@ -245,10 +235,7 @@ export default function LogoDiceSection() {
         render,
         undefined,
         (error) => {
-          console.error(
-            `Could not load dice logo: ${slide.logo}`,
-            error,
-          );
+          console.error(`Could not load dice logo: ${slide.logo}`, error);
         },
       );
 
@@ -271,10 +258,7 @@ export default function LogoDiceSection() {
 
       faceMaterials.push(material);
 
-      const face = new THREE.Mesh(
-        faceGeometry,
-        material,
-      );
+      const face = new THREE.Mesh(faceGeometry, material);
 
       face.position.set(...placement.position);
       face.rotation.set(...placement.rotation);
@@ -287,23 +271,13 @@ export default function LogoDiceSection() {
      * Lighting
      */
 
-    const hemisphereLight = new THREE.HemisphereLight(
-      0xffffff,
-      0x393939,
-      2.4,
-    );
+    const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x393939, 2.4);
 
-    const keyLight = new THREE.DirectionalLight(
-      0xffffff,
-      3.2,
-    );
+    const keyLight = new THREE.DirectionalLight(0xffffff, 3.2);
 
     keyLight.position.set(4, 5, 7);
 
-    const fillLight = new THREE.DirectionalLight(
-      0xffd8ed,
-      1.1,
-    );
+    const fillLight = new THREE.DirectionalLight(0xffd8ed, 1.1);
 
     fillLight.position.set(-4, -1, 4);
 
@@ -325,10 +299,7 @@ export default function LogoDiceSection() {
       const isSmallMobile = width < 480;
 
       renderer.setPixelRatio(
-        Math.min(
-          window.devicePixelRatio,
-          isMobile ? 1.2 : 1.45,
-        ),
+        Math.min(window.devicePixelRatio, isMobile ? 1.2 : 1.45),
       );
 
       renderer.setSize(width, height, false);
@@ -341,31 +312,19 @@ export default function LogoDiceSection() {
        * Smaller than the previous dice.
        */
 
-      const responsiveScale = isSmallMobile
-        ? 0.44
-        : isMobile
-          ? 0.52
-          : 0.66;
+      const responsiveScale = isSmallMobile ? 0.44 : isMobile ? 0.52 : 0.66;
 
-      responsiveGroup.scale.setScalar(
-        responsiveScale,
-      );
+      responsiveGroup.scale.setScalar(responsiveScale);
 
-      responsiveGroup.position.y = isMobile
-        ? -0.12
-        : -0.24;
+      responsiveGroup.position.y = isMobile ? -0.12 : -0.24;
 
       render();
     };
 
-    const handleContextLost = (
-      event: Event,
-    ) => {
+    const handleContextLost = (event: Event) => {
       event.preventDefault();
 
-      console.warn(
-        "Logo dice WebGL context was lost.",
-      );
+      console.warn("Logo dice WebGL context was lost.");
     };
 
     const handleContextRestored = () => {
@@ -373,15 +332,9 @@ export default function LogoDiceSection() {
       render();
     };
 
-    canvas.addEventListener(
-      "webglcontextlost",
-      handleContextLost,
-    );
+    canvas.addEventListener("webglcontextlost", handleContextLost);
 
-    canvas.addEventListener(
-      "webglcontextrestored",
-      handleContextRestored,
-    );
+    canvas.addEventListener("webglcontextrestored", handleContextRestored);
 
     window.addEventListener("resize", resize, {
       passive: true,
@@ -396,35 +349,21 @@ export default function LogoDiceSection() {
     const xAxis = new THREE.Vector3(1, 0, 0);
     const yAxis = new THREE.Vector3(0, 1, 0);
 
-    const rollAxes = [
-      xAxis,
-      xAxis,
-      yAxis,
-      xAxis,
-      xAxis,
-    ];
+    const rollAxes = [xAxis, xAxis, yAxis, xAxis, xAxis];
 
-    const orientations: THREE.Quaternion[] = [
-      new THREE.Quaternion(),
-    ];
+    const orientations: THREE.Quaternion[] = [new THREE.Quaternion()];
 
-    const currentOrientation =
-      new THREE.Quaternion();
+    const currentOrientation = new THREE.Quaternion();
 
     rollAxes.forEach((axis) => {
-      const quarterTurn =
-        new THREE.Quaternion().setFromAxisAngle(
-          axis,
-          Math.PI / 2,
-        );
-
-      currentOrientation
-        .premultiply(quarterTurn)
-        .normalize();
-
-      orientations.push(
-        currentOrientation.clone(),
+      const quarterTurn = new THREE.Quaternion().setFromAxisAngle(
+        axis,
+        Math.PI / 2,
       );
+
+      currentOrientation.premultiply(quarterTurn).normalize();
+
+      orientations.push(currentOrientation.clone());
     });
 
     const scrollState = {
@@ -436,19 +375,12 @@ export default function LogoDiceSection() {
      */
 
     const applyDiceProgress = () => {
-      const maximum =
-        orientations.length - 1;
+      const maximum = orientations.length - 1;
 
-      const progress = THREE.MathUtils.clamp(
-        scrollState.value,
-        0,
-        maximum,
-      );
+      const progress = THREE.MathUtils.clamp(scrollState.value, 0, maximum);
 
       if (progress >= maximum) {
-        rollingGroup.quaternion.copy(
-          orientations[maximum],
-        );
+        rollingGroup.quaternion.copy(orientations[maximum]);
 
         rollingGroup.position.y = 0;
         rollingGroup.scale.setScalar(1);
@@ -456,11 +388,9 @@ export default function LogoDiceSection() {
         return;
       }
 
-      const currentIndex =
-        Math.floor(progress);
+      const currentIndex = Math.floor(progress);
 
-      const localProgress =
-        progress - currentIndex;
+      const localProgress = progress - currentIndex;
 
       /*
        * Smootherstep produces softer starts and stops.
@@ -470,9 +400,7 @@ export default function LogoDiceSection() {
         localProgress *
         localProgress *
         localProgress *
-        (localProgress *
-          (localProgress * 6 - 15) +
-          10);
+        (localProgress * (localProgress * 6 - 15) + 10);
 
       rollingGroup.quaternion.slerpQuaternions(
         orientations[currentIndex],
@@ -480,9 +408,7 @@ export default function LogoDiceSection() {
         smoothProgress,
       );
 
-      const arc = Math.sin(
-        smoothProgress * Math.PI,
-      );
+      const arc = Math.sin(smoothProgress * Math.PI);
 
       /*
        * Small vertical lift while rolling.
@@ -494,11 +420,7 @@ export default function LogoDiceSection() {
        * Very subtle squash and stretch.
        */
 
-      rollingGroup.scale.set(
-        1 + arc * 0.01,
-        1 - arc * 0.015,
-        1 + arc * 0.01,
-      );
+      rollingGroup.scale.set(1 + arc * 0.01, 1 - arc * 0.015, 1 + arc * 0.01);
     };
 
     applyDiceProgress();
@@ -509,11 +431,7 @@ export default function LogoDiceSection() {
 
     gsap.set(title, {
       autoAlpha: 0,
-      y: () =>
-        Math.min(
-          window.innerHeight * 0.34,
-          300,
-        ),
+      y: () => Math.min(window.innerHeight * 0.34, 300),
       scale: 0.92,
       filter: "blur(14px)",
       color: SLIDES[0].textColor,
@@ -529,9 +447,7 @@ export default function LogoDiceSection() {
       y: 12,
     });
 
-    let gsapContext:
-      | ReturnType<typeof gsap.context>
-      | null = null;
+    let gsapContext: ReturnType<typeof gsap.context> | null = null;
 
     /*
      * Reduced-motion fallback
@@ -571,10 +487,7 @@ export default function LogoDiceSection() {
             trigger: section,
             start: "top top",
 
-            end: () =>
-              `+=${Math.round(
-                window.innerHeight * 8.5,
-              )}`,
+            end: () => `+=${Math.round(window.innerHeight * 8.5)}`,
 
             pin: true,
             pinSpacing: true,
@@ -678,11 +591,7 @@ export default function LogoDiceSection() {
           title,
           {
             autoAlpha: 0,
-            y: () =>
-              Math.min(
-                window.innerHeight * 0.34,
-                300,
-              ),
+            y: () => Math.min(window.innerHeight * 0.34, 300),
             scale: 0.92,
             filter: "blur(14px)",
           },
@@ -724,13 +633,8 @@ export default function LogoDiceSection() {
          * Only background and text color change.
          */
 
-        for (
-          let index = 1;
-          index < SLIDES.length;
-          index += 1
-        ) {
-          const transitionStart =
-            timeline.duration();
+        for (let index = 1; index < SLIDES.length; index += 1) {
+          const transitionStart = timeline.duration();
 
           timeline.to(
             scrollState,
@@ -745,8 +649,7 @@ export default function LogoDiceSection() {
           timeline.to(
             stage,
             {
-              backgroundColor:
-                SLIDES[index].background,
+              backgroundColor: SLIDES[index].background,
               duration: 1.25,
               ease: "power2.inOut",
             },
@@ -756,8 +659,7 @@ export default function LogoDiceSection() {
           timeline.to(
             title,
             {
-              color:
-                SLIDES[index].textColor,
+              color: SLIDES[index].textColor,
               duration: 1.25,
               ease: "power2.inOut",
             },
@@ -777,17 +679,13 @@ export default function LogoDiceSection() {
             transitionStart + 0.08,
           );
 
-          timeline.addLabel(
-            `face-${index}`,
-            transitionStart + 1.25,
-          );
+          timeline.addLabel(`face-${index}`, transitionStart + 1.25);
         }
       }, section);
 
-      refreshFrame =
-        window.requestAnimationFrame(() => {
-          ScrollTrigger.refresh();
-        });
+      refreshFrame = window.requestAnimationFrame(() => {
+        ScrollTrigger.refresh();
+      });
     }
 
     render();
@@ -795,24 +693,13 @@ export default function LogoDiceSection() {
     return () => {
       disposed = true;
 
-      window.cancelAnimationFrame(
-        refreshFrame,
-      );
+      window.cancelAnimationFrame(refreshFrame);
 
-      window.removeEventListener(
-        "resize",
-        resize,
-      );
+      window.removeEventListener("resize", resize);
 
-      canvas.removeEventListener(
-        "webglcontextlost",
-        handleContextLost,
-      );
+      canvas.removeEventListener("webglcontextlost", handleContextLost);
 
-      canvas.removeEventListener(
-        "webglcontextrestored",
-        handleContextRestored,
-      );
+      canvas.removeEventListener("webglcontextrestored", handleContextRestored);
 
       gsapContext?.revert();
 
@@ -843,63 +730,27 @@ export default function LogoDiceSection() {
         ref={stageRef}
         className="relative h-full w-full overflow-hidden"
         style={{
-          backgroundColor:
-            SLIDES[0].background,
+          backgroundColor: SLIDES[0].background,
         }}
       >
         {/* Static text behind the dice */}
 
         <div className="pointer-events-none absolute inset-0 z-10">
-          <div
+          <SectionHeading
             ref={titleRef}
+            number="01"
+            title="Logo Design"
+            subtitle="A visual signature created with purpose."
             className="
-              invisible
-              absolute
-              inset-x-0
-              top-0
-              flex
-              justify-center
-              px-3
-              pt-[7vh]
-              will-change-[transform,opacity,filter]
-              md:px-4
-              md:pt-[5vh]
-            "
-            style={{
-              color: SLIDES[0].textColor,
-            }}
-          >
-            <h2
-              className="
-                flex
-                w-full
-                max-w-full
-                items-start
-                justify-center
-                whitespace-nowrap
-                text-center
-                text-[clamp(3.4rem,12.5vw,14rem)]
-                font-light
-                leading-[0.78]
-                tracking-[-0.08em]
-              "
-            >
-              <span
-                className="
-                  mr-[0.45em]
-                  inline-block
-                  pt-[0.1em]
-                  text-[0.2em]
-                  font-medium
-                  tracking-normal
-                "
-              >
-                {STATIC_NUMBER}
-              </span>
-
-              <span>{STATIC_TITLE}</span>
-            </h2>
-          </div>
+    absolute
+    left-1/2
+    top-5
+    z-50
+    w-[92vw]
+    -translate-x-1/2
+    md:top-7
+  "
+          />
         </div>
 
         {/* Soft fake shadow */}

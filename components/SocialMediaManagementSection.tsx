@@ -4,6 +4,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import { useLayoutEffect, useRef } from "react";
+import SectionHeading from "./SectionHeading";
 
 const SOCIAL_PLATFORMS = [
   {
@@ -43,8 +44,8 @@ const SOCIAL_PLATFORMS = [
 /*
  * Replace these placeholders with your real verified numbers.
  */
-const MANAGED_ACCOUNTS = "120+";
-const AVERAGE_GROWTH = "184%";
+const MANAGED_ACCOUNTS = "15+";
+const AVERAGE_GROWTH = "84%";
 
 type IconPosition = {
   x: number;
@@ -550,55 +551,36 @@ export default function SocialMediaManagementSection() {
         {/* Static title behind all social icons */}
 
         <div className="pointer-events-none absolute inset-0 z-10">
-          <div
+          <SectionHeading
             ref={titleRef}
+            titleClassName="flex
+            w-full
+            items-start
+            justify-center
+            whitespace-nowrap
+            text-center
+            text-[clamp(3rem,10.5vw,11.5rem)]
+            font-light
+            leading-[0.8]
+            tracking-[-0.075em]
+            text-[#E6F0E3]"
+            subtitleClassName="text-[#E6F0E3]"
+            number="06"
+            title="Social Management"
+            subtitle="Building brands where their audience already lives."
             className="
-              invisible
-              absolute
-              inset-x-0
-              top-0
-              flex
-              justify-center
-              px-3
-              pt-[7vh]
-              opacity-0
-              will-change-[transform,opacity,filter]
-              md:px-4
-              md:pt-[5vh]
-            "
-          >
-            <h2
-              className="
-                flex
-                w-full
-                items-start
-                justify-center
-                whitespace-nowrap
-                text-center
-                text-[clamp(3rem,10.5vw,11.5rem)]
-                font-light
-                leading-[0.8]
-                tracking-[-0.075em]
-                text-[#E6F0E3]
-              "
-            >
-              <span
-                className="
-                  mr-[0.5em]
-                  inline-block
-                  pt-[0.12em]
-                  text-[0.19em]
-                  font-medium
-                  tracking-normal
-                  text-[#AFC9C0]
-                "
-              >
-                03
-              </span>
+    absolute
+    left-1/2
+    top-5
+    z-50
 
-              <span>Social Management</span>
-            </h2>
-          </div>
+    w-[92vw]
+
+    -translate-x-1/2
+
+    md:top-7
+  "
+          />
         </div>
 
         {/* Metrics */}

@@ -4,22 +4,38 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import { useLayoutEffect, useRef } from "react";
+import SectionHeading from "./SectionHeading";
+
+/* ==========================================================================
+   FOUNDERS
+   ========================================================================== */
 
 const FOUNDERS = [
   {
     number: "01",
 
-    /*
-     * Replace with actual founder name.
-     */
-    name: "Founder One",
+    name: "RAVI PRAJAPATI",
 
-    /*
-     * Replace with actual role.
-     */
-    role: "Co-Founder / Creative",
+    label: "THE BUILDER",
 
-    image: "/about/founder-1.jpg",
+    intro: "From engineering logic to creative thinking.",
+
+    statement: (
+      <>
+        I used to build systems.
+        <br />
+        Now, I build brands.
+      </>
+    ),
+
+    journey: [
+      "ENGINEER",
+      "PROBLEM SOLVER",
+      "BUILDER",
+      "ELEVIA",
+    ],
+
+    image: "/about/Ravi.jpeg",
 
     imagePosition: "center center",
   },
@@ -27,9 +43,28 @@ const FOUNDERS = [
   {
     number: "02",
 
-    name: "Founder Two",
+    name: "KHUSHI PRAJAPATI",
 
-    role: "Co-Founder / Technology",
+    label: "THE CREATIVE MIND",
+
+    intro: "Ideas before execution.",
+
+    statement: (
+      <>
+        From marketing to making —
+        <br />
+        I build brands through ideas, content
+        <br className="hidden md:block" />
+        {" "}and creative direction.
+      </>
+    ),
+
+    journey: [
+      "IDEAS",
+      "WORDS",
+      "VISUALS",
+      "BRANDS",
+    ],
 
     image: "/about/founder-2.jpg",
 
@@ -37,381 +72,276 @@ const FOUNDERS = [
   },
 ] as const;
 
+/* ==========================================================================
+   MAIN
+   ========================================================================== */
+
 export default function AboutUsSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const stageRef = useRef<HTMLDivElement>(null);
 
-  const eyebrowRef = useRef<HTMLParagraphElement>(null);
+  const headingRef =
+    useRef<HTMLDivElement>(null);
 
-  const founderRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const rowRefs =
+    useRef<Array<HTMLDivElement | null>>([]);
 
-  const founderInfoRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const imageRefs =
+    useRef<Array<HTMLDivElement | null>>([]);
 
-  const titleOneRef = useRef<HTMLHeadingElement>(null);
+  const contentRefs =
+    useRef<Array<HTMLDivElement | null>>([]);
 
-  const titleTwoRef = useRef<HTMLHeadingElement>(null);
+  const lineRefs =
+    useRef<Array<HTMLDivElement | null>>([]);
 
-  const statementRef = useRef<HTMLDivElement>(null);
-
-  const lineRef = useRef<HTMLDivElement>(null);
-
-  const indexRef = useRef<HTMLDivElement>(null);
+  const journeyRefs =
+    useRef<Array<HTMLDivElement | null>>([]);
 
   useLayoutEffect(() => {
-    const section = sectionRef.current;
-    const stage = stageRef.current;
+    const section =
+      sectionRef.current;
 
-    const eyebrow = eyebrowRef.current;
+    const heading =
+      headingRef.current;
 
-    const founderCards = founderRefs.current.filter(
-      (element): element is HTMLDivElement => Boolean(element),
-    );
-
-    const founderInfos = founderInfoRefs.current.filter(
-      (element): element is HTMLDivElement => Boolean(element),
-    );
-
-    const titleOne = titleOneRef.current;
-    const titleTwo = titleTwoRef.current;
-
-    const statement = statementRef.current;
-    const line = lineRef.current;
-    const index = indexRef.current;
-
-    if (
-      !section ||
-      !stage ||
-      !eyebrow ||
-      founderCards.length !== 2 ||
-      founderInfos.length !== 2 ||
-      !titleOne ||
-      !titleTwo ||
-      !statement ||
-      !line ||
-      !index
-    ) {
+    if (!section || !heading) {
       return;
     }
 
-    gsap.registerPlugin(ScrollTrigger);
+    gsap.registerPlugin(
+      ScrollTrigger,
+    );
 
-    let refreshFrame = 0;
+    const ctx = gsap.context(() => {
+      /* ================================================================
+         SECTION HEADING
+         ================================================================ */
 
-    const context = gsap.context(() => {
-      const isMobile = window.innerWidth < 768;
-
-      /*
-       * ------------------------------------------------------------
-       * Initial states
-       * ------------------------------------------------------------
-       */
-
-      gsap.set(eyebrow, {
-        autoAlpha: 0,
-        y: 18,
-      });
-
-      /*
-       * Both founder images begin around the center.
-       */
-
-      gsap.set(founderCards[0], {
-        xPercent: -50,
-        yPercent: -50,
-
-        x: isMobile ? -18 : -40,
-        y: isMobile ? -25 : 0,
-
-        rotation: -2,
-
-        scale: 0.84,
-        autoAlpha: 0,
-
-        force3D: true,
-      });
-
-      gsap.set(founderCards[1], {
-        xPercent: -50,
-        yPercent: -50,
-
-        x: isMobile ? 18 : 40,
-        y: isMobile ? 25 : 0,
-
-        rotation: 2,
-
-        scale: 0.84,
-        autoAlpha: 0,
-
-        force3D: true,
-      });
-
-      gsap.set(founderInfos, {
-        autoAlpha: 0,
-        y: 20,
-      });
-
-      gsap.set([titleOne, titleTwo], {
-        autoAlpha: 0,
-        yPercent: 110,
-
-        force3D: true,
-      });
-
-      gsap.set(statement, {
-        autoAlpha: 0,
-        y: 45,
-      });
-
-      gsap.set(line, {
-        scaleX: 0,
-
-        transformOrigin: "center center",
-      });
-
-      gsap.set(index, {
-        autoAlpha: 0,
-        y: 10,
-      });
-
-      /*
-       * ------------------------------------------------------------
-       * Timeline
-       *
-       * NO GSAP PIN.
-       * The sticky element is handled by CSS.
-       * ------------------------------------------------------------
-       */
-
-      const timeline = gsap.timeline({
-        scrollTrigger: {
-          trigger: section,
-
-          start: "top top",
-          end: "bottom bottom",
-
-          scrub: 1,
-
-          invalidateOnRefresh: true,
+      gsap.fromTo(
+        heading,
+        {
+          autoAlpha: 0,
+          y: 25,
         },
-      });
-
-      /*
-       * 1. Section label.
-       */
-
-      timeline.to(
-        eyebrow,
         {
           autoAlpha: 1,
           y: 0,
 
-          duration: 0.3,
-          ease: "power2.out",
-        },
-        0,
-      );
-
-      /*
-       * 2. Both founders appear together.
-       */
-
-      timeline.to(
-        founderCards,
-        {
-          autoAlpha: 1,
-
-          scale: 1,
-
-          duration: 0.7,
-
-          stagger: 0.07,
+          duration: 0.8,
 
           ease: "power3.out",
-        },
-        0.05,
-      );
 
-      /*
-       * 3. Separate portraits.
-       */
+          scrollTrigger: {
+            trigger: section,
 
-      timeline.to(
-        founderCards[0],
-        {
-          x: () => (isMobile ? -82 : -Math.min(window.innerWidth * 0.23, 390)),
+            start: "top 82%",
 
-          y: isMobile ? -55 : 20,
-
-          rotation: isMobile ? -3 : -5,
-
-          duration: 0.9,
-
-          ease: "power3.inOut",
-
-          force3D: true,
-        },
-        0.48,
-      );
-
-      timeline.to(
-        founderCards[1],
-        {
-          x: () => (isMobile ? 82 : Math.min(window.innerWidth * 0.23, 390)),
-
-          y: isMobile ? 65 : -15,
-
-          rotation: isMobile ? 3 : 5,
-
-          duration: 0.9,
-
-          ease: "power3.inOut",
-
-          force3D: true,
-        },
-        0.48,
-      );
-
-      /*
-       * 4. Giant title rises from behind founders.
-       */
-
-      timeline.to(
-        titleOne,
-        {
-          autoAlpha: 1,
-          yPercent: 0,
-
-          duration: 0.72,
-
-          ease: "power4.out",
-        },
-        0.84,
-      );
-
-      timeline.to(
-        titleTwo,
-        {
-          autoAlpha: 1,
-          yPercent: 0,
-
-          duration: 0.72,
-
-          ease: "power4.out",
-        },
-        0.94,
-      );
-
-      /*
-       * 5. Small connecting line.
-       */
-
-      timeline.to(
-        line,
-        {
-          scaleX: 1,
-
-          duration: 0.5,
-
-          ease: "power3.out",
-        },
-        1.2,
-      );
-
-      /*
-       * 6. Founder details.
-       */
-
-      timeline.to(
-        founderInfos,
-        {
-          autoAlpha: 1,
-          y: 0,
-
-          duration: 0.4,
-
-          stagger: 0.08,
-
-          ease: "power2.out",
-        },
-        1.25,
-      );
-
-      /*
-       * 7. Studio statement.
-       */
-
-      timeline.to(
-        statement,
-        {
-          autoAlpha: 1,
-          y: 0,
-
-          duration: 0.65,
-
-          ease: "power3.out",
-        },
-        1.48,
-      );
-
-      timeline.to(
-        index,
-        {
-          autoAlpha: 1,
-          y: 0,
-
-          duration: 0.35,
-        },
-        1.55,
-      );
-
-      /*
-       * Tiny final movement for depth.
-       */
-
-      timeline.to(
-        founderCards[0],
-        {
-          y: isMobile ? -62 : 12,
-
-          duration: 0.55,
-
-          ease: "sine.inOut",
-        },
-        1.7,
-      );
-
-      timeline.to(
-        founderCards[1],
-        {
-          y: isMobile ? 58 : -7,
-
-          duration: 0.55,
-
-          ease: "sine.inOut",
-        },
-        1.7,
-      );
-
-      /*
-       * Hold final composition.
-       */
-
-      timeline.to(
-        {},
-        {
-          duration: 0.6,
+            once: true,
+          },
         },
       );
 
-      refreshFrame = requestAnimationFrame(() => {
-        ScrollTrigger.refresh();
-      });
+      /* ================================================================
+         FOUNDER ROWS
+         ================================================================ */
+
+      rowRefs.current.forEach(
+        (row, index) => {
+          const image =
+            imageRefs.current[index];
+
+          const content =
+            contentRefs.current[index];
+
+          const line =
+            lineRefs.current[index];
+
+          const journey =
+            journeyRefs.current[index];
+
+          if (
+            !row ||
+            !image ||
+            !content ||
+            !line ||
+            !journey
+          ) {
+            return;
+          }
+
+          const isReverse =
+            index === 1;
+
+          /* ------------------------------------------------------------
+             Initial image
+             ------------------------------------------------------------ */
+
+          gsap.set(image, {
+            autoAlpha: 0,
+
+            y: 70,
+
+            x: isReverse
+              ? 35
+              : -35,
+
+            scale: 0.94,
+
+            rotation:
+              isReverse
+                ? 1.5
+                : -1.5,
+
+            force3D: true,
+          });
+
+          /* ------------------------------------------------------------
+             Initial text
+             ------------------------------------------------------------ */
+
+          gsap.set(content, {
+            autoAlpha: 0,
+
+            y: 55,
+
+            x: isReverse
+              ? -25
+              : 25,
+
+            filter:
+              "blur(10px)",
+
+            force3D: true,
+          });
+
+          gsap.set(line, {
+            scaleX: 0,
+
+            transformOrigin:
+              isReverse
+                ? "right center"
+                : "left center",
+          });
+
+          gsap.set(journey.children, {
+            autoAlpha: 0,
+
+            y: 12,
+          });
+
+          /* ------------------------------------------------------------
+             Timeline
+             ------------------------------------------------------------ */
+
+          const timeline =
+            gsap.timeline({
+              scrollTrigger: {
+                trigger: row,
+
+                start:
+                  "top 76%",
+
+                end:
+                  "center 46%",
+
+                scrub: 0.85,
+
+                invalidateOnRefresh:
+                  true,
+              },
+            });
+
+          timeline.to(
+            image,
+            {
+              autoAlpha: 1,
+
+              y: 0,
+              x: 0,
+
+              scale: 1,
+
+              rotation: 0,
+
+              duration: 0.9,
+
+              ease:
+                "power4.out",
+            },
+            0,
+          );
+
+          timeline.to(
+            content,
+            {
+              autoAlpha: 1,
+
+              y: 0,
+              x: 0,
+
+              filter:
+                "blur(0px)",
+
+              duration: 0.82,
+
+              ease:
+                "power3.out",
+            },
+            0.1,
+          );
+
+          timeline.to(
+            line,
+            {
+              scaleX: 1,
+
+              duration: 0.55,
+
+              ease:
+                "power3.out",
+            },
+            0.48,
+          );
+
+          timeline.to(
+            journey.children,
+            {
+              autoAlpha: 1,
+
+              y: 0,
+
+              duration: 0.35,
+
+              stagger: 0.065,
+
+              ease:
+                "power2.out",
+            },
+            0.55,
+          );
+
+          /* ------------------------------------------------------------
+             Tiny parallax at end
+             ------------------------------------------------------------ */
+
+          timeline.to(
+            image,
+            {
+              y: -18,
+
+              duration: 0.45,
+
+              ease:
+                "none",
+            },
+            0.78,
+          );
+        },
+      );
     }, section);
 
     return () => {
-      cancelAnimationFrame(refreshFrame);
-
-      context.revert();
+      ctx.revert();
     };
   }, []);
 
@@ -421,537 +351,710 @@ export default function AboutUsSection() {
       aria-label="About Elevia Studio"
       className="
         relative
-        min-h-[210svh]
         w-full
+        overflow-hidden
+
         bg-[#E9E4DA]
         text-[#213943]
       "
     >
-      {/* ========================================================== */}
-      {/* STICKY VIEWPORT                                            */}
-      {/* ========================================================== */}
+      {/* ==========================================================
+          BACKGROUND
+          ========================================================== */}
 
       <div
-        ref={stageRef}
+        aria-hidden
         className="
-          sticky
+          pointer-events-none
+          absolute
+          inset-0
+        "
+        style={{
+          background: `
+            radial-gradient(
+              circle at 10% 16%,
+              rgba(245,74,0,.045),
+              transparent 26%
+            ),
+
+            radial-gradient(
+              circle at 90% 72%,
+              rgba(33,57,67,.055),
+              transparent 31%
+            )
+          `,
+        }}
+      />
+
+      {/* vertical guide */}
+
+      <div
+        aria-hidden
+        className="
+          pointer-events-none
+          absolute
+          bottom-0
+          left-1/2
           top-0
-          h-svh
-          w-full
-          overflow-hidden
+
+          hidden
+          w-px
+
+          bg-[#213943]/[0.055]
+
+          md:block
+        "
+      />
+
+      {/* ==========================================================
+          SECTION HEADER
+          ========================================================== */}
+
+      <SectionHeading
+        ref={headingRef}
+        number="08"
+        title="About Us"
+        subtitle="Two people. Different strengths. One studio."
+        className="
+    relative
+    z-20
+
+    mx-auto
+    w-[92vw]
+
+    max-w-[1500px]
+
+    opacity-0
+  "
+      />
+
+      {/* ==========================================================
+          FOUNDER 01 — IMAGE / CONTENT
+          ========================================================== */}
+
+      <FounderRow
+        founder={FOUNDERS[0]}
+        index={0}
+        reverse={false}
+        rowRef={(element) => {
+          rowRefs.current[0] = element;
+        }}
+        imageRef={(element) => {
+          imageRefs.current[0] = element;
+        }}
+        contentRef={(element) => {
+          contentRefs.current[0] = element;
+        }}
+        lineRef={(element) => {
+          lineRefs.current[0] = element;
+        }}
+        journeyRef={(element) => {
+          journeyRefs.current[0] = element;
+        }}
+      />
+
+      {/* ==========================================================
+          DIVIDER
+          ========================================================== */}
+
+      <div
+        className="
+          mx-auto
+          h-px
+          w-[calc(100%-40px)]
+          max-w-[1500px]
+
+          bg-[#213943]/10
+
+          md:w-[calc(100%-80px)]
+        "
+      />
+
+      {/* ==========================================================
+          FOUNDER 02 — CONTENT / IMAGE
+          ========================================================== */}
+
+      <FounderRow
+        founder={FOUNDERS[1]}
+        index={1}
+        reverse
+        rowRef={(element) => {
+          rowRefs.current[1] = element;
+        }}
+        imageRef={(element) => {
+          imageRefs.current[1] = element;
+        }}
+        contentRef={(element) => {
+          contentRefs.current[1] = element;
+        }}
+        lineRef={(element) => {
+          lineRefs.current[1] = element;
+        }}
+        journeyRef={(element) => {
+          journeyRefs.current[1] = element;
+        }}
+      />
+
+      {/* ==========================================================
+          END MARK
+          ========================================================== */}
+
+      <div
+        className="
+          relative
+          z-10
+
+          mx-auto
+
+          flex
+          max-w-[1500px]
+
+          items-center
+          justify-between
+
+          border-t
+          border-[#213943]/10
+
+          px-5
+          py-8
+
+          text-[8px]
+          uppercase
+          tracking-[0.24em]
+
+          text-[#213943]/35
+
+          md:px-10
+          md:py-10
+          md:text-[9px]
         "
       >
-        {/* ======================================================== */}
-        {/* BACKGROUND DETAILS                                       */}
-        {/* ======================================================== */}
+        <span>Elevia Studio</span>
 
-        <div
-          aria-hidden="true"
-          className="
-            pointer-events-none
-            absolute
-            inset-x-0
-            top-1/2
-            h-px
-            bg-[#213943]/10
-          "
-        />
-
-        <div
-          aria-hidden="true"
-          className="
-            pointer-events-none
-            absolute
-            bottom-0
-            left-1/2
-            top-0
-            w-px
-            bg-[#213943]/[0.055]
-          "
-        />
-
-        {/* Big background number */}
-
-        <div
-          aria-hidden="true"
-          className="
-            pointer-events-none
-            absolute
-            -bottom-[8vh]
-            -right-[2vw]
-            text-[clamp(15rem,34vw,36rem)]
-            font-light
-            leading-none
-            tracking-[-0.1em]
-            text-[#213943]/[0.035]
-          "
-        >
-          05
-        </div>
-
-        {/* ======================================================== */}
-        {/* TOP AREA                                                 */}
-        {/* ======================================================== */}
-
-        <div
-          className="
-            absolute
-            inset-x-0
-            top-0
-            z-50
-            flex
-            items-center
-            justify-between
-            px-5
-            pt-6
-            md:px-10
-            md:pt-8
-          "
-        >
-          <p
-            ref={eyebrowRef}
-            className="
-              text-[10px]
-              font-medium
-              uppercase
-              tracking-[0.3em]
-              text-[#213943]/50
-              opacity-0
-              md:text-xs
-            "
-          >
-            05 / About us
-          </p>
-
-          <p
-            className="
-              hidden
-              text-[10px]
-              uppercase
-              tracking-[0.22em]
-              text-[#213943]/40
-              md:block
-            "
-          >
-            Elevia Studio
-          </p>
-        </div>
-
-        {/* ======================================================== */}
-        {/* TYPOGRAPHY BEHIND FOUNDERS                               */}
-        {/* ======================================================== */}
-
-        <div
-          className="
-            pointer-events-none
-            absolute
-            inset-0
-            z-10
-          "
-        >
-          {/* TWO MINDS */}
-
-          <div
-            className="
-              absolute
-              left-0
-              top-[12vh]
-              w-full
-              overflow-hidden
-              px-4
-              md:top-[9vh]
-              md:px-8
-            "
-          >
-            <h2
-              ref={titleOneRef}
-              className="
-                text-center
-                text-[clamp(4.5rem,14vw,15rem)]
-                font-light
-                leading-[0.76]
-                tracking-[-0.09em]
-              "
-            >
-              Two Minds
-            </h2>
-          </div>
-
-          {/* ONE DIRECTION */}
-
-          <div
-            className="
-              absolute
-              bottom-[12vh]
-              left-0
-              w-full
-              overflow-hidden
-              px-4
-              md:bottom-[7vh]
-              md:px-8
-            "
-          >
-            <h2
-              ref={titleTwoRef}
-              className="
-                whitespace-nowrap
-                text-center
-                text-[clamp(3.9rem,11.5vw,12.5rem)]
-                font-light
-                leading-[0.76]
-                tracking-[-0.085em]
-              "
-            >
-              One Direction
-            </h2>
-          </div>
-        </div>
-
-        {/* ======================================================== */}
-        {/* FOUNDERS                                                 */}
-        {/* ======================================================== */}
-
-        <div
-          className="
-            absolute
-            inset-0
-            z-20
-          "
-        >
-          {FOUNDERS.map((founder, index) => (
-            <div
-              key={founder.number}
-              ref={(element) => {
-                founderRefs.current[index] = element;
-              }}
-              className="
-                  absolute
-                  left-1/2
-                  top-[49%]
-                  w-[42vw]
-                  max-w-[260px]
-                  opacity-0
-                  will-change-transform
-                  sm:w-[34vw]
-                  md:top-[50%]
-                  md:w-[24vw]
-                  md:max-w-[390px]
-                "
-            >
-              {/* Portrait */}
-
-              <div
-                className="
-                    group
-                    relative
-                    aspect-[4/5]
-                    overflow-hidden
-                    rounded-[2rem]
-                    bg-[#213943]
-                    shadow-[0_30px_70px_rgba(33,57,67,0.18)]
-                    md:rounded-[2.7rem]
-                  "
-              >
-                <Image
-                  src={founder.image}
-                  alt={founder.name}
-                  fill
-                  sizes="
-                      (max-width: 767px) 42vw,
-                      24vw
-                    "
-                  className="
-                      select-none
-                      object-cover
-                      transition-transform
-                      duration-700
-                      ease-out
-                      group-hover:scale-[1.025]
-                    "
-                  style={{
-                    objectPosition: founder.imagePosition,
-                  }}
-                  draggable={false}
-                />
-
-                {/* Soft image gradient */}
-
-                <div
-                  className="
-                      pointer-events-none
-                      absolute
-                      inset-0
-                      bg-linear-to-t
-                      from-[#152B34]/45
-                      via-transparent
-                      to-white/[0.05]
-                    "
-                />
-
-                {/* Number */}
-
-                <div
-                  className="
-                      absolute
-                      left-4
-                      top-4
-                      flex
-                      h-9
-                      w-9
-                      items-center
-                      justify-center
-                      rounded-full
-                      border
-                      border-white/25
-                      bg-black/10
-                      text-[9px]
-                      font-medium
-                      tracking-[0.1em]
-                      text-white
-                      backdrop-blur-md
-                      md:left-5
-                      md:top-5
-                    "
-                >
-                  {founder.number}
-                </div>
-
-                {/* Little orange detail */}
-
-                <div
-                  className="
-                      absolute
-                      bottom-4
-                      right-4
-                      h-2
-                      w-2
-                      rounded-full
-                      bg-[#F54A00]
-                      md:bottom-5
-                      md:right-5
-                    "
-                />
-              </div>
-
-              {/* Founder info */}
-
-              <div
-                ref={(element) => {
-                  founderInfoRefs.current[index] = element;
-                }}
-                className="
-                    mt-4
-                    opacity-0
-                    md:mt-5
-                  "
-              >
-                <div
-                  className="
-                      flex
-                      items-start
-                      justify-between
-                      gap-3
-                    "
-                >
-                  <p
-                    className="
-                        text-lg
-                        font-light
-                        tracking-[-0.04em]
-                        md:text-2xl
-                      "
-                  >
-                    {founder.name}
-                  </p>
-
-                  <span
-                    className="
-                        mt-2
-                        h-1.5
-                        w-1.5
-                        shrink-0
-                        rounded-full
-                        bg-[#F54A00]
-                      "
-                  />
-                </div>
-
-                <p
-                  className="
-                      mt-1
-                      text-[9px]
-                      font-medium
-                      uppercase
-                      tracking-[0.19em]
-                      text-[#213943]/45
-                      md:text-[10px]
-                    "
-                >
-                  {founder.role}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* ======================================================== */}
-        {/* CENTRAL CONNECTION                                       */}
-        {/* ======================================================== */}
-
-        <div
-          className="
-            pointer-events-none
-            absolute
-            left-1/2
-            top-[51%]
-            z-30
-            hidden
-            w-[11vw]
-            max-w-[150px]
-            -translate-x-1/2
-            md:block
-          "
-        >
-          <div
-            ref={lineRef}
-            className="
-              h-px
-              w-full
-              bg-[#213943]/25
-            "
-          />
-
-          <div
-            className="
-              absolute
-              left-1/2
-              top-1/2
-              h-2
-              w-2
-              -translate-x-1/2
-              -translate-y-1/2
-              rounded-full
-              border
-              border-[#213943]/30
-              bg-[#E9E4DA]
-            "
-          />
-        </div>
-
-        {/* ======================================================== */}
-        {/* MANIFESTO                                                */}
-        {/* ======================================================== */}
-
-        <div
-          ref={statementRef}
-          className="
-            invisible
-            absolute
-            bottom-[5vh]
-            left-5
-            z-40
-            max-w-[88vw]
-            opacity-0
-            md:bottom-[6vh]
-            md:left-10
-            md:max-w-[30vw]
-          "
-        >
-          <p
-            className="
-              mb-3
-              text-[9px]
-              font-medium
-              uppercase
-              tracking-[0.27em]
-              text-[#213943]/45
-            "
-          >
-            The studio
-          </p>
-
-          <p
-            className="
-              text-[clamp(1.25rem,2vw,2.15rem)]
-              font-light
-              leading-[1.05]
-              tracking-[-0.045em]
-            "
-          >
-            Two founders. Different instincts. One standard for the work — ideas
-            that are clear, memorable and built to move.
-          </p>
-
-          <div
-            className="
-              mt-5
-              flex
-              flex-wrap
-              gap-x-5
-              gap-y-2
-              text-[8px]
-              font-medium
-              uppercase
-              tracking-[0.2em]
-              text-[#213943]/40
-              md:text-[9px]
-            "
-          >
-            <span>Strategy</span>
-            <span>Design</span>
-            <span>Technology</span>
-            <span>Motion</span>
-          </div>
-        </div>
-
-        {/* ======================================================== */}
-        {/* RIGHT BOTTOM INDEX                                       */}
-        {/* ======================================================== */}
-
-        <div
-          ref={indexRef}
-          className="
-            absolute
-            bottom-6
-            right-5
-            z-40
-            hidden
-            items-center
-            gap-4
-            opacity-0
-            md:bottom-8
-            md:right-10
-            md:flex
-          "
-        >
-          <span
-            className="
-              text-[9px]
-              uppercase
-              tracking-[0.2em]
-              text-[#213943]/40
-            "
-          >
-            Built together
-          </span>
-
-          <span
-            className="
-              flex
-              h-8
-              w-8
-              items-center
-              justify-center
-              rounded-full
-              border
-              border-[#213943]/15
-              text-xs
-            "
-          >
-            +
-          </span>
-        </div>
+        <span>Built together</span>
       </div>
     </section>
+  );
+}
+
+/* ==========================================================================
+   FOUNDER ROW
+   ========================================================================== */
+
+function FounderRow({
+  founder,
+  index,
+  reverse,
+
+  rowRef,
+  imageRef,
+  contentRef,
+  lineRef,
+  journeyRef,
+}: {
+  founder:
+    (typeof FOUNDERS)[number];
+
+  index: number;
+
+  reverse: boolean;
+
+  rowRef: (
+    element:
+      | HTMLDivElement
+      | null,
+  ) => void;
+
+  imageRef: (
+    element:
+      | HTMLDivElement
+      | null,
+  ) => void;
+
+  contentRef: (
+    element:
+      | HTMLDivElement
+      | null,
+  ) => void;
+
+  lineRef: (
+    element:
+      | HTMLDivElement
+      | null,
+  ) => void;
+
+  journeyRef: (
+    element:
+      | HTMLDivElement
+      | null,
+  ) => void;
+}) {
+  return (
+    <div
+      ref={rowRef}
+      className="
+        relative
+        z-10
+
+        mx-auto
+
+        grid
+        min-h-[88svh]
+        w-full
+        max-w-[1600px]
+
+        grid-cols-1
+
+        items-center
+
+        gap-10
+
+        px-5
+        py-20
+
+        md:min-h-[90svh]
+        md:grid-cols-2
+        md:gap-[4vw]
+        md:px-10
+        md:py-[10vh]
+      "
+    >
+      {/* ========================================================
+          IMAGE
+          ======================================================== */}
+
+      <div
+        ref={imageRef}
+        className={`
+          relative
+
+          ${
+            reverse
+              ? "order-2 md:order-2"
+              : "order-1 md:order-1"
+          }
+
+          will-change-transform
+        `}
+      >
+        <FounderImage
+          founder={founder}
+          index={index}
+        />
+      </div>
+
+      {/* ========================================================
+          TEXT
+          ======================================================== */}
+
+      <div
+        ref={contentRef}
+        className={`
+          ${
+            reverse
+              ? "order-1 md:order-1"
+              : "order-2 md:order-2"
+          }
+
+          relative
+
+          will-change-[transform,opacity,filter]
+        `}
+      >
+        {/* Number */}
+
+        <div
+          className="
+            mb-7
+
+            flex
+            items-center
+            gap-4
+
+            text-[9px]
+            uppercase
+            tracking-[0.28em]
+
+            text-[#213943]/35
+          "
+        >
+          <span>
+            {founder.number}
+          </span>
+
+          <span
+            className="
+              h-px
+              w-10
+
+              bg-[#213943]/20
+            "
+          />
+
+          <span>
+            Founder
+          </span>
+        </div>
+
+        {/* Name */}
+
+        <h3
+          className="
+            text-[clamp(2.8rem,6vw,6.6rem)]
+
+            font-light
+            leading-[0.86]
+
+            tracking-[-0.07em]
+          "
+        >
+          {founder.name}
+        </h3>
+
+        {/* Role */}
+
+        <p
+          className="
+            mt-4
+
+            text-[11px]
+            font-medium
+            uppercase
+            tracking-[0.32em]
+
+            text-[#F54A00]
+
+            md:text-xs
+          "
+        >
+          {founder.label}
+        </p>
+
+        {/* divider */}
+
+        <div
+          ref={lineRef}
+          className="
+            my-9
+
+            h-px
+            w-full
+            max-w-[520px]
+
+            bg-[#213943]/20
+
+            md:my-11
+          "
+        />
+
+        {/* Intro */}
+
+        <p
+          className="
+            max-w-[610px]
+
+            text-[clamp(1.25rem,2vw,2rem)]
+
+            font-light
+            leading-[1.25]
+
+            tracking-[-0.035em]
+
+            text-[#213943]/55
+          "
+        >
+          {founder.intro}
+        </p>
+
+        {/* Statement */}
+
+        <p
+          className="
+            mt-7
+            max-w-[680px]
+
+            text-[clamp(1.8rem,3.2vw,3.8rem)]
+
+            font-light
+            leading-[1.04]
+
+            tracking-[-0.055em]
+
+            md:mt-9
+          "
+        >
+          {founder.statement}
+        </p>
+
+        {/* Journey */}
+
+        <div
+          ref={journeyRef}
+          className="
+            mt-10
+
+            flex
+            max-w-[720px]
+
+            flex-wrap
+            items-center
+
+            gap-x-3
+            gap-y-3
+
+            md:mt-12
+            md:gap-x-4
+          "
+        >
+          {founder.journey.map(
+            (step, stepIndex) => (
+              <div
+                key={step}
+                className="
+                  flex
+                  items-center
+                  gap-3
+                "
+              >
+                <span
+                  className="
+                    text-[8px]
+                    font-medium
+                    uppercase
+                    tracking-[0.2em]
+
+                    text-[#213943]/55
+
+                    md:text-[9px]
+                  "
+                >
+                  {step}
+                </span>
+
+                {stepIndex !==
+                  founder.journey
+                    .length -
+                    1 && (
+                  <span
+                    className="
+                      text-sm
+                      font-light
+
+                      text-[#F54A00]/70
+                    "
+                  >
+                    →
+                  </span>
+                )}
+              </div>
+            ),
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ==========================================================================
+   IMAGE
+   ========================================================================== */
+
+function FounderImage({
+  founder,
+  index,
+}: {
+  founder:
+    (typeof FOUNDERS)[number];
+
+  index: number;
+}) {
+  return (
+    <div
+      className="
+    relative
+  
+    mx-auto
+  
+    w-[78vw]
+    max-w-[340px]
+  
+    sm:w-[62vw]
+    sm:max-w-[380px]
+  
+    md:w-[32vw]
+    md:max-w-[430px]
+  
+    lg:w-[28vw]
+    lg:max-w-[460px]
+  
+    xl:w-[25vw]
+    xl:max-w-[480px]
+  
+    md:mx-auto
+  "
+    >
+      {/* giant number behind */}
+
+      <div
+        aria-hidden
+        className={`
+          pointer-events-none
+
+          absolute
+          -top-[12%]
+
+          ${index === 0 ? "-left-[8%]" : "-right-[8%]"}
+
+          z-0
+
+          text-[clamp(8rem,17vw,17rem)]
+
+          font-light
+          leading-none
+
+          tracking-[-0.1em]
+
+          text-[#213943]/[0.035]
+        `}
+      >
+        {founder.number}
+      </div>
+
+      {/* orange mark */}
+
+      <div
+        aria-hidden
+        className={`
+          absolute
+
+          ${index === 0 ? "-left-3 top-[16%]" : "-right-3 top-[16%]"}
+
+          z-20
+
+          h-[18%]
+          w-[3px]
+
+          bg-[#F54A00]
+        `}
+      />
+
+      {/* portrait */}
+
+      <div
+        className="
+          group
+          relative
+          z-10
+
+          aspect-[4/5]
+
+          overflow-hidden
+
+          rounded-[1.8rem]
+
+          bg-[#213943]
+
+          shadow-[0_35px_90px_rgba(33,57,67,0.16)]
+
+          md:rounded-[2.5rem]
+        "
+      >
+        <Image
+          src={founder.image}
+          alt={founder.name}
+          fill
+          sizes="
+  (max-width: 639px) 78vw,
+  (max-width: 767px) 62vw,
+  (max-width: 1279px) 32vw,
+  25vw
+"
+          className="
+            select-none
+
+            object-cover
+
+            transition-transform
+            duration-700
+            ease-out
+
+            group-hover:scale-[1.025]
+          "
+          style={{
+            objectPosition: founder.imagePosition,
+          }}
+          draggable={false}
+        />
+
+        {/* image wash */}
+
+        <div
+          aria-hidden
+          className="
+            pointer-events-none
+            absolute
+            inset-0
+
+            bg-linear-to-t
+
+            from-[#152B34]/30
+            via-transparent
+            to-white/[0.04]
+          "
+        />
+
+        {/* corner index */}
+
+        <div
+          className="
+            absolute
+
+            left-5
+            top-5
+
+            flex
+            h-10
+            w-10
+
+            items-center
+            justify-center
+
+            rounded-full
+
+            border
+            border-white/25
+
+            bg-black/10
+
+            text-[9px]
+            font-medium
+            tracking-[0.1em]
+
+            text-white
+
+            backdrop-blur-md
+          "
+        >
+          {founder.number}
+        </div>
+
+        {/* orange dot */}
+
+        <span
+          className="
+            absolute
+            bottom-5
+            right-5
+
+            h-2
+            w-2
+
+            rounded-full
+
+            bg-[#F54A00]
+          "
+        />
+      </div>
+    </div>
   );
 }

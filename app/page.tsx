@@ -6,6 +6,7 @@ import SelectedWorkConceptA from "@/components/SelectedWorkConceptA";
 import ReelsShowcaseSection from "@/components/ReelsShowcaseSection";
 import AboutUsSection from "@/components/AboutUsSection";
 import PackagingShowcaseSection from "@/components/PackagingShowcaseSection";
+import FeaturedReelSection from "@/components/FeaturedReelSection";
 
 export default function Home() {
   return (
@@ -14,14 +15,11 @@ export default function Home() {
         <Hero visible />
 
         <LogoDiceSection />
-
-        <SocialMediaManagementSection />
+        <FeaturedReelSection />
         <PackagingShowcaseSection />
-
         <SelectedWorkConceptA />
-
+        <SocialMediaManagementSection />
         <ReelsShowcaseSection />
-
         <AboutUsSection />
       </main>
     </Intro>

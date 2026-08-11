@@ -4,6 +4,7 @@ import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLayoutEffect, useRef } from "react";
+import SectionHeading from "./SectionHeading";
 
 /* ==========================================================================
    DATA
@@ -776,48 +777,26 @@ export default function PackagingShowcaseSection() {
           PACKAGING
         </div>
 
-        {/* ========================================================
-            HEADER
-            ======================================================== */}
-
-        <div
+        <SectionHeading
           ref={sectionTitleRef}
+          number="05"
+          title="Packaging"
+          subtitle="Making the first impression before the product speaks."
           className="
-            absolute
+    absolute
+    left-1/2
+    top-5
+    z-50
 
-            left-5
-            top-5
+    w-[92vw]
 
-            z-50
+    -translate-x-1/2
 
-            flex
-            items-center
-            gap-3
+    opacity-0
 
-            text-[8px]
-            uppercase
-            tracking-[0.27em]
-
-            opacity-0
-
-            md:left-10
-            md:top-8
-            md:text-[9px]
-          "
-        >
-          <span>03</span>
-
-          <span
-            className="
-              h-px
-              w-7
-              bg-current
-              opacity-20
-            "
-          />
-
-          <span>Packaging & Print</span>
-        </div>
+    md:top-7
+  "
+        />
 
         {/* ========================================================
             COUNTER / PROGRESS
@@ -857,27 +836,26 @@ export default function PackagingShowcaseSection() {
               contentRefs.current[index] = element;
             }}
             className="
-                pointer-events-none
+    pointer-events-none
+    absolute
 
-                absolute
+    left-5
+    top-[18vh]
 
-                left-5
-                top-[11vh]
+    z-30
 
-                z-30
+    w-[88vw]
 
-                w-[88vw]
+    opacity-0
 
-                opacity-0
+    md:left-[5vw]
+    md:top-1/2
 
-                md:left-[5vw]
-                md:top-1/2
+    md:w-[35vw]
+    md:max-w-[520px]
 
-                md:w-[35vw]
-                md:max-w-[520px]
-
-                md:-translate-y-1/2
-              "
+    md:-translate-y-1/2
+  "
           >
             {/* NUMBER */}
 

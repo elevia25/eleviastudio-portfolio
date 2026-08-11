@@ -407,3 +407,14 @@ a,
     transition: none !important;
   }
 }
+[data-parallax],
+.mouse-parallax,
+.hero-visual {
+  will-change: transform, opacity;
+}
+.hero-soft-bg {
+  background:
+    radial-gradient(circle at 82% 12%, rgba(161, 75, 69, 0.34), transparent 30%),
+    radial-gradient(circle at 12% 72%, rgba(97, 68, 122, 0.35), transparent 34%),
+    linear-gradient(120deg, #2d173a 0%, #3d214b 48%, #7e2827 100%);
+}

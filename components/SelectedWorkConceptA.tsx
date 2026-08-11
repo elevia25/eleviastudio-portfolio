@@ -1,457 +1,183 @@
 "use client";
 
+import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
-  forwardRef,
-  type CSSProperties,
-  type ReactNode,
-  useLayoutEffect,
-  useRef,
-} from "react";
+  ArrowRight,
+  BarChart3,
+  BriefcaseMedical,
+  CalendarDays,
+  FileText,
+  FlaskConical,
+  Headphones,
+  Heart,
+  Home,
+  MapPin,
+  Mic,
+  Plus,
+  Search,
+  ShieldCheck,
+  Trophy,
+  UserRound,
+  WalletCards,
+} from "lucide-react";
+import { useLayoutEffect, useRef } from "react";
+
+/*
+ * IMPORTANT:
+ * Change this import to the real path of your existing Elevro HeroCanvas.
+ */
+import HeroCanvas from "@/components/HeroCanvas";
+import SectionHeading from "./SectionHeading";
 
 /* ==========================================================================
    TYPES
    ========================================================================== */
 
-type Point = {
-  x: number;
-  y: number;
-};
+type ProjectType = "web" | "app";
 
-type RouteLayout = {
-  terminal: Point;
+type ProjectVisual = "elevro" | "kpwood" | "shuruup" | "anmol";
 
-  label: Point;
-
-  route: Point[];
-};
-
-type ProjectTheme = "engineering" | "craft" | "finance" | "health";
+type ProjectIdentity =
+  | {
+      type: "logo";
+      src: string;
+      alt: string;
+    }
+  | {
+      type: "text";
+      value: string;
+    };
 
 type Project = {
   code: string;
-
-  name: string;
-
   category: string;
 
-  coreSubtitle: string;
+  type: ProjectType;
+  visual: ProjectVisual;
+
+  identity: ProjectIdentity;
 
   background: string;
   foreground: string;
   accent: string;
 
-  themeWord: string;
-
-  theme: ProjectTheme;
-
   href?: string;
-
-  services: string[];
-
-  intent: string;
-
-  benefit: string;
-
-  ghostLabels: {
-    text: string;
-    x: number;
-    y: number;
-  }[];
 };
 
 /* ==========================================================================
-   PROJECT DATA
+   DATA
    ========================================================================== */
 
 const PROJECTS: Project[] = [
   {
     code: "W — 001",
-    name: "Elevro",
     category: "Enterprise Engineering",
-    coreSubtitle: "Engineering Partner",
+
+    type: "web",
+    visual: "elevro",
+
+    identity: {
+      type: "logo",
+      src: "/projects/elevro.svg",
+      alt: "Elevro",
+    },
 
     background: "#221129",
     foreground: "#F1E8F4",
-    accent: "#B47AC6",
-
-    themeWord: "SYSTEM",
-    theme: "engineering",
+    accent: "#A25858",
 
     href: "https://elevro.com",
-
-    services: [
-      "Intelligent Quality Engineering",
-      "Product Enablement",
-      "Artificial Intelligence",
-      "Cloud Engineering & CloudOps",
-      "Digital Engineering",
-    ],
-
-    intent:
-      "Five interconnected engineering capabilities brought together as one clear enterprise ecosystem.",
-
-    benefit:
-      "Designed to make complex capabilities easier to understand while creating a stronger and more coherent technology presence.",
-
-    ghostLabels: [
-      { text: "SYS / 01", x: 5, y: 14 },
-      { text: "ENGINEERING", x: 79, y: 13 },
-      { text: "INTELLIGENCE / 03", x: 7, y: 76 },
-      { text: "CLOUD / 04", x: 81, y: 74 },
-      { text: "DIGITAL / 05", x: 45, y: 91 },
-    ],
   },
 
   {
     code: "W — 002",
-    name: "KP Wood Craft",
     category: "Carpentry & Interiors",
-    coreSubtitle: "Craftsmanship Since 1998",
+
+    type: "web",
+    visual: "kpwood",
+
+    identity: {
+      type: "logo",
+      src: "/projects/kp_logo.svg",
+      alt: "KP Wood Craft",
+    },
 
     background: "#1C1007",
-    foreground: "#F3E5D3",
-    accent: "#C58A52",
-
-    themeWord: "CRAFT",
-    theme: "craft",
+    foreground: "#F7F0E6",
+    accent: "#C8843C",
 
     href: "https://kpwoodcraft.in",
-
-    services: [
-      "Handcrafted Furniture",
-      "Custom Carpentry",
-      "Bespoke Woodwork",
-      "Full Home Renovation",
-      "Interior Woodwork",
-    ],
-
-    intent:
-      "Furniture, carpentry, renovation and bespoke woodwork brought together as one connected craftsmanship system.",
-
-    benefit:
-      "Designed to make the breadth of craftsmanship easier to understand while creating a premium, trust-led digital identity.",
-
-    ghostLabels: [
-      { text: "JOINERY / 01", x: 6, y: 14 },
-      { text: "CRAFT / MM", x: 80, y: 14 },
-      { text: "120", x: 9, y: 75 },
-      { text: "45°", x: 82, y: 73 },
-      { text: "WOOD / DETAIL", x: 44, y: 91 },
-    ],
   },
 
   {
     code: "W — 003",
-    name: "Shuruup",
     category: "Private Markets",
-    coreSubtitle: "Private Market Access",
 
-    background: "#07111F",
-    foreground: "#F4F1E8",
-    accent: "#D3AE58",
+    type: "web",
+    visual: "shuruup",
 
-    themeWord: "ACCESS",
-    theme: "finance",
+    identity: {
+      type: "text",
+      value: "Shuruup",
+    },
+
+    background: "#000000",
+    foreground: "#F5F5F5",
+    accent: "#5C8FC7",
 
     href: "https://shuruup.com",
-
-    services: [
-      "Pre-IPO Opportunities",
-      "High-Growth Startups",
-      "Private Equity",
-      "Institutional Opportunities",
-      "Curated Private Markets",
-    ],
-
-    intent:
-      "Private-market opportunities structured into one selective ecosystem built around discovery and access.",
-
-    benefit:
-      "Designed to make alternative investment opportunities easier to discover and understand while preserving a premium and exclusive experience.",
-
-    ghostLabels: [
-      { text: "PRIVATE / 03", x: 5, y: 14 },
-      { text: "PRE-IPO", x: 82, y: 13 },
-      { text: "ACCESS", x: 8, y: 75 },
-      { text: "DEAL FLOW", x: 81, y: 73 },
-      { text: "CURATED / 05", x: 44, y: 91 },
-    ],
   },
 
   {
     code: "W — 004",
-    name: "Anmol Medicare",
-    category: "Flutter Healthcare Application",
-    coreSubtitle: "Flutter · iOS + Android",
+    category: "Flutter · iOS + Android",
 
-    background: "#071713",
-    foreground: "#DDF0E7",
-    accent: "#63B494",
+    type: "app",
+    visual: "anmol",
 
-    themeWord: "CARE",
-    theme: "health",
+    identity: {
+      type: "text",
+      value: "Anmol Medicare",
+    },
 
-    services: [
-      "Tests & Packages",
-      "Booking Flows",
-      "Payments",
-      "Reports",
-      "Home Care & Consultation",
-      "Profile & Family",
-      "Corporate Module",
-    ],
-
-    intent:
-      "An end-to-end healthcare ecosystem connecting discovery, booking, payments, reports and ongoing patient care.",
-
-    benefit:
-      "Designed to simplify complex healthcare journeys and create one consistent product experience across iOS and Android.",
-
-    ghostLabels: [
-      { text: "FLOW / 01", x: 5, y: 14 },
-      { text: "IOS / ANDROID", x: 79, y: 14 },
-      { text: "CARE +", x: 7, y: 75 },
-      { text: "PATIENT FLOW", x: 79, y: 73 },
-      { text: "MEDICAL / 07", x: 44, y: 91 },
-    ],
+    background: "#07151D",
+    foreground: "#F0F7FA",
+    accent: "#2398D0",
   },
 ];
-
-/* ==========================================================================
-   NETWORK LAYOUTS
-   ========================================================================== */
-
-/*
- * Coordinates are percentages of the network canvas.
- *
- * Every route uses multiple orthogonal segments:
- *
- * core
- *   |
- *   +---------
- *             |
- *             +---- terminal
- *
- * That is intentionally different from a single SVG path.
- */
-
-const FIVE_NODE_LAYOUT: RouteLayout[] = [
-  // TOP
-  {
-    terminal: { x: 50, y: 13 },
-    label: { x: 50, y: 7 },
-
-    route: [
-      { x: 50, y: 40 },
-      { x: 50, y: 29 },
-      { x: 58, y: 29 },
-      { x: 58, y: 20 },
-      { x: 50, y: 20 },
-      { x: 50, y: 13 },
-    ],
-  },
-
-  // LEFT UPPER
-  {
-    terminal: { x: 14, y: 34 },
-    label: { x: 12, y: 28 },
-
-    route: [
-      { x: 39, y: 46 },
-      { x: 31, y: 46 },
-      { x: 31, y: 38 },
-      { x: 20, y: 38 },
-      { x: 20, y: 34 },
-      { x: 14, y: 34 },
-    ],
-  },
-
-  // RIGHT UPPER
-  {
-    terminal: { x: 86, y: 34 },
-    label: { x: 88, y: 28 },
-
-    route: [
-      { x: 61, y: 46 },
-      { x: 69, y: 46 },
-      { x: 69, y: 38 },
-      { x: 80, y: 38 },
-      { x: 80, y: 34 },
-      { x: 86, y: 34 },
-    ],
-  },
-
-  // LEFT LOWER
-  {
-    terminal: { x: 20, y: 78 },
-    label: { x: 18, y: 85 },
-
-    route: [
-      { x: 42, y: 57 },
-      { x: 42, y: 66 },
-      { x: 32, y: 66 },
-      { x: 32, y: 73 },
-      { x: 20, y: 73 },
-      { x: 20, y: 78 },
-    ],
-  },
-
-  // RIGHT LOWER
-  {
-    terminal: { x: 80, y: 78 },
-    label: { x: 82, y: 85 },
-
-    route: [
-      { x: 58, y: 57 },
-      { x: 58, y: 66 },
-      { x: 68, y: 66 },
-      { x: 68, y: 73 },
-      { x: 80, y: 73 },
-      { x: 80, y: 78 },
-    ],
-  },
-];
-
-const SEVEN_NODE_LAYOUT: RouteLayout[] = [
-  // TOP
-  {
-    terminal: { x: 50, y: 11 },
-    label: { x: 50, y: 5 },
-
-    route: [
-      { x: 50, y: 39 },
-      { x: 50, y: 28 },
-      { x: 58, y: 28 },
-      { x: 58, y: 19 },
-      { x: 50, y: 19 },
-      { x: 50, y: 11 },
-    ],
-  },
-
-  // LEFT TOP
-  {
-    terminal: { x: 13, y: 28 },
-    label: { x: 11, y: 23 },
-
-    route: [
-      { x: 39, y: 44 },
-      { x: 31, y: 44 },
-      { x: 31, y: 35 },
-      { x: 21, y: 35 },
-      { x: 21, y: 28 },
-      { x: 13, y: 28 },
-    ],
-  },
-
-  // RIGHT TOP
-  {
-    terminal: { x: 87, y: 28 },
-    label: { x: 89, y: 23 },
-
-    route: [
-      { x: 61, y: 44 },
-      { x: 69, y: 44 },
-      { x: 69, y: 35 },
-      { x: 79, y: 35 },
-      { x: 79, y: 28 },
-      { x: 87, y: 28 },
-    ],
-  },
-
-  // LEFT MID
-  {
-    terminal: { x: 10, y: 55 },
-    label: { x: 10, y: 50 },
-
-    route: [
-      { x: 39, y: 50 },
-      { x: 29, y: 50 },
-      { x: 29, y: 57 },
-      { x: 18, y: 57 },
-      { x: 18, y: 55 },
-      { x: 10, y: 55 },
-    ],
-  },
-
-  // RIGHT MID
-  {
-    terminal: { x: 90, y: 55 },
-    label: { x: 90, y: 50 },
-
-    route: [
-      { x: 61, y: 50 },
-      { x: 71, y: 50 },
-      { x: 71, y: 57 },
-      { x: 82, y: 57 },
-      { x: 82, y: 55 },
-      { x: 90, y: 55 },
-    ],
-  },
-
-  // LEFT BOTTOM
-  {
-    terminal: { x: 24, y: 83 },
-    label: { x: 21, y: 89 },
-
-    route: [
-      { x: 43, y: 59 },
-      { x: 43, y: 68 },
-      { x: 34, y: 68 },
-      { x: 34, y: 76 },
-      { x: 24, y: 76 },
-      { x: 24, y: 83 },
-    ],
-  },
-
-  // RIGHT BOTTOM
-  {
-    terminal: { x: 76, y: 83 },
-    label: { x: 79, y: 89 },
-
-    route: [
-      { x: 57, y: 59 },
-      { x: 57, y: 68 },
-      { x: 66, y: 68 },
-      { x: 66, y: 76 },
-      { x: 76, y: 76 },
-      { x: 76, y: 83 },
-    ],
-  },
-];
-
-/* ==========================================================================
-   MAIN COMPONENT
-   ========================================================================== */
 
 export default function SelectedWorkConceptA() {
   const sectionRef = useRef<HTMLElement>(null);
-
   const stageRef = useRef<HTMLDivElement>(null);
 
   const layerRefs = useRef<Array<HTMLDivElement | null>>([]);
 
-  const titleRefs = useRef<Array<HTMLHeadingElement | null>>([]);
+  const identityRefs = useRef<Array<HTMLDivElement | null>>([]);
 
-  const codeRefs = useRef<Array<HTMLParagraphElement | null>>([]);
+  const visualRefs = useRef<Array<HTMLDivElement | null>>([]);
 
-  const networkRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const metaRefs = useRef<Array<HTMLDivElement | null>>([]);
 
-  const intentRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const webHeadingRef = useRef<HTMLDivElement>(null);
 
-  const benefitRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const appHeadingRef = useRef<HTMLDivElement>(null);
 
-  const hintRef = useRef<HTMLDivElement>(null);
+  const scrollHintRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
 
     const stage = stageRef.current;
 
-    const hint = hintRef.current;
+    const webHeading = webHeadingRef.current;
 
-    if (!section || !stage || !hint) {
+    const appHeading = appHeadingRef.current;
+
+    const scrollHint = scrollHintRef.current;
+
+    if (!section || !stage || !webHeading || !appHeading || !scrollHint) {
       return;
     }
 
@@ -459,22 +185,18 @@ export default function SelectedWorkConceptA() {
 
     const layers = layerRefs.current;
 
-    const titles = titleRefs.current;
+    const identities = identityRefs.current;
 
-    const codes = codeRefs.current;
+    const visuals = visualRefs.current;
 
-    const networks = networkRefs.current;
-
-    const intents = intentRefs.current;
-
-    const benefits = benefitRefs.current;
+    const metas = metaRefs.current;
 
     let refreshFrame = 0;
 
     const context = gsap.context(() => {
-      /* ==================================================================== */
-      /* INITIAL PROJECT STATE                                                */
-      /* ==================================================================== */
+      /* ====================================================================
+         STAGE
+         ==================================================================== */
 
       gsap.set(stage, {
         backgroundColor: PROJECTS[0].background,
@@ -482,204 +204,83 @@ export default function SelectedWorkConceptA() {
         color: PROJECTS[0].foreground,
       });
 
+      gsap.set(webHeading, {
+        autoAlpha: 0,
+        y: -18,
+      });
+
+      gsap.set(appHeading, {
+        autoAlpha: 0,
+        y: 18,
+      });
+
+      gsap.set(scrollHint, {
+        autoAlpha: 0,
+        y: 10,
+      });
+
+      /* ====================================================================
+         PROJECT INITIAL STATE
+         ==================================================================== */
+
       layers.forEach((layer, index) => {
-        if (!layer) {
-          return;
-        }
+        if (!layer) return;
 
         gsap.set(layer, {
           autoAlpha: index === 0 ? 1 : 0,
 
           pointerEvents: index === 0 ? "auto" : "none",
         });
+
+        prepareSpecialVisual(layer);
       });
 
-      titles.forEach((title) => {
-        if (!title) {
-          return;
-        }
+      identities.forEach((identity) => {
+        if (!identity) return;
 
-        gsap.set(title, {
+        gsap.set(identity, {
           autoAlpha: 0,
 
-          yPercent: 115,
+          /*
+           * Starts from the SCREEN bottom,
+           * not from the bottom of its own container.
+           */
+          y: () => window.innerHeight * 0.62,
+
+          scale: 0.94,
+
+          filter: "blur(18px)",
 
           force3D: true,
         });
       });
 
-      codes.forEach((code) => {
-        if (!code) {
-          return;
-        }
+      visuals.forEach((visual) => {
+        if (!visual) return;
 
-        gsap.set(code, {
+        gsap.set(visual, {
           autoAlpha: 0,
 
-          y: 20,
+          x: 85,
+
+          scale: 0.9,
+
+          force3D: true,
         });
       });
 
-      intents.forEach((story) => {
-        if (!story) {
-          return;
-        }
+      metas.forEach((meta) => {
+        if (!meta) return;
 
-        gsap.set(story, {
+        gsap.set(meta, {
           autoAlpha: 0,
-
-          y: 45,
+          y: 16,
         });
       });
 
-      benefits.forEach((story) => {
-        if (!story) {
-          return;
-        }
-
-        gsap.set(story, {
-          autoAlpha: 0,
-
-          y: 45,
-        });
-      });
-
-      /*
-       * Prepare each ecosystem.
-       */
-
-      networks.forEach((network) => {
-        if (!network) {
-          return;
-        }
-
-        const backdrop = network.querySelector<HTMLElement>("[data-backdrop]");
-
-        const themeWord =
-          network.querySelector<HTMLElement>("[data-theme-word]");
-
-        const coreHalo = network.querySelector<HTMLElement>("[data-core-halo]");
-
-        const coreEdges = Array.from(
-          network.querySelectorAll<HTMLElement>("[data-core-edge]"),
-        );
-
-        const coreName = network.querySelector<HTMLElement>("[data-core-name]");
-
-        const coreMeta = network.querySelector<HTMLElement>("[data-core-meta]");
-
-        const activeSegments = Array.from(
-          network.querySelectorAll<HTMLElement>("[data-route-segment]"),
-        );
-
-        const terminals = Array.from(
-          network.querySelectorAll<HTMLElement>("[data-terminal]"),
-        );
-
-        const nodes = Array.from(
-          network.querySelectorAll<HTMLElement>("[data-service-node]"),
-        );
-
-        const signalDots = Array.from(
-          network.querySelectorAll<HTMLElement>("[data-signal]"),
-        );
-
-        if (backdrop) {
-          gsap.set(backdrop, {
-            autoAlpha: 0,
-          });
-        }
-
-        if (themeWord) {
-          gsap.set(themeWord, {
-            autoAlpha: 0,
-
-            scale: 0.94,
-          });
-        }
-
-        if (coreHalo) {
-          gsap.set(coreHalo, {
-            autoAlpha: 0,
-
-            scale: 0.7,
-          });
-        }
-
-        coreEdges.forEach((edge) => {
-          const axis = edge.dataset.axis ?? "x";
-
-          gsap.set(edge, {
-            scaleX: axis === "x" ? 0 : 1,
-
-            scaleY: axis === "y" ? 0 : 1,
-
-            autoAlpha: 0,
-
-            transformOrigin: edge.dataset.origin ?? "center center",
-          });
-        });
-
-        if (coreName) {
-          gsap.set(coreName, {
-            autoAlpha: 0,
-
-            y: 12,
-          });
-        }
-
-        if (coreMeta) {
-          gsap.set(coreMeta, {
-            autoAlpha: 0,
-
-            y: 8,
-          });
-        }
-
-        activeSegments.forEach((segment) => {
-          const axis = segment.dataset.axis ?? "x";
-
-          gsap.set(segment, {
-            scaleX: axis === "x" ? 0 : 1,
-
-            scaleY: axis === "y" ? 0 : 1,
-
-            autoAlpha: 0,
-
-            transformOrigin: segment.dataset.origin ?? "center center",
-          });
-        });
-
-        gsap.set(terminals, {
-          autoAlpha: 0,
-
-          scale: 0,
-        });
-
-        gsap.set(nodes, {
-          autoAlpha: 0,
-
-          y: 12,
-
-          scale: 0.94,
-        });
-
-        gsap.set(signalDots, {
-          autoAlpha: 0,
-
-          scale: 0,
-        });
-      });
-
-      gsap.set(hint, {
-        autoAlpha: 0,
-
-        y: 10,
-      });
-
-      /* ==================================================================== */
-      /* MASTER SCROLL TIMELINE                                               */
-      /* ==================================================================== */
+      /* ====================================================================
+         MASTER TIMELINE
+         ==================================================================== */
 
       const timeline = gsap.timeline({
         scrollTrigger: {
@@ -687,14 +288,8 @@ export default function SelectedWorkConceptA() {
 
           start: "top top",
 
-          end: () => `+=${Math.round(window.innerHeight * 16)}`,
+          end: () => `+=${Math.round(window.innerHeight * 13.5)}`,
 
-          /*
-           * Keep this.
-           *
-           * Pin the section inside the stable
-           * wrapper from page.tsx.
-           */
           pin: section,
 
           pinSpacing: true,
@@ -710,7 +305,6 @@ export default function SelectedWorkConceptA() {
 
             duration: {
               min: 0.25,
-
               max: 0.7,
             },
 
@@ -721,57 +315,54 @@ export default function SelectedWorkConceptA() {
         },
       });
 
-      /* ==================================================================== */
-      /* BUILD EACH PROJECT                                                   */
-      /* ==================================================================== */
+      /* ====================================================================
+         WEB DESIGN HEADER
+         ==================================================================== */
+
+      timeline.to(
+        webHeading,
+        {
+          autoAlpha: 1,
+          y: 0,
+
+          duration: 0.48,
+
+          ease: "power3.out",
+        },
+        0,
+      );
+
+      timeline.to(
+        scrollHint,
+        {
+          autoAlpha: 1,
+          y: 0,
+
+          duration: 0.35,
+        },
+        0.25,
+      );
+
+      /* ====================================================================
+         EACH PROJECT
+         ==================================================================== */
 
       PROJECTS.forEach((project, projectIndex) => {
         const layer = layers[projectIndex];
 
-        const title = titles[projectIndex];
+        const identity = identities[projectIndex];
 
-        const code = codes[projectIndex];
+        const visual = visuals[projectIndex];
 
-        const network = networks[projectIndex];
+        const meta = metas[projectIndex];
 
-        const intent = intents[projectIndex];
-
-        const benefit = benefits[projectIndex];
-
-        if (!layer || !title || !code || !network || !intent || !benefit) {
+        if (!layer || !identity || !visual || !meta) {
           return;
         }
 
-        const backdrop = network.querySelector<HTMLElement>("[data-backdrop]");
-
-        const themeWord =
-          network.querySelector<HTMLElement>("[data-theme-word]");
-
-        const coreHalo = network.querySelector<HTMLElement>("[data-core-halo]");
-
-        const coreEdges = Array.from(
-          network.querySelectorAll<HTMLElement>("[data-core-edge]"),
-        );
-
-        const coreName = network.querySelector<HTMLElement>("[data-core-name]");
-
-        const coreMeta = network.querySelector<HTMLElement>("[data-core-meta]");
-
-        const serviceNodes = Array.from(
-          network.querySelectorAll<HTMLElement>("[data-service-node]"),
-        );
-
-        const terminals = Array.from(
-          network.querySelectorAll<HTMLElement>("[data-terminal]"),
-        );
-
-        const signalDots = Array.from(
-          network.querySelectorAll<HTMLElement>("[data-signal]"),
-        );
-
-        /* ================================================================ */
-        /* TRANSITION INTO PROJECT                                          */
-        /* ================================================================ */
+        /* ================================================================
+             TRANSITION INTO NEXT PROJECT
+             ================================================================ */
 
         if (projectIndex > 0) {
           const previousLayer = layers[projectIndex - 1];
@@ -790,10 +381,9 @@ export default function SelectedWorkConceptA() {
             layer,
             {
               autoAlpha: 1,
-
               pointerEvents: "auto",
             },
-            "<0.28",
+            "<0.25",
           );
 
           if (previousLayer) {
@@ -809,83 +399,31 @@ export default function SelectedWorkConceptA() {
           }
         }
 
-        /* ================================================================ */
-        /* 1. BACKGROUND SYSTEM APPEARS                                     */
-        /* ================================================================ */
+        /* ================================================================
+             SWITCH WEB → APP HEADER
+             ================================================================ */
 
-        if (backdrop) {
-          timeline.to(backdrop, {
-            autoAlpha: 1,
-
-            duration: 0.42,
-
-            ease: "power2.out",
-          });
-        }
-
-        if (themeWord) {
+        if (projectIndex === 3) {
           timeline.to(
-            themeWord,
+            webHeading,
             {
-              autoAlpha: 0.045,
+              autoAlpha: 0,
 
-              scale: 1,
+              y: -16,
 
-              duration: 0.65,
-
-              ease: "power3.out",
+              duration: 0.35,
             },
-            "<0.08",
+            "<",
           );
-        }
 
-        /* ================================================================ */
-        /* 2. CENTRAL SYSTEM CORE CONSTRUCTS                                */
-        /* ================================================================ */
-
-        if (coreHalo) {
           timeline.to(
-            coreHalo,
-            {
-              autoAlpha: 1,
-
-              scale: 1,
-
-              duration: 0.42,
-
-              ease: "power3.out",
-            },
-            "<0.08",
-          );
-        }
-
-        timeline.to(
-          coreEdges,
-          {
-            scaleX: 1,
-
-            scaleY: 1,
-
-            autoAlpha: 1,
-
-            duration: 0.24,
-
-            stagger: 0.055,
-
-            ease: "power2.out",
-          },
-          "<0.08",
-        );
-
-        if (coreName) {
-          timeline.to(
-            coreName,
+            appHeading,
             {
               autoAlpha: 1,
 
               y: 0,
 
-              duration: 0.4,
+              duration: 0.5,
 
               ease: "power3.out",
             },
@@ -893,434 +431,145 @@ export default function SelectedWorkConceptA() {
           );
         }
 
-        if (coreMeta) {
-          timeline.to(
-            coreMeta,
-            {
-              autoAlpha: 1,
-
-              y: 0,
-
-              duration: 0.3,
-
-              ease: "power2.out",
-            },
-            "<0.08",
-          );
-        }
-
-        /* ================================================================ */
-        /* 3. ROUTES FORM OUT OF BACKGROUND                                 */
-        /* ================================================================ */
-
-        serviceNodes.forEach((node, nodeIndex) => {
-          const routeSegments = Array.from(
-            network.querySelectorAll<HTMLElement>(
-              `[data-route="${nodeIndex}"]`,
-            ),
-          );
-
-          const terminal = terminals[nodeIndex];
-
-          timeline.to(
-            routeSegments,
-            {
-              scaleX: 1,
-
-              scaleY: 1,
-
-              autoAlpha: 1,
-
-              duration: 0.22,
-
-              stagger: 0.055,
-
-              ease: "power2.out",
-            },
-            nodeIndex === 0 ? "<0.15" : "<0.04",
-          );
-
-          if (terminal) {
-            timeline.to(
-              terminal,
-              {
-                autoAlpha: 1,
-
-                scale: 1,
-
-                duration: 0.18,
-
-                ease: "back.out(2)",
-              },
-              "<0.05",
-            );
-          }
-
-          timeline.to(
-            node,
-            {
-              autoAlpha: 1,
-
-              y: 0,
-
-              scale: 1,
-
-              duration: 0.34,
-
-              ease: "power3.out",
-            },
-            "<0.04",
-          );
-        });
-
-        /* ================================================================ */
-        /* FINANCE SIGNAL DETAIL                                            */
-        /* ================================================================ */
-
-        if (project.theme === "finance" && signalDots.length > 0) {
-          timeline.to(
-            signalDots,
-            {
-              autoAlpha: 1,
-
-              scale: 1,
-
-              duration: 0.25,
-
-              stagger: 0.08,
-
-              ease: "back.out(2)",
-            },
-            "<0.15",
-          );
-        }
-
-        /* ================================================================ */
-        /* 4. LARGE PROJECT TITLE RISES BEHIND                              */
-        /* ================================================================ */
+        /* ================================================================
+             META
+             ================================================================ */
 
         timeline.to(
-          code,
+          meta,
           {
             autoAlpha: 1,
 
             y: 0,
-
-            duration: 0.3,
-
-            ease: "power2.out",
-          },
-          "<0.18",
-        );
-
-        timeline.to(
-          title,
-          {
-            autoAlpha: 1,
-
-            yPercent: 0,
-
-            duration: 0.72,
-
-            ease: "power4.out",
-          },
-          "<0.04",
-        );
-
-        if (projectIndex === 0) {
-          timeline.to(
-            hint,
-            {
-              autoAlpha: 1,
-
-              y: 0,
-
-              duration: 0.3,
-            },
-            "<0.28",
-          );
-        }
-
-        timeline.addLabel(`project-${projectIndex}-ecosystem`);
-
-        /* ================================================================ */
-        /* 5. WHAT WE SHAPED                                                */
-        /* ================================================================ */
-
-        timeline.to(
-          intent,
-          {
-            autoAlpha: 1,
-
-            y: 0,
-
-            duration: 0.55,
-
-            ease: "power3.out",
-          },
-          "+=0.16",
-        );
-
-        /*
-         * Small system response.
-         */
-
-        timeline.to(
-          serviceNodes,
-          {
-            x: (index) => (index % 2 === 0 ? 3 : -3),
-
-            duration: 0.4,
-
-            stagger: 0.025,
-
-            ease: "sine.inOut",
-          },
-          "<0.1",
-        );
-
-        timeline.to(
-          serviceNodes,
-          {
-            x: 0,
-
-            duration: 0.35,
-
-            stagger: 0.02,
-
-            ease: "sine.out",
-          },
-          "<0.18",
-        );
-
-        timeline.addLabel(`project-${projectIndex}-intent`);
-
-        /* ================================================================ */
-        /* 6. DESIGNED TO HELP                                              */
-        /* ================================================================ */
-
-        timeline.to(
-          intent,
-          {
-            autoAlpha: 0,
-
-            y: -28,
 
             duration: 0.32,
 
-            ease: "power2.in",
+            ease: "power2.out",
           },
-          "+=0.25",
+          projectIndex === 0 ? "<0.1" : "<0.15",
         );
 
-        timeline.fromTo(
-          benefit,
-          {
-            autoAlpha: 0,
+        /* ================================================================
+             IDENTITY COMES FROM VIEWPORT BOTTOM
+             ================================================================ */
 
-            y: 42,
-          },
+        timeline.to(
+          identity,
           {
             autoAlpha: 1,
 
             y: 0,
 
-            duration: 0.55,
+            scale: 1,
 
-            ease: "power3.out",
+            filter: "blur(0px)",
 
-            immediateRender: false,
+            duration: 0.9,
+
+            ease: "power4.out",
           },
-          "<0.12",
+          "<0.08",
         );
 
-        timeline.addLabel(`project-${projectIndex}-benefit`);
+        /* ================================================================
+             RIGHT VISUAL
+             ================================================================ */
 
-        /* ================================================================ */
-        /* LAST PROJECT                                                     */
-        /* ================================================================ */
+        timeline.to(
+          visual,
+          {
+            autoAlpha: 1,
+
+            x: 0,
+
+            scale: 1,
+
+            duration: 0.78,
+
+            ease: "power4.out",
+          },
+          "<0.2",
+        );
+
+        /* ================================================================
+             PROJECT-SPECIFIC HERO SEQUENCE
+             ================================================================ */
+
+        appendSpecialVisualAnimation(timeline, layer, project.visual);
+
+        timeline.addLabel(`project-${projectIndex}`);
+
+        /* ================================================================
+             HOLD
+             ================================================================ */
+
+        timeline.to(
+          {},
+          {
+            duration: project.visual === "shuruup" ? 0.65 : 0.8,
+          },
+        );
+
+        /* ================================================================
+             LAST PROJECT
+             ================================================================ */
 
         if (projectIndex === PROJECTS.length - 1) {
           timeline.to(
             {},
             {
-              duration: 0.8,
+              duration: 0.65,
             },
           );
 
           return;
         }
 
-        /* ================================================================ */
-        /* 7. SYSTEM DISSOLVES BACK INTO BACKGROUND                         */
-        /* ================================================================ */
+        /* ================================================================
+             EXIT
+             ================================================================ */
+
+        timeline.to(meta, {
+          autoAlpha: 0,
+
+          y: -15,
+
+          duration: 0.3,
+        });
 
         timeline.to(
-          [benefit, code],
+          identity,
           {
             autoAlpha: 0,
 
-            y: -18,
+            y: -85,
 
-            duration: 0.3,
-          },
-          "+=0.3",
-        );
+            scale: 0.96,
 
-        timeline.to(
-          title,
-          {
-            autoAlpha: 0,
+            filter: "blur(10px)",
 
-            yPercent: -50,
-
-            duration: 0.4,
+            duration: 0.48,
 
             ease: "power3.in",
           },
           "<",
         );
 
-        /*
-         * Service labels disappear first.
-         */
-
         timeline.to(
-          serviceNodes,
+          visual,
           {
             autoAlpha: 0,
 
-            y: -8,
+            x: 70,
 
-            duration: 0.3,
+            scale: 0.94,
 
-            stagger: {
-              each: 0.025,
+            duration: 0.48,
 
-              from: "edges",
-            },
-
-            ease: "power2.in",
+            ease: "power3.in",
           },
-          "<0.04",
+          "<0.05",
         );
-
-        timeline.to(
-          terminals,
-          {
-            autoAlpha: 0,
-
-            scale: 0,
-
-            duration: 0.22,
-
-            stagger: 0.02,
-          },
-          "<0.06",
-        );
-
-        /*
-         * Active route doesn't retract toward
-         * the center.
-         *
-         * It simply loses contrast until it is
-         * visually absorbed into the background
-         * ghost system.
-         */
-
-        const allActiveSegments = Array.from(
-          network.querySelectorAll<HTMLElement>("[data-route-segment]"),
-        );
-
-        timeline.to(
-          allActiveSegments,
-          {
-            autoAlpha: 0,
-
-            duration: 0.42,
-
-            stagger: 0.01,
-
-            ease: "power2.in",
-          },
-          "<0.06",
-        );
-
-        timeline.to(
-          signalDots,
-          {
-            autoAlpha: 0,
-
-            scale: 0,
-
-            duration: 0.2,
-          },
-          "<",
-        );
-
-        if (coreName) {
-          timeline.to(
-            coreName,
-            {
-              autoAlpha: 0,
-
-              y: -8,
-
-              duration: 0.3,
-            },
-            "<0.08",
-          );
-        }
-
-        if (coreMeta) {
-          timeline.to(
-            coreMeta,
-            {
-              autoAlpha: 0,
-
-              duration: 0.22,
-            },
-            "<",
-          );
-        }
-
-        timeline.to(
-          coreEdges,
-          {
-            autoAlpha: 0,
-
-            duration: 0.3,
-
-            stagger: 0.025,
-          },
-          "<",
-        );
-
-        if (coreHalo) {
-          timeline.to(
-            coreHalo,
-            {
-              autoAlpha: 0,
-
-              scale: 0.92,
-
-              duration: 0.35,
-            },
-            "<",
-          );
-        }
-
-        if (backdrop) {
-          timeline.to(
-            backdrop,
-            {
-              autoAlpha: 0,
-
-              duration: 0.35,
-            },
-            "<0.12",
-          );
-        }
       });
 
       refreshFrame = requestAnimationFrame(() => {
@@ -1338,7 +587,7 @@ export default function SelectedWorkConceptA() {
   return (
     <section
       ref={sectionRef}
-      aria-label="Selected work"
+      aria-label="Selected projects"
       className="
         relative
         isolate
@@ -1356,24 +605,89 @@ export default function SelectedWorkConceptA() {
           overflow-hidden
         "
       >
+        {/* ========================================================
+            GLOBAL TEXTURE
+            ======================================================== */}
+
         <div
+          aria-hidden
           className="
             pointer-events-none
             absolute
-            left-5
-            top-5
-            z-[70]
-            text-[10px]
-            font-medium
-            uppercase
-            tracking-[0.3em]
-            opacity-45
-            md:left-10
-            md:top-8
+            inset-0
+            z-0
+            opacity-40
           "
-        >
-          Selected Work
-        </div>
+          style={{
+            backgroundImage: `
+              radial-gradient(
+                circle at 18% 22%,
+                rgba(255,255,255,.025),
+                transparent 26%
+              ),
+
+              radial-gradient(
+                circle at 78% 74%,
+                rgba(0,0,0,.18),
+                transparent 35%
+              )
+            `,
+          }}
+        />
+
+        {/* ========================================================
+            WEB HEADING
+            ======================================================== */}
+
+        <SectionHeading
+          ref={webHeadingRef}
+          number="03"
+          title="Web Design"
+          subtitle="Digital experiences built around the brand."
+          className="
+              absolute
+              left-1/2
+              top-5
+              z-[100]
+
+              w-[92vw]
+
+              -translate-x-1/2
+
+              opacity-0
+
+              md:top-7
+            "
+        />
+
+        {/* ========================================================
+            APP HEADING
+            ======================================================== */}
+
+        <SectionHeading
+          ref={appHeadingRef}
+          number="04"
+          title="App Development"
+          subtitle="Turning an idea into something people can use."
+          className="
+            absolute
+            left-1/2
+            top-5
+            z-[100]
+
+            w-[92vw]
+
+            -translate-x-1/2
+
+            opacity-0
+
+            md:top-7
+          "
+        />
+
+        {/* ========================================================
+            PROJECTS
+            ======================================================== */}
 
         {PROJECTS.map((project, projectIndex) => (
           <div
@@ -1385,153 +699,141 @@ export default function SelectedWorkConceptA() {
                 invisible
                 absolute
                 inset-0
+                z-10
                 opacity-0
               "
           >
-            {/* ================================================== */}
-            {/* PROJECT META                                       */}
+            {/* ==================================================
+                  PROJECT META
+                  ================================================== */}
 
-
-            <p
-              className="
-                  absolute
-                  left-5
-                  top-[15vh]
-                  z-40
-                  text-[9px]
-                  font-medium
-                  uppercase
-                  tracking-[0.24em]
-                  opacity-45
-                  md:left-10
-                  md:top-[19vh]
-                "
-            >
-              {project.category}
-            </p>
-
-            <p
+            <div
               ref={(element) => {
-                codeRefs.current[projectIndex] = element;
+                metaRefs.current[projectIndex] = element;
               }}
               className="
                   absolute
+                  bottom-6
                   left-5
-                  top-[19vh]
-                  z-40
-                  text-sm
+                  z-[70]
+
+                  opacity-0
+
+                  md:bottom-9
                   md:left-10
-                  md:top-[23vh]
-                  md:text-lg
                 "
             >
-              {project.code}
-            </p>
+              <p
+                className="
+                    text-[8px]
+                    uppercase
+                    tracking-[0.28em]
+                    opacity-40
 
-            {/* ================================================== */}
-            {/* BIG PROJECT NAME                                   */}
-            {/* ================================================== */}
+                    md:text-[9px]
+                  "
+              >
+                {project.code}
+              </p>
+
+              <p
+                className="
+                    mt-1.5
+                    text-[9px]
+                    uppercase
+                    tracking-[0.18em]
+
+                    md:text-[10px]
+                  "
+              >
+                {project.category}
+              </p>
+            </div>
+
+            {/* ==================================================
+                  IDENTITY — LEFT
+                  ================================================== */}
 
             <div
               className="
-                  pointer-events-none
                   absolute
-                  left-0
-                  top-[17vh]
-                  md:top-[18vh]
-                  z-10
-                  w-full
-                  overflow-hidden
-                  px-5
-                  md:px-10
+
+                  left-5
+                  top-[18vh]
+
+                  z-30
+
+                  w-[90vw]
+
+                  md:left-[5vw]
+                  md:top-1/2
+                  md:w-[39vw]
+
+                  md:-translate-y-1/2
                 "
             >
-              <h2
+              <div
                 ref={(element) => {
-                  titleRefs.current[projectIndex] = element;
+                  identityRefs.current[projectIndex] = element;
                 }}
                 className="
-    whitespace-nowrap
-
-    text-[clamp(4.5rem,12vw,14rem)]
-
-    font-light
-    leading-[0.74]
-    tracking-[-0.09em]
-  "
-                style={{
-                  color: "rgba(0,0,0,.18)",
-
-                  textShadow: `
-      0 1px 0 rgba(255,255,255,.035),
-      0 -1px 1px rgba(0,0,0,.45)
-    `,
-                }}
+                    will-change-[transform,opacity,filter]
+                  "
               >
-                {project.name}
-              </h2>
+                <ProjectIdentity project={project} />
+              </div>
             </div>
 
-            {/* ================================================== */}
-            {/* ECOSYSTEM                                          */}
-            {/* ================================================== */}
+            {/* ==================================================
+                  VISUAL — RIGHT
+                  ================================================== */}
 
             <div
-              ref={(element) => {
-                networkRefs.current[projectIndex] = element;
-              }}
               className="
-              pointer-events-none
-              absolute
-              left-1/2
-              top-[50%]
-              z-20
+                  absolute
 
-              h-[64vh]
-              min-h-[500px]
-              max-h-[760px]
+                  left-1/2
 
-              w-[99vw]
-              max-w-[1500px]
+                  z-20
+                h-full
+                  w-[96vw]
 
-              -translate-x-1/2
-              -translate-y-1/2
+                  -translate-x-1/2
 
-              md:top-[51%]
-              md:h-[72vh]
-              md:w-[96vw]
+                  md:bottom-auto
+                  md:right-0
+                  md:top-1/2
 
-              xl:max-w-[1580px]
-            "
+                  md:w-[55vw]
+
+                  md:translate-x-0
+                  md:-translate-y-1/2
+
+                  xl:right-[3vw]
+                  xl:w-[54vw]
+                "
             >
-              <ProjectNetwork project={project} />
+              <div
+                ref={(element) => {
+                  visualRefs.current[projectIndex] = element;
+                }}
+                className="
+                    relative
+                    h-full
+                    w-full
+
+                    opacity-0
+
+                    will-change-transform
+                  "
+              >
+                <ProjectHeroVisual project={project} />
+              </div>
             </div>
 
-            {/* ================================================== */}
-            {/* STORY                                              */}
-            {/* ================================================== */}
-
-            <ProjectStory
-              ref={(element) => {
-                intentRefs.current[projectIndex] = element;
-              }}
-              label="What we shaped"
-            >
-              {project.intent}
-            </ProjectStory>
-
-            <ProjectStory
-              ref={(element) => {
-                benefitRefs.current[projectIndex] = element;
-              }}
-              label="Designed to help"
-            >
-              {project.benefit}
-            </ProjectStory>
-
-            {/* ================================================== */}
-            {/* PROJECT LINK                                       */}
-            {/* ================================================== */}
+            {/* ==================================================
+                  VIEW PROJECT
+                  ================================================== */}
 
             {project.href && (
               <a
@@ -1540,52 +842,63 @@ export default function SelectedWorkConceptA() {
                 rel="noreferrer"
                 className="
                     absolute
-                    right-5
-                    top-5
+                    bottom-7
+                    right-6
                     z-[80]
-                    flex
-                    h-11
+
+                    hidden
+
                     items-center
-                    gap-3
-                    border
-                    border-current/15
-                    px-4
-                    text-[10px]
+                    gap-2
+
+                    text-[8px]
                     uppercase
-                    tracking-[0.14em]
-                    transition-transform
+                    tracking-[0.24em]
+
+                    opacity-50
+
+                    transition-opacity
                     duration-300
-                    hover:scale-[1.04]
+
+                    hover:opacity-100
+
+                    md:flex
                     md:right-10
-                    md:top-8
+                    md:bottom-9
                   "
               >
-                View Project
-                <span>↗</span>
+                View project
+                <ArrowRight size={13} />
               </a>
             )}
           </div>
         ))}
 
-        {/* ======================================================== */}
-        {/* SCROLL HINT                                              */}
-        {/* ======================================================== */}
+        {/* ========================================================
+            HINT
+            ======================================================== */}
 
         <div
-          ref={hintRef}
+          ref={scrollHintRef}
           className="
             pointer-events-none
+
             absolute
-            bottom-6
+            bottom-7
             left-1/2
-            z-[90]
+            z-[100]
+
             -translate-x-1/2
+
             whitespace-nowrap
-            text-[9px]
+
+            text-[7px]
             uppercase
-            tracking-[0.25em]
+            tracking-[0.27em]
+
             opacity-0
-            mix-blend-difference
+
+            md:text-[8px]
           "
         >
           Scroll to explore ↓
@@ -1596,1351 +909,912 @@ export default function SelectedWorkConceptA() {
 }
 
 /* ==========================================================================
-   PROJECT NETWORK
+   PORTFOLIO HEADING
    ========================================================================== */
 
-function ProjectNetwork({ project }: { project: Project }) {
-  const layout =
-    project.services.length > 5 ? SEVEN_NODE_LAYOUT : FIVE_NODE_LAYOUT;
-
-  return (
-    <div className="absolute inset-0">
-
-      <ProjectBackdrop project={project} />
-
-      {/* ========================================================== */}
-      {/* ACTIVE ROUTES                                              */}
-      {/* ========================================================== */}
-
-      <div
-        className="
-          absolute
-          inset-0
-          z-20
-        "
-      >
-        {layout.slice(0, project.services.length).map((item, routeIndex) => (
-          <Route
-            key={`active-${routeIndex}`}
-            points={item.route}
-            color={project.accent}
-            routeIndex={routeIndex}
-          />
-        ))}
-      </div>
-
-      {/* ========================================================== */}
-      {/* CORE                                                       */}
-      {/* ========================================================== */}
-
-      <Core project={project} />
-
-      {/* ========================================================== */}
-      {/* SERVICES                                                   */}
-      {/* ========================================================== */}
-
-      {project.services.map((service, serviceIndex) => {
-        const item = layout[serviceIndex];
-
-        return (
-          <ServiceNode
-            key={service}
-            service={service}
-            index={serviceIndex}
-            layout={item}
-            project={project}
-          />
-        );
-      })}
-
-      {/* ========================================================== */}
-      {/* SHURUUP SIGNALS                                            */}
-      {/* ========================================================== */}
-
-      {project.theme === "finance" && (
-        <>
-          <Signal x={52} y={34} color={project.accent} />
-
-          <Signal x={66} y={47} color={project.accent} />
-
-          <Signal x={56} y={68} color={project.accent} />
-        </>
-      )}
-    </div>
-  );
-}
-
-/* ==========================================================================
-   BACKDROP
-   ========================================================================== */
-
-function ProjectBackdrop({ project }: { project: Project }) {
-  const pattern = getBackdropPattern(project.theme, project.foreground);
-
-  return (
-    <div
-      data-backdrop
-      className="
-        absolute
-        -inset-[12%]
-        z-0
-        overflow-hidden
-        opacity-0
-      "
-    >
-      {/* ======================================================== */}
-      {/* BASE STONE SURFACE                                      */}
-      {/* ======================================================== */}
-
-      <div
-        className="
-          absolute
-          inset-0
-        "
-        style={{
-          background: `
-            radial-gradient(
-              circle at 20% 12%,
-              rgba(255,255,255,.045),
-              transparent 27%
-            ),
-
-            radial-gradient(
-              circle at 76% 84%,
-              rgba(0,0,0,.25),
-              transparent 34%
-            ),
-
-            radial-gradient(
-              circle at 62% 22%,
-              ${hexToRgba(project.accent, 0.045)},
-              transparent 29%
-            ),
-
-            linear-gradient(
-              135deg,
-              rgba(255,255,255,.015),
-              transparent 37%,
-              rgba(0,0,0,.14)
-            )
-          `,
-        }}
-      />
-
-      {/* ======================================================== */}
-      {/* LARGE PRESSED-IN PANEL                                  */}
-      {/* ======================================================== */}
-
-      <div
-        className="
-          absolute
-          left-[7%]
-          top-[7%]
-          h-[86%]
-          w-[86%]
-          rounded-[3rem]
-        "
-        style={{
-          boxShadow: `
-            inset 22px 22px 42px rgba(0,0,0,.20),
-            inset -18px -18px 38px rgba(255,255,255,.018)
-          `,
-        }}
-      />
-
-      {/* ======================================================== */}
-      {/* MICRO SCRATCHES                                         */}
-      {/* ======================================================== */}
-
-      <div
-        className="
-          absolute
-          inset-0
-          opacity-20
-        "
-        style={{
-          backgroundImage: `
-            repeating-linear-gradient(
-              7deg,
-              transparent 0,
-              transparent 31px,
-              rgba(255,255,255,.015) 32px,
-              transparent 33px
-            ),
-
-            repeating-linear-gradient(
-              96deg,
-              transparent 0,
-              transparent 83px,
-              rgba(0,0,0,.08) 84px,
-              transparent 85px
-            )
-          `,
-        }}
-      />
-
-      {/* ======================================================== */}
-      {/* GIANT WORD ENGRAVED INTO BACKGROUND                     */}
-      {/* ======================================================== */}
-
-      <div
-        data-theme-word
-        className="
-          absolute
-          left-1/2
-          top-1/2
-          -translate-x-1/2
-          -translate-y-1/2
-
-          whitespace-nowrap
-
-          text-[clamp(11rem,26vw,28rem)]
-          font-medium
-          leading-none
-          tracking-[-0.09em]
-
-          opacity-0
-        "
-        style={{
-          color: "rgba(0,0,0,.10)",
-
-          textShadow: `
-            0 1px 0 rgba(255,255,255,.025),
-            0 -1px 1px rgba(0,0,0,.35)
-          `,
-        }}
-      >
-        {project.themeWord}
-      </div>
-
-      {/* ======================================================== */}
-      {/* TINY ENGRAVED MARKINGS                                  */}
-      {/* ======================================================== */}
-
-      {project.ghostLabels.map((marker, index) => (
-        <span
-          key={`${marker.text}-${index}`}
-          className="
-            absolute
-            text-[8px]
-            font-medium
-            uppercase
-            tracking-[0.25em]
-            md:text-[10px]
-          "
-          style={{
-            left: `${marker.x}%`,
-            top: `${marker.y}%`,
-
-            color: "rgba(0,0,0,.30)",
-
-            textShadow: "0 1px 0 rgba(255,255,255,.05)",
-          }}
-        >
-          {marker.text}
-        </span>
-      ))}
-    </div>
-  );
-}
-
-/* ==========================================================================
-   BACKGROUND ARCHITECTURE
-   ========================================================================== */
-
-function BackgroundArchitecture({ project }: { project: Project }) {
-  const lineColor = hexToRgba(project.foreground, 0.055);
-
-  return (
-    <>
-      <div
-        className="
-          absolute
-          left-[7%]
-          top-[24%]
-          h-px
-          w-[18%]
-        "
-        style={{
-          backgroundColor: lineColor,
-        }}
-      />
-
-      <div
-        className="
-          absolute
-          left-[25%]
-          top-[24%]
-          h-[12%]
-          w-px
-        "
-        style={{
-          backgroundColor: lineColor,
-        }}
-      />
-
-      <div
-        className="
-          absolute
-          right-[8%]
-          top-[20%]
-          h-[18%]
-          w-px
-        "
-        style={{
-          backgroundColor: lineColor,
-        }}
-      />
-
-      <div
-        className="
-          absolute
-          right-[8%]
-          top-[38%]
-          h-px
-          w-[13%]
-        "
-        style={{
-          backgroundColor: lineColor,
-        }}
-      />
-
-      <div
-        className="
-          absolute
-          bottom-[17%]
-          left-[10%]
-          h-px
-          w-[17%]
-        "
-        style={{
-          backgroundColor: lineColor,
-        }}
-      />
-
-      <div
-        className="
-          absolute
-          bottom-[17%]
-          left-[27%]
-          h-[10%]
-          w-px
-        "
-        style={{
-          backgroundColor: lineColor,
-        }}
-      />
-
-      <div
-        className="
-          absolute
-          bottom-[12%]
-          right-[10%]
-          h-px
-          w-[21%]
-        "
-        style={{
-          backgroundColor: lineColor,
-        }}
-      />
-
-      {/* Craft measurement marks */}
-
-      {project.theme === "craft" && (
-        <>
-          <div
-            className="
-              absolute
-              left-[6%]
-              top-[45%]
-              flex
-              items-center
-              gap-2
-              opacity-10
-            "
-          >
-            <div
-              className="
-                h-px
-                w-16
-              "
-              style={{
-                backgroundColor: project.foreground,
-              }}
-            />
-
-            <span className="text-[8px]">120</span>
-          </div>
-
-          <div
-            className="
-              absolute
-              right-[10%]
-              bottom-[28%]
-              text-[9px]
-              opacity-10
-            "
-          >
-            45°
-          </div>
-        </>
-      )}
-
-      {/* Healthcare plus symbols */}
-
-      {project.theme === "health" && (
-        <>
-          <span
-            className="
-              absolute
-              left-[18%]
-              top-[17%]
-              text-2xl
-              font-light
-              opacity-[0.06]
-            "
-          >
-            +
-          </span>
-
-          <span
-            className="
-              absolute
-              right-[18%]
-              bottom-[17%]
-              text-xl
-              font-light
-              opacity-[0.06]
-            "
-          >
-            +
-          </span>
-        </>
-      )}
-
-      {/* Finance points */}
-
-      {project.theme === "finance" && (
-        <>
-          <TinyPoint left="15%" top="23%" color={project.accent} />
-
-          <TinyPoint left="82%" top="18%" color={project.accent} />
-
-          <TinyPoint left="11%" top="72%" color={project.accent} />
-
-          <TinyPoint left="86%" top="68%" color={project.accent} />
-        </>
-      )}
-    </>
-  );
-}
-
-function TinyPoint({
-  left,
-  top,
-  color,
-}: {
-  left: string;
-  top: string;
-  color: string;
-}) {
-  return (
-    <span
-      className="
-        absolute
-        h-1
-        w-1
-        rounded-full
-        opacity-20
-      "
-      style={{
-        left,
-
-        top,
-
-        backgroundColor: color,
-      }}
-    />
-  );
-}
-function StoneCorner({
-  position,
-  color,
-}: {
-  position: "tl" | "tr" | "bl" | "br";
-  color: string;
-}) {
-  const classes = {
-    tl: "left-3 top-3 border-l border-t",
-
-    tr: "right-3 top-3 border-r border-t",
-
-    bl: "bottom-3 left-3 border-b border-l",
-
-    br: "bottom-3 right-3 border-b border-r",
-  };
-
-  return (
-    <span
-      className={`
-        absolute
-        h-4
-        w-4
-        opacity-40
-        ${classes[position]}
-      `}
-      style={{
-        borderColor: color,
-
-        filter: "drop-shadow(0 1px 0 rgba(255,255,255,.10))",
-      }}
-    />
-  );
-}
-/* ==========================================================================
-   CORE
-   ========================================================================== */
-
-function Core({ project }: { project: Project }) {
-  return (
-    <div
-      className="
-          absolute
-          left-1/2
-          top-1/2
-          z-40
-  
-          h-[118px]
-          w-[210px]
-  
-          -translate-x-1/2
-          -translate-y-1/2
-  
-          sm:h-[135px]
-          sm:w-[245px]
-  
-          md:h-[168px]
-          md:w-[310px]
-        "
-    >
-      {/* ======================================================== */}
-      {/* OUTER CUT                                                */}
-      {/* ======================================================== */}
-
-      <div
-        data-core-halo
-        className="
-            absolute
-            -inset-5
-            rounded-[2.2rem]
-            opacity-0
-            md:-inset-8
-          "
-        style={{
-          boxShadow: `
-              inset 10px 10px 22px rgba(0,0,0,.33),
-              inset -8px -8px 18px rgba(255,255,255,.025),
-  
-              0 1px 0 rgba(255,255,255,.035)
-            `,
-        }}
-      />
-
-      {/* ======================================================== */}
-      {/* RECESSED CORE                                            */}
-      {/* ======================================================== */}
-
-      <div
-        className="
-            absolute
-            inset-0
-            rounded-[1.6rem]
-          "
-        style={{
-          backgroundColor: project.background,
-
-          boxShadow: `
-              inset 12px 12px 24px rgba(0,0,0,.34),
-              inset -10px -10px 22px rgba(255,255,255,.025),
-  
-              0 1px 0 rgba(255,255,255,.05)
-            `,
-        }}
-      />
-
-      {/* ======================================================== */}
-      {/* CARVED CORNERS                                           */}
-      {/* ======================================================== */}
-
-      <StoneCorner position="tl" color={project.accent} />
-
-      <StoneCorner position="tr" color={project.accent} />
-
-      <StoneCorner position="bl" color={project.accent} />
-
-      <StoneCorner position="br" color={project.accent} />
-
-      {/* ======================================================== */}
-      {/* CENTER CONTENT                                           */}
-      {/* ======================================================== */}
-
-      <div
-        className="
-            absolute
-            inset-0
-            flex
-            items-center
-            justify-center
-            px-5
-            text-center
-          "
-      >
-        <div>
-          <p
-            data-core-meta
-            className="
-                mb-3
-                text-[7px]
-                uppercase
-                tracking-[0.29em]
-                opacity-40
-                md:text-[9px]
-              "
-          >
-            {project.coreSubtitle}
-          </p>
-
-          <h3
-            data-core-name
-            className="
-                text-[1.55rem]
-                font-light
-                leading-[0.86]
-                tracking-[-0.055em]
-  
-                sm:text-[1.8rem]
-                md:text-[2.5rem]
-              "
-            style={{
-              textShadow: `
-                  0 1px 0 rgba(255,255,255,.06),
-                  0 -1px 0 rgba(0,0,0,.5)
-                `,
-            }}
-          >
-            {project.name}
-          </h3>
-
-          <div
-            className="
-                mt-4
-                flex
-                items-center
-                justify-center
-                gap-2
-              "
-          >
-            <span
-              className="
-                  h-1.5
-                  w-1.5
-                  rounded-full
-                "
-              style={{
-                backgroundColor: project.accent,
-
-                boxShadow: `
-                    0 0 12px
-                    ${hexToRgba(project.accent, 0.35)}
-                  `,
-              }}
-            />
-
-            <span
-              className="
-                  text-[6px]
-                  uppercase
-                  tracking-[0.26em]
-                  opacity-35
-                  md:text-[8px]
-                "
-            >
-              SYSTEM ACTIVE
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function CoreEdge({
-  className,
-  axis,
-  origin,
-  color,
-}: {
-  className: string;
-
-  axis: "x" | "y";
-
-  origin: string;
-
-  color: string;
-}) {
-  return (
-    <div
-      data-core-edge
-      data-axis={axis}
-      data-origin={origin}
-      className={`
-        absolute
-        ${className}
-      `}
-      style={{
-        backgroundColor: color,
-      }}
-    />
-  );
-}
-
-/* ==========================================================================
-   ROUTES
-   ========================================================================== */
-
-function Route({
-  points,
-  color,
-  ghost = false,
-  routeIndex,
-}: {
-  points: Point[];
-
-  color: string;
-
-  ghost?: boolean;
-
-  routeIndex?: number;
-}) {
-  return (
-    <>
-      {points.slice(0, -1).map((point, index) => {
-        const next = points[index + 1];
-
-        return (
-          <RouteSegment
-            key={`${index}-${point.x}-${point.y}`}
-            from={point}
-            to={next}
-            color={color}
-            ghost={ghost}
-            routeIndex={routeIndex}
-          />
-        );
-      })}
-    </>
-  );
-}
-function RouteSegment({
-  from,
-  to,
-  color,
-  ghost,
-  routeIndex,
-}: {
-  from: Point;
-  to: Point;
-
-  color: string;
-
-  ghost: boolean;
-
-  routeIndex?: number;
-}) {
-  const horizontal = from.y === to.y;
-
-  const left = Math.min(from.x, to.x);
-  const top = Math.min(from.y, to.y);
-
-  const width = Math.abs(to.x - from.x);
-  const height = Math.abs(to.y - from.y);
-
-  const positive = horizontal ? to.x > from.x : to.y > from.y;
-
-  const origin = horizontal
-    ? positive
-      ? "left center"
-      : "right center"
-    : positive
-      ? "center top"
-      : "center bottom";
-
-  const wrapperStyle: CSSProperties = horizontal
-    ? {
-        left: `${left}%`,
-        top: `${top}%`,
-
-        width: `${width}%`,
-        height: "7px",
-
-        transform: "translateY(-50%)",
-      }
-    : {
-        left: `${left}%`,
-        top: `${top}%`,
-
-        width: "7px",
-        height: `${height}%`,
-
-        transform: "translateX(-50%)",
-      };
-
-  /*
-   * This creates the "cut into stone" illusion:
-   *
-   * highlight on one edge
-   * dark shadow inside opposite edge
-   *
-   * NOT a normal colored line.
-   */
-  const grooveStyle: CSSProperties = horizontal
-    ? {
-        position: "absolute",
-
-        left: 0,
-        right: 0,
-
-        top: "50%",
-
-        height: ghost ? "2px" : "3px",
-
-        transform: "translateY(-50%)",
-
-        background: ghost
-          ? "rgba(0,0,0,.18)"
-          : `linear-gradient(
-              to bottom,
-              rgba(0,0,0,.58),
-              rgba(0,0,0,.34)
-            )`,
-
-        boxShadow: ghost
-          ? `
-            0 1px 0 rgba(255,255,255,.025)
-          `
-          : `
-            inset 0 1px 1px rgba(0,0,0,.78),
-            0 1px 0 rgba(255,255,255,.10),
-            0 -1px 0 rgba(0,0,0,.55)
-          `,
-      }
-    : {
-        position: "absolute",
-
-        top: 0,
-        bottom: 0,
-
-        left: "50%",
-
-        width: ghost ? "2px" : "3px",
-
-        transform: "translateX(-50%)",
-
-        background: ghost
-          ? "rgba(0,0,0,.18)"
-          : `linear-gradient(
-              to right,
-              rgba(0,0,0,.58),
-              rgba(0,0,0,.34)
-            )`,
-
-        boxShadow: ghost
-          ? `
-            1px 0 0 rgba(255,255,255,.025)
-          `
-          : `
-            inset 1px 0 1px rgba(0,0,0,.78),
-            1px 0 0 rgba(255,255,255,.10),
-            -1px 0 0 rgba(0,0,0,.55)
-          `,
-      };
-
-  if (ghost) {
+const PortfolioHeading =
+  /* React forwardRef without another import */
+  ({
+    ref,
+    number,
+    title,
+    description,
+  }: {
+    ref: React.Ref<HTMLDivElement>;
+    number: string;
+    title: string;
+    description: string;
+  }) => {
     return (
       <div
+        ref={ref}
         className="
+          pointer-events-none
+
           absolute
-          opacity-50
+
+          left-1/2
+          top-5
+
+          z-[100]
+
+          w-[90vw]
+
+          -translate-x-1/2
+
+          text-center
+
+          opacity-0
+
+          md:top-7
         "
-        style={wrapperStyle}
       >
-        <div style={grooveStyle} />
+        <div
+          className="
+    flex
+    w-full
+    max-w-full
+    items-start
+    justify-center
+    whitespace-nowrap
+    text-center
+
+    text-[clamp(2.7rem,8vw,7.2rem)]
+
+    leading-[0.78]
+    tracking-[-0.08em]
+  "
+        >
+          <span
+            className="
+      mr-[0.45em]
+      inline-block
+      pt-[0.1em]
+      text-[0.2em]
+      font-medium
+      tracking-normal
+    "
+          >
+            {number}
+          </span>
+
+          <span>{title}</span>
+        </div>
+
+        <p
+          className="
+            mt-2
+
+            text-[10px]
+            font-light
+            tracking-[0.03em]
+
+            opacity-45
+
+            md:text-xs
+          "
+        >
+          {description}
+        </p>
+      </div>
+    );
+  };
+
+/* ==========================================================================
+   IDENTITY
+   ========================================================================== */
+
+function ProjectIdentity({ project }: { project: Project }) {
+  if (project.identity.type === "logo") {
+    return (
+      <div className="relative">
+        <Image
+          src={project.identity.src}
+          alt={project.identity.alt}
+          width={620}
+          height={220}
+          priority={false}
+          className="
+            h-auto
+            max-h-[140px]
+            w-[65vw]
+
+            object-contain
+            object-left
+
+            md:max-h-[190px]
+            md:w-[34vw]
+          "
+        />
+
+        <IdentityUnderline color={project.accent} />
       </div>
     );
   }
 
   return (
-    <div
-      data-route-segment
-      data-route={routeIndex}
-      data-axis={horizontal ? "x" : "y"}
-      data-origin={origin}
-      className="
-        absolute
-        opacity-0
-      "
-      style={wrapperStyle}
-    >
-      <div className="absolute inset-0" style={grooveStyle} />
-      {/* <div
+    <div>
+      <h2
         className="
-          absolute
-          opacity-20
+          max-w-[760px]
+
+          text-[clamp(4rem,8vw,9rem)]
+
+          font-light
+          leading-[0.79]
+
+          tracking-[-0.085em]
         "
-        style={
-          horizontal
-            ? {
-                left: "8%",
-                right: "8%",
-                top: "50%",
+      >
+        {project.identity.value}
+      </h2>
 
-                height: "1px",
-
-                transform: "translateY(-50%)",
-
-                backgroundColor: color,
-              }
-            : {
-                top: "8%",
-                bottom: "8%",
-                left: "50%",
-
-                width: "1px",
-
-                transform: "translateX(-50%)",
-
-                backgroundColor: color,
-              }
-        }
-      /> */}
+      <IdentityUnderline color={project.accent} />
     </div>
   );
 }
 
-/* ==========================================================================
-   SERVICE NODE
-   ========================================================================== */
-
-function ServiceNode({
-  service,
-  index,
-  layout,
-  project,
-}: {
-  service: string;
-  index: number;
-  layout: RouteLayout;
-  project: Project;
-}) {
+function IdentityUnderline({ color }: { color: string }) {
   return (
-    <>
-      {/* ======================================================== */}
-      {/* CARVED TERMINAL                                         */}
-      {/* ======================================================== */}
-
-      <div
-        data-terminal
-        className="
-            absolute
-            z-30
-  
-            h-3
-            w-3
-  
-            -translate-x-1/2
-            -translate-y-1/2
-  
-            rounded-[3px]
-            opacity-0
-          "
-        style={{
-          left: `${layout.terminal.x}%`,
-          top: `${layout.terminal.y}%`,
-
-          backgroundColor: project.background,
-
-          boxShadow: `
-              inset 2px 2px 4px rgba(0,0,0,.65),
-              inset -1px -1px 2px rgba(255,255,255,.06),
-  
-              0 1px 0 rgba(255,255,255,.05)
-            `,
-        }}
-      >
-        <span
-          className="
-              absolute
-              left-1/2
-              top-1/2
-              h-1
-              w-1
-              -translate-x-1/2
-              -translate-y-1/2
-              rounded-full
-            "
-          style={{
-            backgroundColor: project.accent,
-          }}
-        />
-      </div>
-
-      {/* ======================================================== */}
-      {/* SERVICE PLATE                                           */}
-      {/* ======================================================== */}
-
-      <div
-        data-service-node
-        className="
-            absolute
-            z-40
-  
-            w-[118px]
-  
-            -translate-x-1/2
-            -translate-y-1/2
-  
-            opacity-0
-  
-            sm:w-[150px]
-            md:w-[210px]
-          "
-        style={{
-          left: `${layout.label.x}%`,
-          top: `${layout.label.y}%`,
-        }}
-      >
-        <div
-          className="
-              relative
-              rounded-[0.8rem]
-              px-3
-              py-3
-  
-              md:px-4
-              md:py-4
-            "
-          style={{
-            backgroundColor: project.background,
-
-            boxShadow: `
-                inset 5px 5px 10px rgba(0,0,0,.28),
-                inset -4px -4px 8px rgba(255,255,255,.02),
-  
-                0 1px 0 rgba(255,255,255,.025)
-              `,
-          }}
-        >
-          {/* engraved index */}
-
-          <p
-            className="
-                mb-2
-                text-[7px]
-                font-medium
-                uppercase
-                tracking-[0.24em]
-                opacity-30
-                md:text-[8px]
-              "
-            style={{
-              textShadow: "0 1px 0 rgba(255,255,255,.05)",
-            }}
-          >
-            {String(index + 1).padStart(2, "0")}
-          </p>
-
-          <p
-            className="
-                text-[8px]
-                font-medium
-                uppercase
-                leading-[1.3]
-                tracking-[0.1em]
-  
-                sm:text-[9px]
-                md:text-[11px]
-              "
-          >
-            {service}
-          </p>
-
-          {/* carved little slot */}
-
-          <div
-            className="
-                mt-3
-                h-[2px]
-                w-8
-              "
-            style={{
-              backgroundColor: "rgba(0,0,0,.45)",
-
-              boxShadow: "0 1px 0 rgba(255,255,255,.06)",
-            }}
-          />
-        </div>
-      </div>
-    </>
-  );
-}
-
-/* ==========================================================================
-   SIGNAL
-   ========================================================================== */
-
-function Signal({
-  x,
-  y,
-  color,
-}: {
-  x: number;
-
-  y: number;
-
-  color: string;
-}) {
-  return (
-    <span
-      data-signal
+    <div
       className="
-        absolute
-        z-30
-        h-1.5
-        w-1.5
-        -translate-x-1/2
-        -translate-y-1/2
-        rounded-full
-        opacity-0
+        mt-7
+        h-px
+        w-20
       "
       style={{
-        left: `${x}%`,
-
-        top: `${y}%`,
-
         backgroundColor: color,
-
-        boxShadow: `0 0 0 4px ${hexToRgba(color, 0.08)}`,
       }}
     />
   );
 }
 
 /* ==========================================================================
-   STORY
+   VISUAL SWITCH
    ========================================================================== */
 
-const ProjectStory = forwardRef<
-  HTMLDivElement,
-  {
-    label: string;
-    children: ReactNode;
+function ProjectHeroVisual({ project }: { project: Project }) {
+  switch (project.visual) {
+    case "elevro":
+      return <ElevroHeroVisual />;
+
+    case "kpwood":
+      return <KPWoodHeroVisual />;
+
+    case "shuruup":
+      return <ShuruupHeroVisual />;
+
+    case "anmol":
+      return <AnmolHeroVisual />;
   }
->(function ProjectStory({ label, children }, ref) {
-  return (
-    <div
-      ref={ref}
-      className="
-         invisible
-         absolute
- 
-         bottom-[4vh]
-         right-5
-         z-[65]
- 
-         max-w-[88vw]
- 
-         rounded-[1.4rem]
- 
-         px-5
-         py-5
- 
-         opacity-0
- 
-         md:bottom-[5vh]
-         md:right-[4vw]
- 
-         md:max-w-[31vw]
- 
-         md:px-7
-         md:py-6
-       "
-      style={{
-        background: "rgba(0,0,0,.10)",
-
-        boxShadow: `
-           inset 8px 8px 18px rgba(0,0,0,.22),
-           inset -7px -7px 15px rgba(255,255,255,.018),
- 
-           0 1px 0 rgba(255,255,255,.025)
-         `,
-      }}
-    >
-      <p
-        className="
-           mb-3
-           text-[8px]
-           font-medium
-           uppercase
-           tracking-[0.27em]
-           opacity-40
-           md:text-[9px]
-         "
-      >
-        {label}
-      </p>
-
-      <p
-        className="
-           text-[clamp(1.2rem,2vw,2.25rem)]
-           font-light
-           leading-[1.04]
-           tracking-[-0.045em]
-         "
-      >
-        {children}
-      </p>
-    </div>
-  );
-});
-
-/* ==========================================================================
-   BACKGROUND HELPERS
-   ========================================================================== */
-
-function getBackdropPattern(
-  theme: ProjectTheme,
-
-  foreground: string,
-): CSSProperties {
-  const subtle = hexToRgba(foreground, 0.035);
-
-  const lighter = hexToRgba(foreground, 0.018);
-
-  if (theme === "engineering") {
-    return {
-      backgroundImage: `
-        linear-gradient(
-          ${subtle} 1px,
-          transparent 1px
-        ),
-        linear-gradient(
-          90deg,
-          ${subtle} 1px,
-          transparent 1px
-        ),
-        linear-gradient(
-          ${lighter} 1px,
-          transparent 1px
-        ),
-        linear-gradient(
-          90deg,
-          ${lighter} 1px,
-          transparent 1px
-        )
-      `,
-
-      backgroundSize: "80px 80px, 80px 80px, 20px 20px, 20px 20px",
-    };
-  }
-
-  if (theme === "craft") {
-    return {
-      backgroundImage: `
-        repeating-linear-gradient(
-          2deg,
-          transparent 0px,
-          transparent 23px,
-          ${subtle} 24px,
-          transparent 25px
-        ),
-        linear-gradient(
-          90deg,
-          ${lighter} 1px,
-          transparent 1px
-        )
-      `,
-
-      backgroundSize: "100% 100%, 90px 90px",
-    };
-  }
-
-  if (theme === "finance") {
-    return {
-      backgroundImage: `
-        radial-gradient(
-          circle,
-          ${hexToRgba(foreground, 0.09)} 1px,
-          transparent 1px
-        ),
-        linear-gradient(
-          90deg,
-          ${lighter} 1px,
-          transparent 1px
-        ),
-        linear-gradient(
-          ${lighter} 1px,
-          transparent 1px
-        )
-      `,
-
-      backgroundSize: "34px 34px, 110px 110px, 110px 110px",
-    };
-  }
-
-  return {
-    backgroundImage: `
-      linear-gradient(
-        90deg,
-        ${lighter} 1px,
-        transparent 1px
-      ),
-      linear-gradient(
-        ${lighter} 1px,
-        transparent 1px
-      ),
-      radial-gradient(
-        circle,
-        ${hexToRgba(foreground, 0.055)} 1px,
-        transparent 1px
-      )
-    `,
-
-    backgroundSize: "90px 90px, 90px 90px, 36px 36px",
-  };
 }
 
 /* ==========================================================================
-   COLOR HELPER
+   ELEVRO
    ========================================================================== */
 
-function hexToRgba(hex: string, alpha: number) {
-  const clean = hex.replace("#", "");
+   function ElevroHeroVisual() {
+     return (
+       <div className="relative h-full w-full">
+         {/* Ambient glow */}
 
-  const normalized =
-    clean.length === 3
-      ? clean
-          .split("")
-          .map((character) => character + character)
-          .join("")
-      : clean;
+         <div
+           className="
+            pointer-events-none
+            absolute
+            left-1/2
+            top-1/2
+  
+            h-[48%]
+            w-[58%]
+  
+            -translate-x-1/2
+            -translate-y-1/2
+  
+            rounded-full
+            bg-[#A25858]/20
+            blur-[90px]
+  
+            md:h-[55%]
+            md:w-[58%]
+          "
+         />
 
-  const number = Number.parseInt(normalized, 16);
+         {/* Existing HeroCanvas — same centered position, only smaller */}
 
-  const red = (number >> 16) & 255;
+         <div
+           className="
+            absolute
+            left-1/2
+            top-1/2
+  
+            h-[58%]
+            w-[72%]
+  
+            -translate-x-1/2
+            -translate-y-1/2
+  
+            sm:h-[62%]
+            sm:w-[70%]
+  
+            md:h-[68%]
+            md:w-[72%]
+  
+            lg:h-[70%]
+            lg:w-[68%]
+  
+            xl:h-[72%]
+            xl:w-[66%]
+  
+            will-change-transform
+          "
+         >
+           <HeroCanvas variant="orb" />
+         </div>
+       </div>
+     );
+   }
 
-  const green = (number >> 8) & 255;
+/* ==========================================================================
+   KP WOOD CRAFT
+   ========================================================================== */
 
-  const blue = number & 255;
+function KPWoodHeroVisual() {
+  return (
+    <div
+      className="
+        relative
+        h-full
+        w-full
+      "
+    >
+      <div
+        className="
+          absolute
+          overflow-hidden
 
-  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+          border
+          border-[#C8843C]/20
+
+          bg-[#110904]
+          h-full
+          w-full
+          shadow-[0_40px_100px_rgba(0,0,0,.42)]
+        "
+      >
+        <Image
+          src="/projects/photo-1.avif"
+          alt="Master craftsman woodworking"
+          fill
+          sizes="55vw"
+          className="
+            object-cover
+            brightness-[0.72]
+          "
+          onLoad={() => {
+            ScrollTrigger.refresh();
+          }}
+        />
+
+        {/* image depth */}
+
+        <div
+          className="
+            pointer-events-none
+            absolute
+            inset-0
+          "
+          style={{
+            background: `
+              linear-gradient(
+                90deg,
+                rgba(28,16,7,.5),
+                transparent 30%,
+                transparent 75%,
+                rgba(0,0,0,.2)
+              )
+            `,
+          }}
+        />
+      </div>
+
+      {/* experience badge */}
+
+      <div
+        data-kp-badge
+        className="
+          absolute
+
+          bottom-[8%]
+          left-[-1%]
+
+          z-20
+
+          flex
+          items-center
+          gap-3
+
+          border
+          border-[#C8843C]/30
+
+          bg-[#1C1007]/95
+
+          px-4
+          py-3
+
+          opacity-0
+
+          shadow-2xl
+
+          backdrop-blur-sm
+
+          md:px-5
+          md:py-4
+        "
+      >
+        <Trophy size={20} className="text-[#C8843C]" />
+
+        <div>
+          <strong
+            className="
+              block
+              text-[10px]
+              font-medium
+              text-[#F7F0E6]
+
+              md:text-sm
+            "
+          >
+            25+ Years Experience
+          </strong>
+
+          <span
+            className="
+              text-[7px]
+              text-[#8C6845]
+
+              md:text-[10px]
+            "
+          >
+            Master Carpenter · All India
+          </span>
+        </div>
+      </div>
+
+      {/* tiny craft markers */}
+
+      <div
+        className="
+          absolute
+          right-[1%]
+          top-[1%]
+
+          text-[7px]
+          uppercase
+          tracking-[0.3em]
+
+          text-[#C8843C]/40
+        "
+      >
+        Since 1998
+      </div>
+    </div>
+  );
+}
+
+/* ==========================================================================
+   SHURUUP
+   ========================================================================== */
+
+   function ShuruupHeroVisual() {
+     return (
+       <div
+         className="
+          relative
+  
+          flex
+          h-full
+          w-full
+  
+          items-center
+          justify-center
+        "
+       >
+         {/* subtle background depth */}
+
+         <div
+           aria-hidden
+           className="
+            pointer-events-none
+  
+            absolute
+            left-1/2
+            top-1/2
+  
+            h-[58%]
+            w-[72%]
+  
+            -translate-x-1/2
+            -translate-y-1/2
+  
+            rounded-full
+  
+            bg-[#5C8FC7]/[0.07]
+  
+            blur-[90px]
+          "
+         />
+
+         {/* VIDEO */}
+
+         <div
+           className="
+            relative
+            z-10
+  
+            flex
+            h-[68%]
+            w-[86%]
+  
+            max-w-[860px]
+  
+            items-center
+            justify-center
+  
+            overflow-hidden
+  
+            md:h-[72%]
+            md:w-[82%]
+  
+            xl:h-[74%]
+            xl:w-[78%]
+          "
+         >
+           <video
+             autoPlay
+             muted
+             playsInline
+             loop
+             preload="metadata"
+             className="
+              block
+  
+              max-h-full
+              max-w-full
+  
+              object-contain
+              object-center
+            "
+           >
+             <source src="/projects/home_video.mp4" type="video/mp4" />
+             Your browser does not support the video tag.
+           </video>
+         </div>
+       </div>
+     );
+   }
+
+/* ==========================================================================
+   ANMOL MEDICARE
+   ========================================================================== */
+   function AnmolHeroVisual() {
+     return (
+       <div
+         className="
+          relative
+          h-full
+          w-full
+        "
+       >
+         {/* ========================================================
+            GLOW
+            ======================================================== */}
+
+         <div
+           aria-hidden
+           className="
+            pointer-events-none
+            absolute
+  
+            left-1/2
+            top-[65%]
+  
+            h-[44%]
+            w-[55%]
+  
+            -translate-x-1/2
+            -translate-y-1/2
+  
+            rounded-full
+  
+            bg-[#2398D0]/15
+  
+            blur-[85px]
+  
+            md:left-1/2
+            md:top-1/2
+  
+            md:h-[58%]
+            md:w-[58%]
+          "
+         />
+
+         {/* ========================================================
+            ANMOL APP IMAGE
+            ======================================================== */}
+
+         <div
+           data-anmol-phone
+           className="
+            absolute
+            z-20
+  
+            /*
+             * MOBILE:
+             * centered and below heading/content
+             */
+            left-1/2
+            top-[67%]
+  
+            h-[54vh]
+            w-[76vw]
+  
+            max-h-[540px]
+            max-w-[310px]
+  
+            -translate-x-1/2
+            -translate-y-1/2
+  
+            opacity-0
+  
+            /*
+             * TABLET
+             */
+            sm:top-[66%]
+  
+            sm:h-[58vh]
+            sm:w-[58vw]
+  
+            sm:max-w-[325px]
+  
+            /*
+             * DESKTOP:
+             * back to previous centered style
+             */
+            md:left-1/2
+            md:top-1/2
+  
+            md:h-[76vh]
+            md:w-[48%]
+  
+            md:max-h-[720px]
+            md:max-w-[345px]
+  
+            lg:h-[78vh]
+            lg:w-[46%]
+  
+            lg:max-w-[355px]
+  
+            xl:h-[80vh]
+            xl:w-[44%]
+  
+            xl:max-w-[365px]
+  
+            will-change-[transform,opacity]
+          "
+         >
+           <Image
+             src="/projects/anmol-mobile.jpeg"
+             alt="Anmol Medicare mobile application"
+             fill
+             priority={false}
+             sizes="
+              (max-width: 639px) 76vw,
+              (max-width: 767px) 58vw,
+              (max-width: 1279px) 48vw,
+              44vw
+            "
+             className="
+              select-none
+              object-contain
+              object-center
+            "
+             draggable={false}
+           />
+         </div>
+       </div>
+     );
+   }
+
+
+
+/* ==========================================================================
+   SPECIAL ANIMATION PREPARATION
+   ========================================================================== */
+
+function prepareSpecialVisual(layer: HTMLElement) {
+  /* ----------------------------------------------------------------------
+     KP
+     ---------------------------------------------------------------------- */
+
+  const kpBadge = layer.querySelector<HTMLElement>("[data-kp-badge]");
+
+  if (kpBadge) {
+    gsap.set(kpBadge, {
+      autoAlpha: 0,
+      y: 35,
+      scale: 0.94,
+    });
+  }
+
+  /* ----------------------------------------------------------------------
+     SHURUUP
+     ---------------------------------------------------------------------- */
+
+  const shuruupPhone = layer.querySelector<HTMLElement>("[data-shuruup-phone]");
+
+  const shuruupRoutes = Array.from(
+    layer.querySelectorAll<SVGPathElement>("[data-shuruup-route]"),
+  );
+
+  const shuruupNodes = Array.from(
+    layer.querySelectorAll<HTMLElement>("[data-shuruup-node]"),
+  );
+
+  if (shuruupPhone) {
+    gsap.set(shuruupPhone, {
+      autoAlpha: 0,
+
+      y: 80,
+
+      scale: 0.9,
+
+      rotation: 10,
+    });
+  }
+
+  shuruupRoutes.forEach((route) => {
+    gsap.set(route, {
+      strokeDasharray: "1 1",
+
+      strokeDashoffset: 1,
+    });
+  });
+
+  shuruupNodes.forEach((node) => {
+    gsap.set(node, {
+      autoAlpha: 0,
+
+      y: 20,
+
+      scale: 0.9,
+
+      filter: "blur(7px)",
+    });
+  });
+
+  /* ----------------------------------------------------------------------
+     ANMOL
+     ---------------------------------------------------------------------- */
+
+  const anmolPhone = layer.querySelector<HTMLElement>("[data-anmol-phone]");
+
+  const anmolCards = Array.from(
+    layer.querySelectorAll<HTMLElement>("[data-anmol-card]"),
+  );
+
+  if (anmolPhone) {
+    gsap.set(anmolPhone, {
+      autoAlpha: 0,
+
+      y: 75,
+
+      scale: 0.88,
+
+      rotation: 5,
+    });
+  }
+
+  anmolCards.forEach((card) => {
+    gsap.set(card, {
+      autoAlpha: 0,
+
+      y: 10,
+    });
+  });
+}
+
+/* ==========================================================================
+   SPECIAL TIMELINES
+   ========================================================================== */
+
+function appendSpecialVisualAnimation(
+  timeline: gsap.core.Timeline,
+  layer: HTMLElement,
+  visual: ProjectVisual,
+) {
+  /* ----------------------------------------------------------------------
+     ELEVRO
+     ---------------------------------------------------------------------- */
+
+  if (visual === "elevro") {
+    timeline.to(
+      {},
+      {
+        duration: 0.22,
+      },
+    );
+
+    return;
+  }
+
+  /* ----------------------------------------------------------------------
+     KP WOOD CRAFT
+     ---------------------------------------------------------------------- */
+
+  if (visual === "kpwood") {
+    const badge = layer.querySelector<HTMLElement>("[data-kp-badge]");
+
+    if (badge) {
+      timeline.to(
+        badge,
+        {
+          autoAlpha: 1,
+
+          y: 0,
+
+          scale: 1,
+
+          duration: 0.42,
+
+          ease: "back.out(1.6)",
+        },
+        "<0.16",
+      );
+    }
+
+    return;
+  }
+
+  /* ----------------------------------------------------------------------
+     SHURUUP
+     ---------------------------------------------------------------------- */
+
+  if (visual === "shuruup") {
+    const phone = layer.querySelector<HTMLElement>("[data-shuruup-phone]");
+
+    const routes = Array.from(
+      layer.querySelectorAll<SVGPathElement>("[data-shuruup-route]"),
+    );
+
+    const nodes = Array.from(
+      layer.querySelectorAll<HTMLElement>("[data-shuruup-node]"),
+    );
+
+    /*
+     * Exactly the requested sequence:
+     *
+     * PHONE
+     *   ↓
+     * ROUTE
+     *   ↓
+     * CARD
+     *   ↓
+     * ROUTE
+     *   ↓
+     * CARD
+     *   ↓
+     * ROUTE
+     *   ↓
+     * CARD
+     */
+
+    if (phone) {
+      timeline.to(
+        phone,
+        {
+          autoAlpha: 1,
+
+          y: 0,
+
+          scale: 1,
+
+          rotation: 5,
+
+          duration: 0.62,
+
+          ease: "power4.out",
+        },
+        "<0.08",
+      );
+    }
+
+    routes.forEach((route, routeIndex) => {
+      timeline.to(
+        route,
+        {
+          strokeDashoffset: 0,
+
+          duration: 0.42,
+
+          ease: "none",
+        },
+        routeIndex === 0 ? "+=0.08" : "+=0.05",
+      );
+
+      const node = nodes[routeIndex];
+
+      if (node) {
+        timeline.to(
+          node,
+          {
+            autoAlpha: 1,
+
+            y: 0,
+
+            scale: 1,
+
+            filter: "blur(0px)",
+
+            duration: 0.38,
+
+            ease: "power3.out",
+          },
+          "-=0.04",
+        );
+      }
+    });
+
+    return;
+  }
+
+  /* ----------------------------------------------------------------------
+     ANMOL
+     ---------------------------------------------------------------------- */
+
+  if (visual === "anmol") {
+    const phone = layer.querySelector<HTMLElement>("[data-anmol-phone]");
+
+    const cards = Array.from(
+      layer.querySelectorAll<HTMLElement>("[data-anmol-card]"),
+    );
+
+    if (phone) {
+      timeline.to(
+        phone,
+        {
+          autoAlpha: 1,
+
+          y: 0,
+
+          scale: 1,
+
+          rotation: 0,
+
+          duration: 0.68,
+
+          ease: "power4.out",
+        },
+        "<0.12",
+      );
+    }
+
+    if (cards.length > 0) {
+      timeline.to(
+        cards,
+        {
+          autoAlpha: 1,
+
+          y: 0,
+
+          duration: 0.3,
+
+          stagger: 0.055,
+
+          ease: "power3.out",
+        },
+        "<0.2",
+      );
+    }
+  }
 }
