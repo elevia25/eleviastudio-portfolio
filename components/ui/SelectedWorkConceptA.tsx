@@ -20,7 +20,6 @@ import SectionHeading, {
    TYPES
    ========================================================================== */
 
-type ProjectType = "web" | "app";
 
 type ProjectVisual = "elevro" | "kpwood" | "shuruup" | "anmol";
 
@@ -36,10 +35,8 @@ type ProjectIdentity =
     };
 
 type Project = {
-  code: string;
   category: string;
 
-  type: ProjectType;
   visual: ProjectVisual;
 
   identity: ProjectIdentity;
@@ -57,10 +54,8 @@ type Project = {
 
 const PROJECTS: Project[] = [
   {
-    code: "W — 001",
     category: "Enterprise Engineering",
 
-    type: "web",
     visual: "elevro",
 
     identity: {
@@ -77,10 +72,8 @@ const PROJECTS: Project[] = [
   },
 
   {
-    code: "W — 002",
     category: "Carpentry & Interiors",
 
-    type: "web",
     visual: "kpwood",
 
     identity: {
@@ -97,10 +90,8 @@ const PROJECTS: Project[] = [
   },
 
   {
-    code: "W — 003",
     category: "Private Markets",
 
-    type: "web",
     visual: "shuruup",
 
     identity: {
@@ -116,10 +107,8 @@ const PROJECTS: Project[] = [
   },
 
   {
-    code: "W — 004",
     category: "Flutter · iOS + Android",
 
-    type: "app",
     visual: "anmol",
 
     identity: {
@@ -142,8 +131,6 @@ export default function SelectedWorkConceptA() {
   const identityRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   const visualRefs = useRef<Array<HTMLDivElement | null>>([]);
-
-  const metaRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   const webHeadingRef = useRef<HTMLDivElement>(null);
 
@@ -173,8 +160,6 @@ export default function SelectedWorkConceptA() {
     const identities = identityRefs.current;
 
     const visuals = visualRefs.current;
-
-    const metas = metaRefs.current;
 
     let refreshFrame = 0;
 
@@ -254,15 +239,6 @@ export default function SelectedWorkConceptA() {
         });
       });
 
-      metas.forEach((meta) => {
-        if (!meta) return;
-
-        gsap.set(meta, {
-          autoAlpha: 0,
-          y: 16,
-        });
-      });
-
       /* ====================================================================
          MASTER TIMELINE
          ==================================================================== */
@@ -339,9 +315,8 @@ export default function SelectedWorkConceptA() {
 
         const visual = visuals[projectIndex];
 
-        const meta = metas[projectIndex];
 
-        if (!layer || !identity || !visual || !meta) {
+        if (!layer || !identity || !visual) {
           return;
         }
 
@@ -420,41 +395,27 @@ export default function SelectedWorkConceptA() {
              META
              ================================================================ */
 
-        timeline.to(
-          meta,
-          {
-            autoAlpha: 1,
-
-            y: 0,
-
-            duration: 0.32,
-
-            ease: "power2.out",
-          },
-          projectIndex === 0 ? "<0.1" : "<0.15",
-        );
-
         /* ================================================================
              IDENTITY COMES FROM VIEWPORT BOTTOM
              ================================================================ */
 
-        timeline.to(
-          identity,
-          {
-            autoAlpha: 1,
+             timeline.to(
+               identity,
+               {
+                 autoAlpha: 1,
 
-            y: 0,
+                 y: 0,
 
-            scale: 1,
+                 scale: 1,
 
-            filter: "blur(0px)",
+                 filter: "blur(0px)",
 
-            duration: 0.9,
+                 duration: 0.9,
 
-            ease: "power4.out",
-          },
-          "<0.08",
-        );
+                 ease: "power4.out",
+               },
+               projectIndex === 0 ? 0.18 : "<0.12",
+             );
 
         /* ================================================================
              RIGHT VISUAL
@@ -514,14 +475,7 @@ export default function SelectedWorkConceptA() {
              EXIT
              ================================================================ */
 
-        timeline.to(meta, {
-          autoAlpha: 0,
-
-          y: -15,
-
-          duration: 0.3,
-        });
-
+       
         timeline.to(
           identity,
           {
@@ -575,10 +529,7 @@ export default function SelectedWorkConceptA() {
       aria-label="Selected projects"
       className={`${SECTION_SHELL_CLASS} z-0 h-svh`}
     >
-      <div
-        ref={stageRef}
-        className={SECTION_VIEWPORT_CLASS}
-      >
+      <div ref={stageRef} className={SECTION_VIEWPORT_CLASS}>
         {/* ========================================================
             GLOBAL TEXTURE
             ======================================================== */}
@@ -639,7 +590,7 @@ export default function SelectedWorkConceptA() {
 
         {PROJECTS.map((project, projectIndex) => (
           <div
-            key={project.code}
+            key={projectIndex}
             ref={(element) => {
               layerRefs.current[projectIndex] = element;
             }}
@@ -652,71 +603,19 @@ export default function SelectedWorkConceptA() {
               "
           >
             {/* ==================================================
-                  PROJECT META
-                  ================================================== */}
-
-            <div
-              ref={(element) => {
-                metaRefs.current[projectIndex] = element;
-              }}
-              className="
-                  absolute
-                  bottom-6
-                  left-5
-                  z-[70]
-
-                  opacity-0
-
-                  md:bottom-9
-                  md:left-10
-                "
-            >
-              <p
-                className="
-                    text-[8px]
-                    uppercase
-                    tracking-[0.28em]
-                    opacity-40
-
-                    md:text-[9px]
-                  "
-              >
-                {project.code}
-              </p>
-
-              <p
-                className="
-                    mt-1.5
-                    text-[9px]
-                    uppercase
-                    tracking-[0.18em]
-
-                    md:text-[10px]
-                  "
-              >
-                {project.category}
-              </p>
-            </div>
-
-            {/* ==================================================
                   IDENTITY — LEFT
                   ================================================== */}
 
             <div
               className="
                   absolute
-
                   left-5
-                  top-[10.5rem]
-
+                  top-[9.5rem]
                   z-30
-
                   w-[90vw]
-
                   md:left-[5vw]
                   md:top-1/2
                   md:w-[39vw]
-
                   md:-translate-y-1/2
                 "
             >
@@ -729,13 +628,20 @@ export default function SelectedWorkConceptA() {
                   "
               >
                 <ProjectIdentity project={project} />
+                <p
+                  className="
+                  mt-1.5
+                  text-[9px]
+                  uppercase
+                  tracking-[0.18em]
+
+                  md:text-[10px]
+                "
+                >
+                  {project.category}
+                </p>
               </div>
             </div>
-
-            {/* ==================================================
-                  VISUAL — RIGHT
-                  ================================================== */}
-
             <div
               className="
                   absolute
@@ -790,16 +696,14 @@ export default function SelectedWorkConceptA() {
                 rel="noreferrer"
                 className="
                     absolute
-                    top-7
+                    bottom-7
                     right-6
                     z-[80]
-
-                    hidden
 
                     items-center
                     gap-2
 
-                    text-[8px]
+                    text-[18px]
                     uppercase
                     tracking-[0.24em]
 
@@ -810,7 +714,7 @@ export default function SelectedWorkConceptA() {
 
                     hover:opacity-100
 
-                    md:flex
+                    flex
                     md:right-10
                   "
               >
@@ -831,7 +735,7 @@ export default function SelectedWorkConceptA() {
             pointer-events-none
 
             absolute
-            bottom-7
+            bottom-2
             left-1/2
             z-[100]
 
@@ -839,13 +743,13 @@ export default function SelectedWorkConceptA() {
 
             whitespace-nowrap
 
-            text-[7px]
+            text-[12px]
             uppercase
             tracking-[0.27em]
 
             opacity-0
 
-            md:text-[8px]
+            md:text-[14px]
           "
         >
           Scroll to explore ↓
@@ -913,7 +817,7 @@ function IdentityUnderline({ color }: { color: string }) {
   return (
     <div
       className="
-        mt-7
+        mt-2
         h-px
         w-20
       "
@@ -948,16 +852,16 @@ function ProjectHeroVisual({ project }: { project: Project }) {
    ELEVRO
    ========================================================================== */
 
-   function ElevroHeroVisual() {
-     return (
-       <div className="relative h-full w-full">
-         {/* ========================================================
+function ElevroHeroVisual() {
+  return (
+    <div className="relative h-full w-full">
+      {/* ========================================================
             AMBIENT GLOW
             ======================================================== */}
 
-         <div
-           aria-hidden
-           className="
+      <div
+        aria-hidden
+        className="
             pointer-events-none
             absolute
   
@@ -982,14 +886,14 @@ function ProjectHeroVisual({ project }: { project: Project }) {
   
             md:-translate-x-1/2
           "
-         />
+      />
 
-         {/* ========================================================
+      {/* ========================================================
             HERO CANVAS
             ======================================================== */}
 
-         <div
-           className="
+      <div
+        className="
             absolute
   
             /*
@@ -1035,12 +939,12 @@ function ProjectHeroVisual({ project }: { project: Project }) {
   
             will-change-transform
           "
-         >
-           <HeroCanvas variant="orb" />
-         </div>
-       </div>
-     );
-   }
+      >
+        <HeroCanvas variant="orb" />
+      </div>
+    </div>
+  );
+}
 
 /* ==========================================================================
    KP WOOD CRAFT
@@ -1193,10 +1097,10 @@ function KPWoodHeroVisual() {
    SHURUUP
    ========================================================================== */
 
-   function ShuruupHeroVisual() {
-     return (
-       <div
-         className="
+function ShuruupHeroVisual() {
+  return (
+    <div
+      className="
           relative
   
           flex
@@ -1206,12 +1110,12 @@ function KPWoodHeroVisual() {
           items-center
           justify-center
         "
-       >
-         {/* subtle background depth */}
+    >
+      {/* subtle background depth */}
 
-         <div
-           aria-hidden
-           className="
+      <div
+        aria-hidden
+        className="
             pointer-events-none
   
             absolute
@@ -1230,12 +1134,12 @@ function KPWoodHeroVisual() {
   
             blur-[90px]
           "
-         />
+      />
 
-         {/* VIDEO */}
+      {/* VIDEO */}
 
-         <div
-           className="
+      <div
+        className="
             relative
             z-10
   
@@ -1256,14 +1160,14 @@ function KPWoodHeroVisual() {
             xl:h-[74%]
             xl:w-[78%]
           "
-         >
-           <video
-             autoPlay
-             muted
-             playsInline
-             loop
-             preload="metadata"
-             className="
+      >
+        <video
+          autoPlay
+          muted
+          playsInline
+          loop
+          preload="metadata"
+          className="
               block
   
               max-h-full
@@ -1272,34 +1176,34 @@ function KPWoodHeroVisual() {
               object-contain
               object-center
             "
-           >
-             <source src="/projects/home_video.mp4" type="video/mp4" />
-             Your browser does not support the video tag.
-           </video>
-         </div>
-       </div>
-     );
-   }
+        >
+          <source src="/projects/home_video.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </div>
+  );
+}
 
 /* ==========================================================================
    ANMOL MEDICARE
    ========================================================================== */
-   function AnmolHeroVisual() {
-     return (
-       <div
-         className="
+function AnmolHeroVisual() {
+  return (
+    <div
+      className="
           relative
           h-full
           w-full
         "
-       >
-         {/* ========================================================
+    >
+      {/* ========================================================
             GLOW
             ======================================================== */}
 
-         <div
-           aria-hidden
-           className="
+      <div
+        aria-hidden
+        className="
             pointer-events-none
             absolute
   
@@ -1324,15 +1228,15 @@ function KPWoodHeroVisual() {
             md:h-[58%]
             md:w-[58%]
           "
-         />
+      />
 
-         {/* ========================================================
+      {/* ========================================================
             ANMOL APP IMAGE
             ======================================================== */}
 
-         <div
-           data-anmol-phone
-           className="
+      <div
+        data-anmol-phone
+        className="
             absolute
             z-20
   
@@ -1389,31 +1293,29 @@ function KPWoodHeroVisual() {
   
             will-change-[transform,opacity]
           "
-         >
-           <Image
-             src="/projects/anmol-mobile.jpeg"
-             alt="Anmol Medicare mobile application"
-             fill
-             priority={false}
-             sizes="
+      >
+        <Image
+          src="/projects/anmol-mobile.jpeg"
+          alt="Anmol Medicare mobile application"
+          fill
+          priority={false}
+          sizes="
               (max-width: 639px) 76vw,
               (max-width: 767px) 58vw,
               (max-width: 1279px) 48vw,
               44vw
             "
-             className="
+          className="
               select-none
               object-contain
               object-center
             "
-             draggable={false}
-           />
-         </div>
-       </div>
-     );
-   }
-
-
+          draggable={false}
+        />
+      </div>
+    </div>
+  );
+}
 
 /* ==========================================================================
    SPECIAL ANIMATION PREPARATION
@@ -1451,7 +1353,6 @@ function prepareSpecialVisual(layer: HTMLElement) {
       rotation: 5,
     });
   }
-
 }
 
 /* ==========================================================================
@@ -1541,6 +1442,5 @@ function appendSpecialVisualAnimation(
         "<0.12",
       );
     }
-
   }
 }
