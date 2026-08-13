@@ -4,44 +4,38 @@ import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLayoutEffect, useRef } from "react";
+
 import SectionHeading from "./SectionHeading";
+import { EASE, PINNED_SCRUB, prefersReducedMotion } from "@/lib/motion";
 
 /* ==========================================================================
    DATA
    ========================================================================== */
 
-const PACKAGING_ITEMS = [
+const BRANDING_ITEMS = [
   {
     number: "01",
-    title: "Packaging Study",
-    category: "Packaging / Identity",
-    image: "/poster-01.png",
+    title: "Brand Identity",
+    category: "Branding / Identity",
+    image: "/poster-01.jpeg",
     description:
-      "Identity translated from a visual system into a physical piece people can see, touch and hold.",
+      "A visual identity translated into a system that works across print, packaging and physical touchpoints.",
   },
   {
     number: "02",
     title: "Print Direction",
-    category: "Print / Art Direction",
-    image: "/poster-02.png",
+    category: "Branding / Print",
+    image: "/poster-02.jpeg",
     description:
-      "A print-led composition built around typography, hierarchy and material presence.",
+      "Typography, composition and visual language shaped into a recognisable physical brand presence.",
   },
   {
     number: "03",
     title: "Physical Identity",
-    category: "Brand / Packaging",
-    image: "/poster-02.png",
+    category: "Brand / Experience",
+    image: "/poster-03.jpeg",
     description:
-      "A physical expression of the brand designed to carry the identity beyond the screen.",
-  },
-  {
-    number: "04",
-    title: "Poster System",
-    category: "Graphic / Print",
-    image: "/poster-01.png",
-    description:
-      "A large-format visual system where typography, imagery and layout become one strong physical composition.",
+      "Taking the identity beyond the screen through materials, applications and real-world brand moments.",
   },
 ] as const;
 
@@ -49,76 +43,79 @@ const PACKAGING_ITEMS = [
    COMPONENT
    ========================================================================== */
 
-export default function PackagingShowcaseSection() {
+export default function BrandingShowcaseSection() {
   const sectionRef = useRef<HTMLElement>(null);
-
-  const stageRef = useRef<HTMLDivElement>(null);
 
   const posterRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   const contentRefs = useRef<Array<HTMLDivElement | null>>([]);
 
-  const giantWordRef = useRef<HTMLDivElement>(null);
-
-  const progressRef = useRef<HTMLDivElement>(null);
-
-  const sectionTitleRef = useRef<HTMLDivElement>(null);
-
-  const outroRef = useRef<HTMLDivElement>(null);
-
   useLayoutEffect(() => {
     const section = sectionRef.current;
 
-    const stage = stageRef.current;
+    if (!section) {
+      return;
+    }
 
-    const giantWord = giantWordRef.current;
+    const posters = posterRefs.current.filter(
+      (element): element is HTMLDivElement => Boolean(element),
+    );
 
-    const progress = progressRef.current;
-
-    const sectionTitle = sectionTitleRef.current;
-
-    const outro = outroRef.current;
-
-    const posters = posterRefs.current.filter(Boolean) as HTMLDivElement[];
-
-    const contents = contentRefs.current.filter(Boolean) as HTMLDivElement[];
+    const contents = contentRefs.current.filter(
+      (element): element is HTMLDivElement => Boolean(element),
+    );
 
     if (
-      !section ||
-      !stage ||
-      !giantWord ||
-      !progress ||
-      !sectionTitle ||
-      !outro ||
-      posters.length !== PACKAGING_ITEMS.length ||
-      contents.length !== PACKAGING_ITEMS.length
+      posters.length !== BRANDING_ITEMS.length ||
+      contents.length !== BRANDING_ITEMS.length
     ) {
       return;
     }
 
     gsap.registerPlugin(ScrollTrigger);
 
+    const reducedMotion = prefersReducedMotion();
+
     const ctx = gsap.context(() => {
-      const mm = gsap.matchMedia();
+      if (reducedMotion) {
+        posters.forEach((poster, index) => {
+          gsap.set(poster, {
+            autoAlpha: index === 0 ? 1 : 0,
+            yPercent: 0,
+            scale: 1,
+            rotation: 0,
+          });
+        });
 
-      /* ====================================================================
+        contents.forEach((content, index) => {
+          gsap.set(content, { autoAlpha: index === 0 ? 1 : 0, y: 0 });
+        });
+
+        return;
+      }
+
+      const media = gsap.matchMedia();
+
+      /* ==================================================================
          DESKTOP
-         ==================================================================== */
+         ================================================================== */
 
-      mm.add("(min-width: 768px)", () => {
+      media.add("(min-width: 768px)", () => {
         /* --------------------------------------------------------------
-             INITIAL STATE
-             -------------------------------------------------------------- */
+           INITIAL STATE
+
+           First project is already visible when Branding enters.
+           -------------------------------------------------------------- */
 
         posters.forEach((poster, index) => {
           gsap.set(poster, {
             autoAlpha: index === 0 ? 1 : 0,
 
-            yPercent: index === 0 ? 34 : 55,
+            yPercent: index === 0 ? 4 : 42,
 
-            scale: index === 0 ? 0.83 : 0.88,
+            scale: index === 0 ? 0.98 : 0.9,
 
-            rotation: index === 0 ? -5 : 4,
+            rotation: index === 0 ? -0.8 : 3,
 
             transformOrigin: "50% 70%",
 
@@ -130,33 +127,15 @@ export default function PackagingShowcaseSection() {
           gsap.set(content, {
             autoAlpha: index === 0 ? 1 : 0,
 
-            y: index === 0 ? 30 : 45,
+            y: index === 0 ? 0 : 32,
+
+            force3D: true,
           });
         });
 
-        gsap.set(giantWord, {
-          autoAlpha: 0,
-          scale: 0.94,
-          yPercent: 8,
-        });
-
-        gsap.set(sectionTitle, {
-          autoAlpha: 0,
-          y: 15,
-        });
-
-        gsap.set(progress, {
-          autoAlpha: 0,
-        });
-
-        gsap.set(outro, {
-          autoAlpha: 0,
-          y: 12,
-        });
-
         /* --------------------------------------------------------------
-             TIMELINE
-             -------------------------------------------------------------- */
+           MAIN SCROLL TIMELINE
+           -------------------------------------------------------------- */
 
         const timeline = gsap.timeline({
           scrollTrigger: {
@@ -166,60 +145,15 @@ export default function PackagingShowcaseSection() {
 
             end: "bottom bottom",
 
-            scrub: 1.05,
+            scrub: PINNED_SCRUB.desktop,
 
             invalidateOnRefresh: true,
           },
         });
 
-        /* ==============================================================
-             INTRO / POSTER 01
-             ============================================================== */
-
-        timeline.to(
-          stage,
-          {
-            backgroundColor: "#160E18",
-
-            duration: 0.2,
-          },
-          0,
-        );
-
-        timeline.to(
-          giantWord,
-          {
-            autoAlpha: 1,
-            scale: 1,
-            yPercent: 0,
-
-            duration: 0.8,
-
-            ease: "power3.out",
-          },
-          0.05,
-        );
-
-        timeline.to(
-          sectionTitle,
-          {
-            autoAlpha: 1,
-            y: 0,
-
-            duration: 0.45,
-          },
-          0.12,
-        );
-
-        timeline.to(
-          progress,
-          {
-            autoAlpha: 1,
-
-            duration: 0.35,
-          },
-          0.18,
-        );
+        /* --------------------------------------------------------------
+           FIRST POSTER SETTLES QUICKLY
+           -------------------------------------------------------------- */
 
         timeline.to(
           posters[0],
@@ -230,85 +164,78 @@ export default function PackagingShowcaseSection() {
 
             rotation: 0,
 
-            duration: 0.9,
+            duration: 0.26,
 
-            ease: "power3.out",
+            ease: EASE.entrance,
           },
-          0.12,
+          0,
         );
 
-        timeline.to(
-          contents[0],
-          {
-            y: 0,
+        timeline.addLabel("branding-01");
 
-            duration: 0.55,
-
-            ease: "power3.out",
-          },
-          0.3,
-        );
-
-        timeline.addLabel("poster-01");
+        /*
+         * Small hold only.
+         *
+         * Do not waste a large portion of the
+         * section before the next project starts.
+         */
 
         timeline.to(
           {},
           {
-            duration: 0.55,
+            duration: 0.18,
           },
         );
 
-        /* ==============================================================
-             POSTERS 02 → 04
-             ============================================================== */
+        /* --------------------------------------------------------------
+           PROJECT 02 → 04
+           -------------------------------------------------------------- */
 
-        for (let index = 1; index < PACKAGING_ITEMS.length; index += 1) {
-          const previous = posters[index - 1];
+        for (let index = 1; index < BRANDING_ITEMS.length; index += 1) {
+          const previousPoster = posters[index - 1];
 
-          const current = posters[index];
+          const currentPoster = posters[index];
 
           const previousContent = contents[index - 1];
 
           const currentContent = contents[index];
 
-          /* ----------------------------------------------------------
-               Previous poster sinks back into the material
-               ---------------------------------------------------------- */
+          /* previous text leaves */
 
           timeline.to(previousContent, {
             autoAlpha: 0,
 
-            y: -28,
+            y: -24,
 
-            duration: 0.32,
+            duration: 0.26,
 
-            ease: "power2.in",
+            ease: EASE.exit,
           });
 
+          /* previous artwork sinks */
+
           timeline.to(
-            previous,
+            previousPoster,
             {
-              yPercent: -12,
+              autoAlpha: 0.12,
 
-              scale: 0.76,
+              yPercent: -9,
 
-              rotation: index % 2 === 0 ? -3 : 3,
+              scale: 0.8,
 
-              autoAlpha: 0.16,
+              rotation: index % 2 === 0 ? -2 : 2,
 
-              duration: 0.55,
+              duration: 0.42,
 
-              ease: "power3.inOut",
+              ease: EASE.timeline,
             },
             "<",
           );
 
-          /* ----------------------------------------------------------
-               Current poster rises over it
-               ---------------------------------------------------------- */
+          /* new artwork rises */
 
           timeline.to(
-            current,
+            currentPoster,
             {
               autoAlpha: 1,
 
@@ -318,11 +245,178 @@ export default function PackagingShowcaseSection() {
 
               rotation: 0,
 
-              duration: 0.72,
+              duration: 0.58,
 
-              ease: "power4.out",
+              ease: EASE.entranceStrong,
             },
-            "<0.18",
+            "<0.12",
+          );
+
+          /* new text arrives */
+
+          timeline.to(
+            currentContent,
+            {
+              autoAlpha: 1,
+
+              y: 0,
+
+              duration: 0.38,
+
+              ease: EASE.entrance,
+            },
+            "<0.14",
+          );
+
+          timeline.addLabel(`branding-0${index + 1}`);
+
+          /*
+           * Short readable pause.
+           */
+
+          timeline.to(
+            {},
+            {
+              duration: 0.26,
+            },
+          );
+        }
+
+        /*
+         * IMPORTANT:
+         *
+         * Do not fade the final state.
+         * Do not change the Branding background.
+         * Do not add another artificial outro.
+         *
+         * Sticky simply releases and the next
+         * section naturally enters.
+         */
+      });
+
+      /* ==================================================================
+         MOBILE
+         ================================================================== */
+
+      media.add("(max-width: 767px)", () => {
+        posters.forEach((poster, index) => {
+          gsap.set(poster, {
+            autoAlpha: index === 0 ? 1 : 0,
+
+            yPercent: index === 0 ? 3 : 34,
+
+            scale: index === 0 ? 0.98 : 0.92,
+
+            rotation: index === 0 ? -0.5 : 2,
+
+            force3D: true,
+          });
+        });
+
+        contents.forEach((content, index) => {
+          gsap.set(content, {
+            autoAlpha: index === 0 ? 1 : 0,
+
+            y: index === 0 ? 0 : 22,
+
+            force3D: true,
+          });
+        });
+
+        const timeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: section,
+
+            start: "top top",
+
+            end: "bottom bottom",
+
+            scrub: PINNED_SCRUB.mobile,
+
+            invalidateOnRefresh: true,
+          },
+        });
+
+        /* first state */
+
+        timeline.to(
+          posters[0],
+          {
+            yPercent: 0,
+
+            scale: 1,
+
+            rotation: 0,
+
+            duration: 0.24,
+
+            ease: EASE.entrance,
+          },
+          0,
+        );
+
+        timeline.addLabel("branding-mobile-01");
+
+        timeline.to(
+          {},
+          {
+            duration: 0.15,
+          },
+        );
+
+        /* remaining states */
+
+        for (let index = 1; index < BRANDING_ITEMS.length; index += 1) {
+          const previousPoster = posters[index - 1];
+
+          const currentPoster = posters[index];
+
+          const previousContent = contents[index - 1];
+
+          const currentContent = contents[index];
+
+          timeline.to(previousContent, {
+            autoAlpha: 0,
+
+            y: -16,
+
+            duration: 0.22,
+
+            ease: EASE.exit,
+          });
+
+          timeline.to(
+            previousPoster,
+            {
+              autoAlpha: 0,
+
+              yPercent: -6,
+
+              scale: 0.82,
+
+              duration: 0.34,
+
+              ease: EASE.timeline,
+            },
+            "<",
+          );
+
+          timeline.to(
+            currentPoster,
+            {
+              autoAlpha: 1,
+
+              yPercent: 0,
+
+              scale: 1,
+
+              rotation: 0,
+
+              duration: 0.48,
+
+              ease: EASE.entrance,
+            },
+            "<0.08",
           );
 
           timeline.to(
@@ -332,317 +426,40 @@ export default function PackagingShowcaseSection() {
 
               y: 0,
 
-              duration: 0.5,
+              duration: 0.32,
 
-              ease: "power3.out",
+              ease: EASE.entrance,
             },
-            "<0.18",
+            "<0.12",
           );
 
-          timeline.addLabel(`poster-0${index + 1}`);
+          timeline.addLabel(`branding-mobile-0${index + 1}`);
 
           timeline.to(
             {},
             {
-              duration: 0.62,
+              duration: 0.22,
             },
           );
         }
-
-        /* ==============================================================
-             FINAL TRANSITION → SELECTED WORK
-             ============================================================== */
-
-        const lastPoster = posters[posters.length - 1];
-
-        const lastContent = contents[contents.length - 1];
-
-        timeline.to(lastContent, {
-          autoAlpha: 0,
-          y: -28,
-
-          duration: 0.35,
-        });
-
-        timeline.to(
-          [sectionTitle, progress],
-          {
-            autoAlpha: 0,
-
-            duration: 0.3,
-          },
-          "<",
-        );
-
-        timeline.to(
-          lastPoster,
-          {
-            scale: 0.68,
-
-            yPercent: -8,
-
-            rotation: 2,
-
-            duration: 0.65,
-
-            ease: "power3.inOut",
-          },
-          "<0.05",
-        );
-
-        timeline.to(
-          giantWord,
-          {
-            autoAlpha: 0.1,
-
-            scale: 1.06,
-
-            duration: 0.6,
-          },
-          "<",
-        );
-
-        /*
-         * Selected Work starts with Elevro #221129.
-         */
-
-        timeline.to(
-          stage,
-          {
-            backgroundColor: "#221129",
-
-            duration: 0.75,
-
-            ease: "power2.inOut",
-          },
-          "<0.05",
-        );
-
-        timeline.to(
-          outro,
-          {
-            autoAlpha: 1,
-            y: 0,
-
-            duration: 0.35,
-          },
-          "<0.3",
-        );
-
-        timeline.to(
-          [lastPoster, giantWord, outro],
-          {
-            autoAlpha: 0,
-
-            duration: 0.38,
-          },
-          "+=0.25",
-        );
-      });
-
-      /* ====================================================================
-         MOBILE
-         ==================================================================== */
-
-      mm.add("(max-width: 767px)", () => {
-        posters.forEach((poster, index) => {
-          gsap.set(poster, {
-            autoAlpha: index === 0 ? 1 : 0,
-
-            yPercent: index === 0 ? 30 : 45,
-
-            scale: index === 0 ? 0.88 : 0.92,
-
-            rotation: index === 0 ? -3 : 3,
-          });
-        });
-
-        contents.forEach((content, index) => {
-          gsap.set(content, {
-            autoAlpha: index === 0 ? 1 : 0,
-
-            y: index === 0 ? 20 : 28,
-          });
-        });
-
-        gsap.set(giantWord, {
-          autoAlpha: 0,
-          scale: 0.94,
-        });
-
-        gsap.set(sectionTitle, {
-          autoAlpha: 0,
-        });
-
-        gsap.set(progress, {
-          autoAlpha: 0,
-        });
-
-        const timeline = gsap.timeline({
-          scrollTrigger: {
-            trigger: section,
-
-            start: "top top",
-
-            end: "bottom bottom",
-
-            scrub: 0.9,
-
-            invalidateOnRefresh: true,
-          },
-        });
-
-        timeline.to(giantWord, {
-          autoAlpha: 1,
-          scale: 1,
-
-          duration: 0.5,
-        });
-
-        timeline.to(
-          [sectionTitle, progress],
-          {
-            autoAlpha: 1,
-
-            duration: 0.35,
-          },
-          "<",
-        );
-
-        timeline.to(
-          posters[0],
-          {
-            yPercent: 0,
-            scale: 1,
-            rotation: 0,
-
-            duration: 0.75,
-
-            ease: "power3.out",
-          },
-          "<0.05",
-        );
-
-        timeline.to(
-          contents[0],
-          {
-            y: 0,
-
-            duration: 0.45,
-          },
-          "<0.2",
-        );
-
-        timeline.to(
-          {},
-          {
-            duration: 0.5,
-          },
-        );
-
-        for (let index = 1; index < posters.length; index += 1) {
-          timeline.to(contents[index - 1], {
-            autoAlpha: 0,
-            y: -18,
-
-            duration: 0.25,
-          });
-
-          timeline.to(
-            posters[index - 1],
-            {
-              scale: 0.76,
-
-              yPercent: -8,
-
-              autoAlpha: 0,
-
-              duration: 0.4,
-            },
-            "<",
-          );
-
-          timeline.to(
-            posters[index],
-            {
-              autoAlpha: 1,
-
-              yPercent: 0,
-
-              scale: 1,
-
-              rotation: 0,
-
-              duration: 0.55,
-
-              ease: "power3.out",
-            },
-            "<0.1",
-          );
-
-          timeline.to(
-            contents[index],
-            {
-              autoAlpha: 1,
-
-              y: 0,
-
-              duration: 0.4,
-            },
-            "<0.15",
-          );
-
-          timeline.to(
-            {},
-            {
-              duration: 0.5,
-            },
-          );
-        }
-
-        timeline.to(contents[contents.length - 1], {
-          autoAlpha: 0,
-
-          duration: 0.3,
-        });
-
-        timeline.to(
-          posters[posters.length - 1],
-          {
-            scale: 0.72,
-            yPercent: -7,
-
-            duration: 0.5,
-          },
-          "<",
-        );
-
-        timeline.to(
-          stage,
-          {
-            backgroundColor: "#221129",
-
-            duration: 0.6,
-          },
-          "<",
-        );
-
-        timeline.to(
-          [posters[posters.length - 1], giantWord, sectionTitle, progress],
-          {
-            autoAlpha: 0,
-
-            duration: 0.3,
-          },
-        );
       });
 
       return () => {
-        mm.revert();
+        media.revert();
       };
     }, section);
 
+    /*
+     * One refresh after layout/assets have mounted.
+     */
+
+    const refreshFrame = requestAnimationFrame(() => {
+      ScrollTrigger.refresh();
+    });
+
     return () => {
+      cancelAnimationFrame(refreshFrame);
+
       ctx.revert();
     };
   }, []);
@@ -650,21 +467,27 @@ export default function PackagingShowcaseSection() {
   return (
     <section
       ref={sectionRef}
-      aria-label="Packaging and print design"
+      aria-label="Branding and identity showcase"
       className="
         relative
-        min-h-[480svh]
+        isolate
+
+        min-h-[340svh]
         w-full
 
-        md:min-h-[520svh]
+        bg-[#160E18]
+
+        md:min-h-[360svh]
       "
     >
       {/* ==========================================================
-          STICKY STAGE
+          STICKY VIEWPORT
+
+          IMPORTANT:
+          Do NOT put overflow-hidden on the outer section.
           ========================================================== */}
 
       <div
-        ref={stageRef}
         className="
           sticky
           top-0
@@ -679,7 +502,7 @@ export default function PackagingShowcaseSection() {
         "
       >
         {/* ========================================================
-            BACKGROUND SURFACE
+            BACKGROUND DEPTH
             ======================================================== */}
 
         <div
@@ -688,6 +511,7 @@ export default function PackagingShowcaseSection() {
             pointer-events-none
             absolute
             inset-0
+            z-0
           "
           style={{
             background: `
@@ -713,7 +537,9 @@ export default function PackagingShowcaseSection() {
           }}
         />
 
-        {/* material grain */}
+        {/* ========================================================
+            MATERIAL GRAIN
+            ======================================================== */}
 
         <div
           aria-hidden
@@ -721,6 +547,9 @@ export default function PackagingShowcaseSection() {
             pointer-events-none
             absolute
             inset-0
+
+            z-0
+
             opacity-30
           "
           style={{
@@ -737,18 +566,17 @@ export default function PackagingShowcaseSection() {
         />
 
         {/* ========================================================
-            GIANT WORD
+            GIANT BACKGROUND WORD
             ======================================================== */}
 
         <div
-          ref={giantWordRef}
           aria-hidden
           className="
             pointer-events-none
-            absolute
 
+            absolute
             left-1/2
-            top-[44%]
+            top-[48%]
 
             z-[1]
 
@@ -761,9 +589,8 @@ export default function PackagingShowcaseSection() {
 
             font-light
             leading-none
-            tracking-[-0.09em]
 
-            opacity-0
+            tracking-[-0.09em]
           "
           style={{
             color: "rgba(0,0,0,.24)",
@@ -774,52 +601,48 @@ export default function PackagingShowcaseSection() {
             `,
           }}
         >
-          PACKAGING
+          BRANDING
         </div>
 
+        {/* ========================================================
+            COMMON SECTION HEADING
+
+            Static and immediately visible.
+            ======================================================== */}
+
         <SectionHeading
-          ref={sectionTitleRef}
           number="05"
-          title="Packaging"
+          title="Branding"
           subtitle="Making the first impression before the product speaks."
-          className="
-    absolute
-    left-1/2
-    top-5
-    z-50
-
-    w-[92vw]
-
-    -translate-x-1/2
-
-    opacity-0
-
-    md:top-7
-  "
         />
 
         {/* ========================================================
-            COUNTER / PROGRESS
+            PROJECT COUNT
+
+            Desktop only so it does not fight the mobile heading.
             ======================================================== */}
 
         <div
-          ref={progressRef}
           className="
+            pointer-events-none
+
             absolute
 
-            right-5
-            top-5
+            right-8
+            top-8
 
-            z-50
+            z-[60]
 
-            text-[9px]
+            hidden
+
+            text-[8px]
             uppercase
+
             tracking-[0.22em]
 
-            opacity-0
+            text-current/45
 
-            md:right-10
-            md:top-8
+            lg:block
           "
         >
           04 selected pieces
@@ -829,53 +652,56 @@ export default function PackagingShowcaseSection() {
             PROJECT CONTENT
             ======================================================== */}
 
-        {PACKAGING_ITEMS.map((item, index) => (
+        {BRANDING_ITEMS.map((item, index) => (
           <div
             key={item.number}
             ref={(element) => {
               contentRefs.current[index] = element;
             }}
             className="
-  pointer-events-none
-  absolute
+              pointer-events-none
 
-  left-5
-  top-[15vh]
+              absolute
 
-  z-30
+              left-5
+              top-[9.75rem]
 
-  w-[88vw]
+              z-30
 
-  opacity-0
+              w-[88vw]
 
-  md:left-[5vw]
-  md:top-0
+              opacity-0
 
-  md:flex
-  md:h-full
-  md:w-[35vw]
-  md:max-w-[520px]
-  md:flex-col
-  md:justify-center
-"
+              sm:left-7
+
+              md:left-[5vw]
+              md:top-[56%]
+
+              md:w-[34vw]
+              md:max-w-[500px]
+
+              md:-translate-y-1/2
+            "
           >
             {/* NUMBER */}
 
             <div
               className="
-                  mb-2
-                  flex
-                  items-center
-                  gap-3
+                mb-2
 
-                  text-[8px]
-                  uppercase
-                  tracking-[0.3em]
+                flex
+                items-center
+                gap-3
 
-                  opacity-45
+                text-[13px]
+                uppercase
+                tracking-[0.3em]
 
-                  md:mb-6
-                "
+                opacity-45
+
+                md:mb-5
+                md:text-[14px]
+              "
             >
               <span>{item.number}</span>
 
@@ -888,17 +714,17 @@ export default function PackagingShowcaseSection() {
 
             <p
               className="
-                  mb-2
+                mb-2
 
-                  text-[12px]
-                  uppercase
-                  tracking-[0.25em]
+                text-[13px]
+                uppercase
+                tracking-[0.24em]
 
-                  text-[#A879B5]
+                text-[#A879B5]
 
-                  md:mb-5
-                  md:text-[16px]
-                "
+                md:mb-4
+                md:text-[15px]
+              "
             >
               {item.category}
             </p>
@@ -907,12 +733,15 @@ export default function PackagingShowcaseSection() {
 
             <h2
               className="
-                  text-[clamp(2.8rem,6vw,7rem)]
+                max-w-[560px]
 
-                  font-light
-                  leading-[0.82]
-                  tracking-[-0.07em]
-                "
+                text-[clamp(2.35rem,5.2vw,6rem)]
+
+                font-light
+                leading-[0.84]
+
+                tracking-[-0.065em]
+              "
             >
               {item.title}
             </h2>
@@ -921,19 +750,21 @@ export default function PackagingShowcaseSection() {
 
             <p
               className="
-                  mt-2
+                mt-3
 
-                  max-w-[370px]
+                max-w-[390px]
 
-                  text-[12px]
-                  font-light
-                  leading-[1.55]
+                text-[15px]
+                font-light
+                leading-[1.5]
 
-                  opacity-55
+                opacity-55
 
-                  md:mt-8
-                  md:text-[20px]
-                "
+                md:mt-6
+                md:text-sm
+
+                lg:text-base
+              "
             >
               {item.description}
             </p>
@@ -942,102 +773,129 @@ export default function PackagingShowcaseSection() {
 
             <div
               className="
-                  mt-1
+                mt-3
 
-                  flex
-                  items-center
-                  gap-3
+                flex
+                flex-wrap
+                items-center
 
-                  text-[12px]
-                  uppercase
-                  tracking-[0.2em]
+                gap-x-3
+                gap-y-1
 
-                  opacity-35
+                text-[7px]
+                uppercase
+                tracking-[0.18em]
 
-                  md:mt-9
-                  md:text-[16px]
-                "
+                opacity-35
+
+                md:mt-7
+                md:text-[8px]
+              "
             >
-              <span>Print</span>
-
-              <span>/</span>
-
-              <span>Packaging</span>
+              <span>Branding</span>
 
               <span>/</span>
 
               <span>Identity</span>
+
+              <span>/</span>
+
+              <span>Print</span>
             </div>
           </div>
         ))}
 
         {/* ========================================================
-            POSTERS
+            ARTWORK AREA
+
+            Mobile:
+            intentionally below heading + project copy.
+
+            Desktop:
+            sits on right and slightly below the common heading.
             ======================================================== */}
 
         <div
           className="
             absolute
 
-            bottom-[7vh]
             left-1/2
+            top-[58%]
 
             z-20
 
-            h-[55vh]
-            w-[84vw]
+            h-[39vh]
+            w-[72vw]
 
-            max-w-[520px]
+            max-w-[380px]
 
             -translate-x-1/2
 
-            md:bottom-auto
-            md:left-auto
-            md:right-[4vw]
-            md:top-1/2
+            sm:h-[41vh]
+            sm:w-[68vw]
+            sm:max-w-[420px]
 
-            md:h-[78vh]
-            md:w-[48vw]
-            md:max-w-[760px]
+            md:left-auto
+            md:right-[5vw]
+            md:top-[60%]
+
+            md:h-[62vh]
+            md:w-[41vw]
+
+            md:max-w-[640px]
 
             md:translate-x-0
             md:-translate-y-1/2
+
+            lg:right-[6vw]
+
+            lg:h-[64vh]
+            lg:w-[40vw]
+
+            lg:max-w-[670px]
+
+            xl:right-[7vw]
+
+            xl:h-[65vh]
+            xl:w-[39vw]
+
+            xl:max-w-[700px]
           "
         >
-          {PACKAGING_ITEMS.map((item, index) => (
+          {BRANDING_ITEMS.map((item, index) => (
             <div
-              key={item.image}
+              key={`${item.number}-${item.image}`}
               ref={(element) => {
                 posterRefs.current[index] = element;
               }}
               className="
-                  absolute
-                  inset-0
+                absolute
+                inset-0
 
-                  opacity-0
+                opacity-0
 
-                  will-change-transform
-                "
+                will-change-[transform,opacity]
+              "
             >
               {/* CONTACT SHADOW */}
 
               <div
                 aria-hidden
                 className="
-                    absolute
+                  absolute
 
-                    bottom-[-3%]
-                    left-[7%]
+                  bottom-[-3%]
+                  left-[7%]
 
-                    h-[13%]
-                    w-[86%]
+                  h-[13%]
+                  w-[86%]
 
-                    rounded-[50%]
+                  rounded-[50%]
 
-                    bg-black/35
+                  bg-black/35
 
-                    blur-2xl
-                  "
+                  blur-2xl
+                "
               />
 
               {/* PAPER BACK EDGE */}
@@ -1045,62 +903,65 @@ export default function PackagingShowcaseSection() {
               <div
                 aria-hidden
                 className="
-                    absolute
-                    inset-0
+                  absolute
+                  inset-0
 
-                    translate-x-[5px]
-                    translate-y-[6px]
+                  translate-x-[5px]
+                  translate-y-[6px]
 
-                    bg-[#9B8F98]
+                  bg-[#9B8F98]
 
-                    md:translate-x-[8px]
-                    md:translate-y-[9px]
-                  "
+                  md:translate-x-[8px]
+                  md:translate-y-[9px]
+                "
               />
 
-              {/* SECOND EDGE */}
+              {/* SECOND PAPER EDGE */}
 
               <div
                 aria-hidden
                 className="
-                    absolute
-                    inset-0
+                  absolute
+                  inset-0
 
-                    translate-x-[2px]
-                    translate-y-[3px]
+                  translate-x-[2px]
+                  translate-y-[3px]
 
-                    bg-[#CFC5CC]
-                  "
+                  bg-[#CFC5CC]
+                "
               />
 
-              {/* ARTWORK */}
+              {/* ====================================================
+                  ARTWORK
+                  ==================================================== */}
 
               <div
                 className="
-                    relative
+                  relative
 
-                    h-full
-                    w-full
+                  h-full
+                  w-full
 
-                    overflow-hidden
+                  overflow-hidden
 
-                    bg-[#EEE8EC]
+                  bg-[#EEE8EC]
 
-                    shadow-[0_35px_90px_rgba(0,0,0,0.34)]
-                  "
+                  shadow-[0_35px_90px_rgba(0,0,0,0.34)]
+                "
               >
                 <Image
                   src={item.image}
-                  alt={`${item.title} packaging artwork`}
+                  alt={`${item.title} branding artwork`}
                   fill
                   sizes="
-                      (max-width: 767px) 84vw,
-                      48vw
-                    "
+                    (max-width: 767px) 72vw,
+                    (max-width: 1279px) 41vw,
+                    39vw
+                  "
                   className="
-                      object-contain
-                      object-center
-                    "
+                    object-contain
+                    object-center
+                  "
                   onLoad={() => {
                     ScrollTrigger.refresh();
                   }}
@@ -1111,20 +972,20 @@ export default function PackagingShowcaseSection() {
                 <div
                   aria-hidden
                   className="
-                      pointer-events-none
-                      absolute
-                      inset-0
-                    "
+                    pointer-events-none
+                    absolute
+                    inset-0
+                  "
                   style={{
                     background: `
-                        linear-gradient(
-                          120deg,
-                          rgba(255,255,255,.07),
-                          transparent 27%,
-                          transparent 73%,
-                          rgba(0,0,0,.04)
-                        )
-                      `,
+                      linear-gradient(
+                        120deg,
+                        rgba(255,255,255,.07),
+                        transparent 27%,
+                        transparent 73%,
+                        rgba(0,0,0,.04)
+                      )
+                    `,
                   }}
                 />
               </div>
@@ -1133,24 +994,24 @@ export default function PackagingShowcaseSection() {
 
               <div
                 className="
-                    absolute
+                  absolute
 
-                    -bottom-7
-                    left-0
+                  -bottom-6
+                  left-0
 
-                    flex
-                    items-center
-                    gap-2
+                  flex
+                  items-center
+                  gap-2
 
-                    text-[7px]
-                    uppercase
-                    tracking-[0.22em]
+                  text-[7px]
+                  uppercase
+                  tracking-[0.2em]
 
-                    opacity-35
+                  opacity-35
 
-                    md:-bottom-8
-                    md:text-[8px]
-                  "
+                  md:-bottom-7
+                  md:text-[8px]
+                "
               >
                 <span>Selected piece</span>
 
@@ -1163,15 +1024,17 @@ export default function PackagingShowcaseSection() {
         </div>
 
         {/* ========================================================
-            BOTTOM LABEL
+            BOTTOM DESCRIPTOR
             ======================================================== */}
 
         <div
           className="
+            pointer-events-none
+
             absolute
 
-            bottom-5
-            left-5
+            bottom-7
+            left-8
 
             z-50
 
@@ -1179,46 +1042,15 @@ export default function PackagingShowcaseSection() {
 
             text-[8px]
             uppercase
-            tracking-[0.25em]
+
+            tracking-[0.24em]
 
             opacity-30
 
-            md:bottom-8
-            md:left-10
             md:block
           "
         >
-          Physical design / visual identity
-        </div>
-
-        {/* ========================================================
-            OUTRO
-            ======================================================== */}
-
-        <div
-          ref={outroRef}
-          className="
-            pointer-events-none
-
-            absolute
-
-            bottom-8
-            left-1/2
-
-            z-[70]
-
-            -translate-x-1/2
-
-            whitespace-nowrap
-
-            text-[8px]
-            uppercase
-            tracking-[0.32em]
-
-            opacity-0
-          "
-        >
-          Selected work follows
+          Brand systems / visual identity
         </div>
       </div>
     </section>

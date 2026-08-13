@@ -3,25 +3,7 @@
 import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import {
-  ArrowRight,
-  BarChart3,
-  BriefcaseMedical,
-  CalendarDays,
-  FileText,
-  FlaskConical,
-  Headphones,
-  Heart,
-  Home,
-  MapPin,
-  Mic,
-  Plus,
-  Search,
-  ShieldCheck,
-  Trophy,
-  UserRound,
-  WalletCards,
-} from "lucide-react";
+import { ArrowRight, Trophy } from "lucide-react";
 import { useLayoutEffect, useRef } from "react";
 
 /*
@@ -29,13 +11,21 @@ import { useLayoutEffect, useRef } from "react";
  * Change this import to the real path of your existing Elevro HeroCanvas.
  */
 import HeroCanvas from "@/components/HeroCanvas";
-import SectionHeading from "./SectionHeading";
+import SectionHeading, {
+  SECTION_SHELL_CLASS,
+  SECTION_VIEWPORT_CLASS,
+} from "./SectionHeading";
+import {
+  BLUR,
+  EASE,
+  PINNED_SCRUB,
+  PINNED_SNAP,
+  prefersReducedMotion,
+} from "@/lib/motion";
 
 /* ==========================================================================
    TYPES
    ========================================================================== */
-
-type ProjectType = "web" | "app";
 
 type ProjectVisual = "elevro" | "kpwood" | "shuruup" | "anmol";
 
@@ -51,10 +41,8 @@ type ProjectIdentity =
     };
 
 type Project = {
-  code: string;
   category: string;
 
-  type: ProjectType;
   visual: ProjectVisual;
 
   identity: ProjectIdentity;
@@ -72,10 +60,8 @@ type Project = {
 
 const PROJECTS: Project[] = [
   {
-    code: "W — 001",
     category: "Enterprise Engineering",
 
-    type: "web",
     visual: "elevro",
 
     identity: {
@@ -92,10 +78,8 @@ const PROJECTS: Project[] = [
   },
 
   {
-    code: "W — 002",
     category: "Carpentry & Interiors",
 
-    type: "web",
     visual: "kpwood",
 
     identity: {
@@ -112,10 +96,8 @@ const PROJECTS: Project[] = [
   },
 
   {
-    code: "W — 003",
     category: "Private Markets",
 
-    type: "web",
     visual: "shuruup",
 
     identity: {
@@ -131,10 +113,8 @@ const PROJECTS: Project[] = [
   },
 
   {
-    code: "W — 004",
     category: "Flutter · iOS + Android",
 
-    type: "app",
     visual: "anmol",
 
     identity: {
@@ -157,8 +137,6 @@ export default function SelectedWorkConceptA() {
   const identityRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   const visualRefs = useRef<Array<HTMLDivElement | null>>([]);
-
-  const metaRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   const webHeadingRef = useRef<HTMLDivElement>(null);
 
@@ -189,11 +167,59 @@ export default function SelectedWorkConceptA() {
 
     const visuals = visualRefs.current;
 
-    const metas = metaRefs.current;
-
     let refreshFrame = 0;
 
+    const reducedMotion = prefersReducedMotion();
+
     const context = gsap.context(() => {
+      /* ====================================================================
+         REDUCED MOTION
+
+         Skip the pinned, scrubbed sequence entirely and show the first
+         project in its resting state — consistent with how every other
+         pinned section on the site degrades.
+         ==================================================================== */
+
+      if (reducedMotion) {
+        gsap.set(stage, {
+          backgroundColor: PROJECTS[0].background,
+          color: PROJECTS[0].foreground,
+        });
+
+        gsap.set(webHeading, { autoAlpha: 1, y: 0 });
+        gsap.set(appHeading, { autoAlpha: 0, y: 0 });
+        gsap.set(scrollHint, { autoAlpha: 0 });
+
+        layers.forEach((layer, index) => {
+          if (!layer) return;
+          gsap.set(layer, {
+            autoAlpha: index === 0 ? 1 : 0,
+            pointerEvents: index === 0 ? "auto" : "none",
+          });
+        });
+
+        identities.forEach((identity, index) => {
+          if (!identity) return;
+          gsap.set(identity, {
+            autoAlpha: index === 0 ? 1 : 0,
+            y: 0,
+            scale: 1,
+            filter: "blur(0px)",
+          });
+        });
+
+        visuals.forEach((visual, index) => {
+          if (!visual) return;
+          gsap.set(visual, {
+            autoAlpha: index === 0 ? 1 : 0,
+            x: 0,
+            scale: 1,
+          });
+        });
+
+        return;
+      }
+
       /* ====================================================================
          STAGE
          ==================================================================== */
@@ -249,7 +275,7 @@ export default function SelectedWorkConceptA() {
 
           scale: 0.94,
 
-          filter: "blur(18px)",
+          filter: `blur(${BLUR.lg}px)`,
 
           force3D: true,
         });
@@ -269,15 +295,6 @@ export default function SelectedWorkConceptA() {
         });
       });
 
-      metas.forEach((meta) => {
-        if (!meta) return;
-
-        gsap.set(meta, {
-          autoAlpha: 0,
-          y: 16,
-        });
-      });
-
       /* ====================================================================
          MASTER TIMELINE
          ==================================================================== */
@@ -294,23 +311,20 @@ export default function SelectedWorkConceptA() {
 
           pinSpacing: true,
 
-          scrub: 1.05,
+          scrub: PINNED_SCRUB.desktop,
 
           anticipatePin: 1,
 
           invalidateOnRefresh: true,
 
           snap: {
-            snapTo: "labelsDirectional",
+            snapTo: PINNED_SNAP.snapTo,
 
-            duration: {
-              min: 0.25,
-              max: 0.7,
-            },
+            duration: PINNED_SNAP.duration,
 
-            delay: 0.08,
+            delay: PINNED_SNAP.delay,
 
-            ease: "power3.inOut",
+            ease: PINNED_SNAP.ease,
           },
         },
       });
@@ -327,7 +341,7 @@ export default function SelectedWorkConceptA() {
 
           duration: 0.48,
 
-          ease: "power3.out",
+          ease: EASE.entrance,
         },
         0,
       );
@@ -354,9 +368,7 @@ export default function SelectedWorkConceptA() {
 
         const visual = visuals[projectIndex];
 
-        const meta = metas[projectIndex];
-
-        if (!layer || !identity || !visual || !meta) {
+        if (!layer || !identity || !visual) {
           return;
         }
 
@@ -425,7 +437,7 @@ export default function SelectedWorkConceptA() {
 
               duration: 0.5,
 
-              ease: "power3.out",
+              ease: EASE.entrance,
             },
             "<0.12",
           );
@@ -434,20 +446,6 @@ export default function SelectedWorkConceptA() {
         /* ================================================================
              META
              ================================================================ */
-
-        timeline.to(
-          meta,
-          {
-            autoAlpha: 1,
-
-            y: 0,
-
-            duration: 0.32,
-
-            ease: "power2.out",
-          },
-          projectIndex === 0 ? "<0.1" : "<0.15",
-        );
 
         /* ================================================================
              IDENTITY COMES FROM VIEWPORT BOTTOM
@@ -466,9 +464,9 @@ export default function SelectedWorkConceptA() {
 
             duration: 0.9,
 
-            ease: "power4.out",
+            ease: EASE.entranceStrong,
           },
-          "<0.08",
+          projectIndex === 0 ? 0.18 : "<0.12",
         );
 
         /* ================================================================
@@ -486,7 +484,7 @@ export default function SelectedWorkConceptA() {
 
             duration: 0.78,
 
-            ease: "power4.out",
+            ease: EASE.entranceStrong,
           },
           "<0.2",
         );
@@ -529,14 +527,6 @@ export default function SelectedWorkConceptA() {
              EXIT
              ================================================================ */
 
-        timeline.to(meta, {
-          autoAlpha: 0,
-
-          y: -15,
-
-          duration: 0.3,
-        });
-
         timeline.to(
           identity,
           {
@@ -550,7 +540,7 @@ export default function SelectedWorkConceptA() {
 
             duration: 0.48,
 
-            ease: "power3.in",
+            ease: EASE.exitStrong,
           },
           "<",
         );
@@ -566,7 +556,7 @@ export default function SelectedWorkConceptA() {
 
             duration: 0.48,
 
-            ease: "power3.in",
+            ease: EASE.exitStrong,
           },
           "<0.05",
         );
@@ -588,23 +578,9 @@ export default function SelectedWorkConceptA() {
     <section
       ref={sectionRef}
       aria-label="Selected projects"
-      className="
-        relative
-        isolate
-        z-0
-        h-svh
-        w-full
-      "
+      className={`${SECTION_SHELL_CLASS} z-0 h-svh`}
     >
-      <div
-        ref={stageRef}
-        className="
-          relative
-          h-svh
-          w-full
-          overflow-hidden
-        "
-      >
+      <div ref={stageRef} className={SECTION_VIEWPORT_CLASS}>
         {/* ========================================================
             GLOBAL TEXTURE
             ======================================================== */}
@@ -644,20 +620,7 @@ export default function SelectedWorkConceptA() {
           number="03"
           title="Web Design"
           subtitle="Digital experiences built around the brand."
-          className="
-              absolute
-              left-1/2
-              top-5
-              z-[100]
-
-              w-[92vw]
-
-              -translate-x-1/2
-
-              opacity-0
-
-              md:top-7
-            "
+          className="opacity-0"
         />
 
         {/* ========================================================
@@ -669,20 +632,7 @@ export default function SelectedWorkConceptA() {
           number="04"
           title="App Development"
           subtitle="Turning an idea into something people can use."
-          className="
-            absolute
-            left-1/2
-            top-5
-            z-[100]
-
-            w-[92vw]
-
-            -translate-x-1/2
-
-            opacity-0
-
-            md:top-7
-          "
+          className="opacity-0"
         />
 
         {/* ========================================================
@@ -691,7 +641,7 @@ export default function SelectedWorkConceptA() {
 
         {PROJECTS.map((project, projectIndex) => (
           <div
-            key={project.code}
+            key={projectIndex}
             ref={(element) => {
               layerRefs.current[projectIndex] = element;
             }}
@@ -704,71 +654,19 @@ export default function SelectedWorkConceptA() {
               "
           >
             {/* ==================================================
-                  PROJECT META
-                  ================================================== */}
-
-            <div
-              ref={(element) => {
-                metaRefs.current[projectIndex] = element;
-              }}
-              className="
-                  absolute
-                  bottom-6
-                  left-5
-                  z-[70]
-
-                  opacity-0
-
-                  md:bottom-9
-                  md:left-10
-                "
-            >
-              <p
-                className="
-                    text-[8px]
-                    uppercase
-                    tracking-[0.28em]
-                    opacity-40
-
-                    md:text-[9px]
-                  "
-              >
-                {project.code}
-              </p>
-
-              <p
-                className="
-                    mt-1.5
-                    text-[9px]
-                    uppercase
-                    tracking-[0.18em]
-
-                    md:text-[10px]
-                  "
-              >
-                {project.category}
-              </p>
-            </div>
-
-            {/* ==================================================
                   IDENTITY — LEFT
                   ================================================== */}
 
             <div
               className="
                   absolute
-
                   left-5
-                  top-[18vh]
-
+                  top-[9.5rem]
                   z-30
-
                   w-[90vw]
-
                   md:left-[5vw]
                   md:top-1/2
                   md:w-[39vw]
-
                   md:-translate-y-1/2
                 "
             >
@@ -781,13 +679,20 @@ export default function SelectedWorkConceptA() {
                   "
               >
                 <ProjectIdentity project={project} />
+                <p
+                  className="
+                  mt-1.5
+                  text-[9px]
+                  uppercase
+                  tracking-[0.18em]
+
+                  md:text-[10px]
+                "
+                >
+                  {project.category}
+                </p>
               </div>
             </div>
-
-            {/* ==================================================
-                  VISUAL — RIGHT
-                  ================================================== */}
-
             <div
               className="
                   absolute
@@ -831,6 +736,9 @@ export default function SelectedWorkConceptA() {
               </div>
             </div>
 
+            {/* ==================================================
+                  VIEW PROJECT
+                  ================================================== */}
 
             {project.href && (
               <a
@@ -839,16 +747,14 @@ export default function SelectedWorkConceptA() {
                 rel="noreferrer"
                 className="
                     absolute
-                    top-7
+                    bottom-7
                     right-6
                     z-[80]
-
-                    hidden
 
                     items-center
                     gap-2
 
-                    text-[8px]
+                    text-[18px]
                     uppercase
                     tracking-[0.24em]
 
@@ -859,9 +765,8 @@ export default function SelectedWorkConceptA() {
 
                     hover:opacity-100
 
-                    md:flex
+                    flex
                     md:right-10
-                    md:bottom-9
                   "
               >
                 View project
@@ -881,7 +786,7 @@ export default function SelectedWorkConceptA() {
             pointer-events-none
 
             absolute
-            bottom-7
+            bottom-2
             left-1/2
             z-[100]
 
@@ -889,13 +794,13 @@ export default function SelectedWorkConceptA() {
 
             whitespace-nowrap
 
-            text-[7px]
+            text-[12px]
             uppercase
             tracking-[0.27em]
 
             opacity-0
 
-            md:text-[8px]
+            md:text-[14px]
           "
         >
           Scroll to explore ↓
@@ -904,98 +809,6 @@ export default function SelectedWorkConceptA() {
     </section>
   );
 }
-
-/* ==========================================================================
-   PORTFOLIO HEADING
-   ========================================================================== */
-
-const PortfolioHeading =
-  /* React forwardRef without another import */
-  ({
-    ref,
-    number,
-    title,
-    description,
-  }: {
-    ref: React.Ref<HTMLDivElement>;
-    number: string;
-    title: string;
-    description: string;
-  }) => {
-    return (
-      <div
-        ref={ref}
-        className="
-          pointer-events-none
-
-          absolute
-
-          left-1/2
-          top-5
-
-          z-[100]
-
-          w-[90vw]
-
-          -translate-x-1/2
-
-          text-center
-
-          opacity-0
-
-          md:top-7
-        "
-      >
-        <div
-          className="
-    flex
-    w-full
-    max-w-full
-    items-start
-    justify-center
-    whitespace-nowrap
-    text-center
-
-    text-[clamp(2.7rem,8vw,7.2rem)]
-
-    leading-[0.78]
-    tracking-[-0.08em]
-  "
-        >
-          <span
-            className="
-      mr-[0.45em]
-      inline-block
-      pt-[0.1em]
-      text-[0.2em]
-      font-medium
-      tracking-normal
-    "
-          >
-            {number}
-          </span>
-
-          <span>{title}</span>
-        </div>
-
-        <p
-          className="
-            mt-2
-
-            text-[10px]
-            font-light
-            tracking-[0.03em]
-
-            opacity-45
-
-            md:text-xs
-          "
-        >
-          {description}
-        </p>
-      </div>
-    );
-  };
 
 /* ==========================================================================
    IDENTITY
@@ -1055,7 +868,7 @@ function IdentityUnderline({ color }: { color: string }) {
   return (
     <div
       className="
-        mt-7
+        mt-2
         h-px
         w-20
       "
@@ -1090,16 +903,16 @@ function ProjectHeroVisual({ project }: { project: Project }) {
    ELEVRO
    ========================================================================== */
 
-   function ElevroHeroVisual() {
-     return (
-       <div className="relative h-full w-full">
-         {/* ========================================================
+function ElevroHeroVisual() {
+  return (
+    <div className="relative h-full w-full">
+      {/* ========================================================
             AMBIENT GLOW
             ======================================================== */}
 
-         <div
-           aria-hidden
-           className="
+      <div
+        aria-hidden
+        className="
             pointer-events-none
             absolute
   
@@ -1124,14 +937,14 @@ function ProjectHeroVisual({ project }: { project: Project }) {
   
             md:-translate-x-1/2
           "
-         />
+      />
 
-         {/* ========================================================
+      {/* ========================================================
             HERO CANVAS
             ======================================================== */}
 
-         <div
-           className="
+      <div
+        className="
             absolute
   
             /*
@@ -1177,12 +990,12 @@ function ProjectHeroVisual({ project }: { project: Project }) {
   
             will-change-transform
           "
-         >
-           <HeroCanvas variant="orb" />
-         </div>
-       </div>
-     );
-   }
+      >
+        <HeroCanvas variant="orb" />
+      </div>
+    </div>
+  );
+}
 
 /* ==========================================================================
    KP WOOD CRAFT
@@ -1335,10 +1148,10 @@ function KPWoodHeroVisual() {
    SHURUUP
    ========================================================================== */
 
-   function ShuruupHeroVisual() {
-     return (
-       <div
-         className="
+function ShuruupHeroVisual() {
+  return (
+    <div
+      className="
           relative
   
           flex
@@ -1348,12 +1161,12 @@ function KPWoodHeroVisual() {
           items-center
           justify-center
         "
-       >
-         {/* subtle background depth */}
+    >
+      {/* subtle background depth */}
 
-         <div
-           aria-hidden
-           className="
+      <div
+        aria-hidden
+        className="
             pointer-events-none
   
             absolute
@@ -1372,12 +1185,12 @@ function KPWoodHeroVisual() {
   
             blur-[90px]
           "
-         />
+      />
 
-         {/* VIDEO */}
+      {/* VIDEO */}
 
-         <div
-           className="
+      <div
+        className="
             relative
             z-10
   
@@ -1398,14 +1211,14 @@ function KPWoodHeroVisual() {
             xl:h-[74%]
             xl:w-[78%]
           "
-         >
-           <video
-             autoPlay
-             muted
-             playsInline
-             loop
-             preload="metadata"
-             className="
+      >
+        <video
+          autoPlay
+          muted
+          playsInline
+          loop
+          preload="metadata"
+          className="
               block
   
               max-h-full
@@ -1414,34 +1227,34 @@ function KPWoodHeroVisual() {
               object-contain
               object-center
             "
-           >
-             <source src="/projects/home_video.mp4" type="video/mp4" />
-             Your browser does not support the video tag.
-           </video>
-         </div>
-       </div>
-     );
-   }
+        >
+          <source src="/projects/home_video.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </div>
+  );
+}
 
 /* ==========================================================================
    ANMOL MEDICARE
    ========================================================================== */
-   function AnmolHeroVisual() {
-     return (
-       <div
-         className="
+function AnmolHeroVisual() {
+  return (
+    <div
+      className="
           relative
           h-full
           w-full
         "
-       >
-         {/* ========================================================
+    >
+      {/* ========================================================
             GLOW
             ======================================================== */}
 
-         <div
-           aria-hidden
-           className="
+      <div
+        aria-hidden
+        className="
             pointer-events-none
             absolute
   
@@ -1466,15 +1279,15 @@ function KPWoodHeroVisual() {
             md:h-[58%]
             md:w-[58%]
           "
-         />
+      />
 
-         {/* ========================================================
+      {/* ========================================================
             ANMOL APP IMAGE
             ======================================================== */}
 
-         <div
-           data-anmol-phone
-           className="
+      <div
+        data-anmol-phone
+        className="
             absolute
             z-20
   
@@ -1531,31 +1344,29 @@ function KPWoodHeroVisual() {
   
             will-change-[transform,opacity]
           "
-         >
-           <Image
-             src="/projects/anmol-mobile.jpeg"
-             alt="Anmol Medicare mobile application"
-             fill
-             priority={false}
-             sizes="
+      >
+        <Image
+          src="/projects/anmol-mobile.jpeg"
+          alt="Anmol Medicare mobile application"
+          fill
+          priority={false}
+          sizes="
               (max-width: 639px) 76vw,
               (max-width: 767px) 58vw,
               (max-width: 1279px) 48vw,
               44vw
             "
-             className="
+          className="
               select-none
               object-contain
               object-center
             "
-             draggable={false}
-           />
-         </div>
-       </div>
-     );
-   }
-
-
+          draggable={false}
+        />
+      </div>
+    </div>
+  );
+}
 
 /* ==========================================================================
    SPECIAL ANIMATION PREPARATION
@@ -1577,60 +1388,10 @@ function prepareSpecialVisual(layer: HTMLElement) {
   }
 
   /* ----------------------------------------------------------------------
-     SHURUUP
-     ---------------------------------------------------------------------- */
-
-  const shuruupPhone = layer.querySelector<HTMLElement>("[data-shuruup-phone]");
-
-  const shuruupRoutes = Array.from(
-    layer.querySelectorAll<SVGPathElement>("[data-shuruup-route]"),
-  );
-
-  const shuruupNodes = Array.from(
-    layer.querySelectorAll<HTMLElement>("[data-shuruup-node]"),
-  );
-
-  if (shuruupPhone) {
-    gsap.set(shuruupPhone, {
-      autoAlpha: 0,
-
-      y: 80,
-
-      scale: 0.9,
-
-      rotation: 10,
-    });
-  }
-
-  shuruupRoutes.forEach((route) => {
-    gsap.set(route, {
-      strokeDasharray: "1 1",
-
-      strokeDashoffset: 1,
-    });
-  });
-
-  shuruupNodes.forEach((node) => {
-    gsap.set(node, {
-      autoAlpha: 0,
-
-      y: 20,
-
-      scale: 0.9,
-
-      filter: "blur(7px)",
-    });
-  });
-
-  /* ----------------------------------------------------------------------
      ANMOL
      ---------------------------------------------------------------------- */
 
   const anmolPhone = layer.querySelector<HTMLElement>("[data-anmol-phone]");
-
-  const anmolCards = Array.from(
-    layer.querySelectorAll<HTMLElement>("[data-anmol-card]"),
-  );
 
   if (anmolPhone) {
     gsap.set(anmolPhone, {
@@ -1643,14 +1404,6 @@ function prepareSpecialVisual(layer: HTMLElement) {
       rotation: 5,
     });
   }
-
-  anmolCards.forEach((card) => {
-    gsap.set(card, {
-      autoAlpha: 0,
-
-      y: 10,
-    });
-  });
 }
 
 /* ==========================================================================
@@ -1696,7 +1449,7 @@ function appendSpecialVisualAnimation(
 
           duration: 0.42,
 
-          ease: "back.out(1.6)",
+          ease: EASE.pop,
         },
         "<0.16",
       );
@@ -1710,90 +1463,7 @@ function appendSpecialVisualAnimation(
      ---------------------------------------------------------------------- */
 
   if (visual === "shuruup") {
-    const phone = layer.querySelector<HTMLElement>("[data-shuruup-phone]");
-
-    const routes = Array.from(
-      layer.querySelectorAll<SVGPathElement>("[data-shuruup-route]"),
-    );
-
-    const nodes = Array.from(
-      layer.querySelectorAll<HTMLElement>("[data-shuruup-node]"),
-    );
-
-    /*
-     * Exactly the requested sequence:
-     *
-     * PHONE
-     *   ↓
-     * ROUTE
-     *   ↓
-     * CARD
-     *   ↓
-     * ROUTE
-     *   ↓
-     * CARD
-     *   ↓
-     * ROUTE
-     *   ↓
-     * CARD
-     */
-
-    if (phone) {
-      timeline.to(
-        phone,
-        {
-          autoAlpha: 1,
-
-          y: 0,
-
-          scale: 1,
-
-          rotation: 5,
-
-          duration: 0.62,
-
-          ease: "power4.out",
-        },
-        "<0.08",
-      );
-    }
-
-    routes.forEach((route, routeIndex) => {
-      timeline.to(
-        route,
-        {
-          strokeDashoffset: 0,
-
-          duration: 0.42,
-
-          ease: "none",
-        },
-        routeIndex === 0 ? "+=0.08" : "+=0.05",
-      );
-
-      const node = nodes[routeIndex];
-
-      if (node) {
-        timeline.to(
-          node,
-          {
-            autoAlpha: 1,
-
-            y: 0,
-
-            scale: 1,
-
-            filter: "blur(0px)",
-
-            duration: 0.38,
-
-            ease: "power3.out",
-          },
-          "-=0.04",
-        );
-      }
-    });
-
+    timeline.to({}, { duration: 0.22 });
     return;
   }
 
@@ -1803,10 +1473,6 @@ function appendSpecialVisualAnimation(
 
   if (visual === "anmol") {
     const phone = layer.querySelector<HTMLElement>("[data-anmol-phone]");
-
-    const cards = Array.from(
-      layer.querySelectorAll<HTMLElement>("[data-anmol-card]"),
-    );
 
     if (phone) {
       timeline.to(
@@ -1822,27 +1488,9 @@ function appendSpecialVisualAnimation(
 
           duration: 0.68,
 
-          ease: "power4.out",
+          ease: EASE.entranceStrong,
         },
         "<0.12",
-      );
-    }
-
-    if (cards.length > 0) {
-      timeline.to(
-        cards,
-        {
-          autoAlpha: 1,
-
-          y: 0,
-
-          duration: 0.3,
-
-          stagger: 0.055,
-
-          ease: "power3.out",
-        },
-        "<0.2",
       );
     }
   }

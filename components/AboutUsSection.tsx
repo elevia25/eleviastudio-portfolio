@@ -2,12 +2,22 @@
 
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ArrowUpRight, Mail, MapPin, Phone } from "lucide-react";
 import Image from "next/image";
-import { useLayoutEffect, useRef } from "react";
+import React, { useLayoutEffect, useRef } from "react";
+
 import SectionHeading from "./SectionHeading";
+import {
+  BLUR,
+  DISTANCE,
+  DURATION,
+  EASE,
+  REVEAL_TRIGGER,
+  prefersReducedMotion,
+} from "@/lib/motion";
 
 /* ==========================================================================
-   FOUNDERS
+   DATA
    ========================================================================== */
 
 const FOUNDERS = [
@@ -46,10 +56,8 @@ const FOUNDERS = [
 
     statement: (
       <>
-        From marketing to making —
-        <br />
-        I build brands through ideas, content
-        <br className="hidden md:block" /> and creative direction.
+        From marketing to making — I build brands through ideas, content and
+        creative direction.
       </>
     ),
 
@@ -70,28 +78,46 @@ export default function AboutUsSection() {
 
   const headingRef = useRef<HTMLDivElement>(null);
 
-  const rowRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const founderRefs = useRef<Array<HTMLDivElement | null>>([]);
 
-  const imageRefs = useRef<Array<HTMLDivElement | null>>([]);
-
-  const contentRefs = useRef<Array<HTMLDivElement | null>>([]);
-
-  const lineRefs = useRef<Array<HTMLDivElement | null>>([]);
-
-  const journeyRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const contactRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
 
     const heading = headingRef.current;
 
-    if (!section || !heading) {
+    const founders = founderRefs.current.filter(
+      (element): element is HTMLDivElement => Boolean(element),
+    );
+
+    const contact = contactRef.current;
+
+    if (!section || !heading || founders.length !== FOUNDERS.length) {
       return;
     }
 
     gsap.registerPlugin(ScrollTrigger);
 
+    const reducedMotion = prefersReducedMotion();
+
     const ctx = gsap.context(() => {
+      if (reducedMotion) {
+        gsap.set(heading, { autoAlpha: 1, y: 0 });
+        gsap.set(founders, {
+          autoAlpha: 1,
+          y: 0,
+          x: 0,
+          scale: 1,
+          filter: "blur(0px)",
+        });
+        if (contact) {
+          gsap.set(contact, { autoAlpha: 1, y: 0 });
+        }
+
+        return;
+      }
+
       /* ================================================================
          SECTION HEADING
          ================================================================ */
@@ -100,20 +126,20 @@ export default function AboutUsSection() {
         heading,
         {
           autoAlpha: 0,
-          y: 25,
+          y: DISTANCE.xs,
         },
         {
           autoAlpha: 1,
           y: 0,
 
-          duration: 0.8,
+          duration: DURATION.md,
 
-          ease: "power3.out",
+          ease: EASE.entrance,
 
           scrollTrigger: {
             trigger: section,
 
-            start: "top 82%",
+            start: REVEAL_TRIGGER.start,
 
             once: true,
           },
@@ -124,87 +150,20 @@ export default function AboutUsSection() {
          FOUNDER ROWS
          ================================================================ */
 
-      rowRefs.current.forEach((row, index) => {
-        const image = imageRefs.current[index];
+      founders.forEach((founder, index) => {
+        gsap.fromTo(
+          founder,
+          {
+            autoAlpha: 0,
 
-        const content = contentRefs.current[index];
+            y: DISTANCE.sm,
 
-        const line = lineRefs.current[index];
+            x: index === 0 ? -18 : 18,
 
-        const journey = journeyRefs.current[index];
+            scale: 0.985,
 
-        if (!row || !image || !content || !line || !journey) {
-          return;
-        }
-
-        const isReverse = index === 1;
-
-        /* ------------------------------------------------------------
-             Initial image
-             ------------------------------------------------------------ */
-
-        gsap.set(image, {
-          autoAlpha: 0,
-
-          y: 70,
-
-          x: isReverse ? 35 : -35,
-
-          scale: 0.94,
-
-          rotation: isReverse ? 1.5 : -1.5,
-
-          force3D: true,
-        });
-
-        /* ------------------------------------------------------------
-             Initial text
-             ------------------------------------------------------------ */
-
-        gsap.set(content, {
-          autoAlpha: 0,
-
-          y: 55,
-
-          x: isReverse ? -25 : 25,
-
-          filter: "blur(10px)",
-
-          force3D: true,
-        });
-
-        gsap.set(line, {
-          scaleX: 0,
-
-          transformOrigin: isReverse ? "right center" : "left center",
-        });
-
-        gsap.set(journey.children, {
-          autoAlpha: 0,
-
-          y: 12,
-        });
-
-        /* ------------------------------------------------------------
-             Timeline
-             ------------------------------------------------------------ */
-
-        const timeline = gsap.timeline({
-          scrollTrigger: {
-            trigger: row,
-
-            start: "top 76%",
-
-            end: "center 46%",
-
-            scrub: 0.85,
-
-            invalidateOnRefresh: true,
+            filter: `blur(${BLUR.sm}px)`,
           },
-        });
-
-        timeline.to(
-          image,
           {
             autoAlpha: 1,
 
@@ -213,76 +172,54 @@ export default function AboutUsSection() {
 
             scale: 1,
 
-            rotation: 0,
-
-            duration: 0.9,
-
-            ease: "power4.out",
-          },
-          0,
-        );
-
-        timeline.to(
-          content,
-          {
-            autoAlpha: 1,
-
-            y: 0,
-            x: 0,
-
             filter: "blur(0px)",
 
-            duration: 0.82,
+            duration: DURATION.lg,
 
-            ease: "power3.out",
+            delay: index * 0.08,
+
+            ease: EASE.entrance,
+
+            scrollTrigger: {
+              trigger: section,
+
+              start: REVEAL_TRIGGER.start,
+
+              once: true,
+            },
           },
-          0.1,
-        );
-
-        timeline.to(
-          line,
-          {
-            scaleX: 1,
-
-            duration: 0.55,
-
-            ease: "power3.out",
-          },
-          0.48,
-        );
-
-        timeline.to(
-          journey.children,
-          {
-            autoAlpha: 1,
-
-            y: 0,
-
-            duration: 0.35,
-
-            stagger: 0.065,
-
-            ease: "power2.out",
-          },
-          0.55,
-        );
-
-        /* ------------------------------------------------------------
-             Tiny parallax at end
-             ------------------------------------------------------------ */
-
-        timeline.to(
-          image,
-          {
-            y: -18,
-
-            duration: 0.45,
-
-            ease: "none",
-          },
-          0.78,
         );
       });
+
+      /* ================================================================
+         CONTACT
+         ================================================================ */
+
+      if (contact) {
+        gsap.fromTo(
+          contact,
+          {
+            autoAlpha: 0,
+            y: DISTANCE.md,
+          },
+          {
+            autoAlpha: 1,
+            y: 0,
+
+            duration: DURATION.lg,
+
+            ease: EASE.entrance,
+
+            scrollTrigger: {
+              trigger: contact,
+
+              start: REVEAL_TRIGGER.start,
+
+              once: true,
+            },
+          },
+        );
+      }
     }, section);
 
     return () => {
@@ -297,189 +234,148 @@ export default function AboutUsSection() {
       className="
         relative
         w-full
-        overflow-hidden
-
         bg-[#E9E4DA]
         text-[#213943]
       "
     >
       {/* ==========================================================
-          BACKGROUND
-          ========================================================== */}
-
-      <div
-        aria-hidden
-        className="
-          pointer-events-none
-          absolute
-          inset-0
-        "
-        style={{
-          background: `
-            radial-gradient(
-              circle at 10% 16%,
-              rgba(245,74,0,.045),
-              transparent 26%
-            ),
-
-            radial-gradient(
-              circle at 90% 72%,
-              rgba(33,57,67,.055),
-              transparent 31%
-            )
-          `,
-        }}
-      />
-
-      {/* vertical guide */}
-
-      <div
-        aria-hidden
-        className="
-          pointer-events-none
-          absolute
-          bottom-0
-          left-1/2
-          top-0
-
-          hidden
-          w-px
-
-          bg-[#213943]/[0.055]
-
-          md:block
-        "
-      />
-
-      {/* ==========================================================
-          SECTION HEADER
-          ========================================================== */}
-      <div className="pointer-events-none absolute inset-0 z-10">
-        <SectionHeading
-          ref={headingRef}
-          number="08"
-          title="About Us"
-          subtitle="Two people. Different strengths. One studio."
-          className="
-        absolute
-        left-1/2
-        top-5
-        z-50
-    
-        w-[92vw]
-    
-        -translate-x-1/2
-    
-        md:top-7
-  "
-        />
-      </div>
-
-      {/* ==========================================================
-          FOUNDER 01 — IMAGE / CONTENT
-          ========================================================== */}
-
-      <FounderRow
-        founder={FOUNDERS[0]}
-        index={0}
-        reverse={false}
-        rowRef={(element) => {
-          rowRefs.current[0] = element;
-        }}
-        imageRef={(element) => {
-          imageRefs.current[0] = element;
-        }}
-        contentRef={(element) => {
-          contentRefs.current[0] = element;
-        }}
-        lineRef={(element) => {
-          lineRefs.current[0] = element;
-        }}
-        journeyRef={(element) => {
-          journeyRefs.current[0] = element;
-        }}
-      />
-
-      {/* ==========================================================
-          DIVIDER
-          ========================================================== */}
-
-      <div
-        className="
-          mx-auto
-          h-px
-          w-[calc(100%-40px)]
-          max-w-[1500px]
-
-          bg-[#213943]/10
-
-          md:w-[calc(100%-80px)]
-        "
-      />
-
-      {/* ==========================================================
-          FOUNDER 02 — CONTENT / IMAGE
-          ========================================================== */}
-
-      <FounderRow
-        founder={FOUNDERS[1]}
-        index={1}
-        reverse
-        rowRef={(element) => {
-          rowRefs.current[1] = element;
-        }}
-        imageRef={(element) => {
-          imageRefs.current[1] = element;
-        }}
-        contentRef={(element) => {
-          contentRefs.current[1] = element;
-        }}
-        lineRef={(element) => {
-          lineRefs.current[1] = element;
-        }}
-        journeyRef={(element) => {
-          journeyRefs.current[1] = element;
-        }}
-      />
-
-      {/* ==========================================================
-          END MARK
+          ABOUT — ONE SCREEN
           ========================================================== */}
 
       <div
         className="
           relative
-          z-10
 
-          mx-auto
+          h-svh
+          min-h-[620px]
 
-          flex
-          max-w-[1500px]
+          w-full
 
-          items-center
-          justify-between
-
-          border-t
-          border-[#213943]/10
-
-          px-5
-          py-8
-
-          text-[8px]
-          uppercase
-          tracking-[0.24em]
-
-          text-[#213943]/35
-
-          md:px-10
-          md:py-10
-          md:text-[9px]
+          overflow-hidden
         "
       >
-        <span>Elevia Studio</span>
+        {/* ========================================================
+            BACKGROUND
+            ======================================================== */}
 
-        <span>Built together</span>
+        <div
+          aria-hidden
+          className="
+            pointer-events-none
+            absolute
+            inset-0
+          "
+          style={{
+            background: `
+              radial-gradient(
+                circle at 10% 14%,
+                rgba(245,74,0,.045),
+                transparent 27%
+              ),
+
+              radial-gradient(
+                circle at 90% 85%,
+                rgba(33,57,67,.055),
+                transparent 32%
+              )
+            `,
+          }}
+        />
+
+        {/* center guide */}
+
+        <div
+          aria-hidden
+          className="
+            pointer-events-none
+
+            absolute
+            bottom-0
+            left-1/2
+            top-0
+
+            hidden
+            w-px
+
+            bg-[#213943]/[0.045]
+
+            lg:block
+          "
+        />
+
+        {/* ========================================================
+            HEADER
+            ======================================================== */}
+
+        <SectionHeading
+          ref={headingRef}
+          number="08"
+          title="About Us"
+          subtitle="Two people. Different strengths. One studio."
+          className="opacity-0"
+        />
+
+        {/* ========================================================
+            TWO FOUNDER ROWS
+            ======================================================== */}
+
+        <div
+          className="
+            relative
+            z-10
+
+            mx-auto
+
+            grid
+            h-full
+            w-full
+
+            max-w-[1500px]
+
+            grid-rows-2
+
+            gap-2
+
+            px-3
+
+            pb-3
+            pt-[8.8rem]
+
+            sm:gap-3
+            sm:px-5
+            sm:pb-4
+            sm:pt-[9.3rem]
+
+            md:gap-4
+            md:px-8
+            md:pb-6
+            md:pt-[10rem]
+
+            lg:gap-5
+            lg:px-10
+            lg:pb-8
+            lg:pt-[10.5rem]
+          "
+        >
+          {FOUNDERS.map((founder, index) => (
+            <FounderRow
+              key={founder.number}
+              founder={founder}
+              index={index}
+              reverse={index === 1}
+              rowRef={(element) => {
+                founderRefs.current[index] = element;
+              }}
+            />
+          ))}
+        </div>
       </div>
+
+      {/* ==========================================================
+          CONTACT / FOOTER
+          ========================================================== */}
+
+      <ContactSection contactRef={contactRef} />
     </section>
   );
 }
@@ -492,250 +388,301 @@ function FounderRow({
   founder,
   index,
   reverse,
-
   rowRef,
-  imageRef,
-  contentRef,
-  lineRef,
-  journeyRef,
 }: {
   founder: (typeof FOUNDERS)[number];
-
   index: number;
-
   reverse: boolean;
-
   rowRef: (element: HTMLDivElement | null) => void;
-
-  imageRef: (element: HTMLDivElement | null) => void;
-
-  contentRef: (element: HTMLDivElement | null) => void;
-
-  lineRef: (element: HTMLDivElement | null) => void;
-
-  journeyRef: (element: HTMLDivElement | null) => void;
 }) {
   return (
-    <div
+    <article
       ref={rowRef}
-      className="
-        relative
-        z-10
-
-        mx-auto
-
-        grid
-        min-h-[88svh]
-        w-full
-        max-w-[1600px]
-
-        grid-cols-1
-
-        items-center
-
-        gap-10
-
-        px-5
-        py-20
-
-        md:min-h-[90svh]
-        md:grid-cols-2
-        md:gap-[4vw]
-        md:px-10
-        md:py-[10vh]
-      "
+      className={`
+          relative
+  
+          grid
+          min-h-0
+          w-full
+  
+          items-center
+  
+          opacity-0
+  
+          ${
+            reverse
+              ? `
+                grid-cols-[minmax(0,1fr)_88px]
+  
+                sm:grid-cols-[minmax(0,1fr)_110px]
+  
+                md:grid-cols-[minmax(0,1fr)_180px]
+  
+                lg:grid-cols-[minmax(0,1fr)_210px]
+  
+                xl:grid-cols-[minmax(0,1fr)_230px]
+              `
+              : `
+                grid-cols-[88px_minmax(0,1fr)]
+  
+                sm:grid-cols-[110px_minmax(0,1fr)]
+  
+                md:grid-cols-[180px_minmax(0,1fr)]
+  
+                lg:grid-cols-[210px_minmax(0,1fr)]
+  
+                xl:grid-cols-[230px_minmax(0,1fr)]
+              `
+          }
+  
+          gap-4
+  
+          sm:gap-5
+  
+          md:gap-8
+  
+          lg:gap-10
+  
+          xl:gap-12
+  
+          will-change-[transform,opacity,filter]
+        `}
     >
       {/* ========================================================
-          IMAGE
-          ======================================================== */}
+            IMAGE
+            ======================================================== */}
 
       <div
-        ref={imageRef}
         className={`
-          relative
-
-          ${reverse ? "order-2 md:order-2" : "order-1 md:order-1"}
-
-          will-change-transform
-        `}
+            relative
+  
+            flex
+            h-full
+  
+            items-center
+  
+            ${
+              reverse
+                ? "col-start-2 row-start-1 justify-end"
+                : "col-start-1 row-start-1 justify-start"
+            }
+          `}
       >
-        <FounderImage founder={founder} index={index} />
+        <FounderImage founder={founder} />
       </div>
 
       {/* ========================================================
-          TEXT
-          ======================================================== */}
+            CONTENT
+            ======================================================== */}
 
       <div
-        ref={contentRef}
         className={`
-          ${reverse ? "order-1 md:order-1" : "order-2 md:order-2"}
-
-          relative
-
-          will-change-[transform,opacity,filter]
-        `}
+            relative
+            z-10
+  
+            flex
+            min-w-0
+  
+            flex-col
+  
+            items-start
+            justify-center
+  
+            text-left
+  
+            ${reverse ? "col-start-1 row-start-1" : "col-start-2 row-start-1"}
+          `}
       >
-        {/* Number */}
+        {/* META */}
 
         <div
           className="
-            mb-7
-
-            flex
-            items-center
-            gap-4
-
-            text-[9px]
-            uppercase
-            tracking-[0.28em]
-
-            text-[#213943]/35
-          "
+              flex
+              items-center
+  
+              gap-2
+  
+              text-[6px]
+              font-medium
+              uppercase
+  
+              tracking-[0.18em]
+  
+              text-[#213943]/40
+  
+              sm:text-[7px]
+  
+              md:text-[8px]
+              md:tracking-[0.22em]
+            "
         >
           <span>{founder.number}</span>
 
           <span
             className="
-              h-px
-              w-10
-
-              bg-[#213943]/20
-            "
+                h-px
+                w-4
+  
+                bg-[#213943]/20
+  
+                md:w-6
+              "
           />
 
           <span>Founder</span>
         </div>
 
-        {/* Name */}
+        {/* NAME */}
 
         <h3
           className="
-            text-[clamp(2.8rem,6vw,6.6rem)]
-
-            font-light
-            leading-[0.86]
-
-            tracking-[-0.07em]
-          "
+              mt-1
+  
+              max-w-full
+  
+              text-[clamp(1.05rem,4vw,1.5rem)]
+  
+              font-light
+              leading-[0.9]
+  
+              tracking-[-0.055em]
+  
+              sm:text-[clamp(1.2rem,4vw,1.7rem)]
+  
+              md:mt-2
+  
+              md:text-[clamp(1.7rem,3vw,3rem)]
+  
+              lg:text-[clamp(2rem,2.8vw,3.4rem)]
+            "
         >
           {founder.name}
         </h3>
 
-        {/* Role */}
+        {/* ROLE */}
 
         <p
           className="
-            mt-4
-
-            text-[11px]
-            font-medium
-            uppercase
-            tracking-[0.32em]
-
-            text-[#F54A00]
-
-            md:text-xs
-          "
+              mt-1
+  
+              text-[6px]
+              font-semibold
+              uppercase
+  
+              tracking-[0.2em]
+  
+              text-[#F54A00]
+  
+              sm:text-[7px]
+  
+              md:mt-2
+              md:text-[9px]
+  
+              lg:text-[10px]
+            "
         >
           {founder.label}
         </p>
 
-        {/* divider */}
-
-        <div
-          ref={lineRef}
-          className="
-            my-9
-
-            h-px
-            w-full
-            max-w-[520px]
-
-            bg-[#213943]/20
-
-            md:my-11
-          "
-        />
-
-        {/* Intro */}
+        {/* INTRO */}
 
         <p
           className="
-            max-w-[610px]
-
-            text-[clamp(1.25rem,2vw,2rem)]
-
-            font-light
-            leading-[1.25]
-
-            tracking-[-0.035em]
-
-            text-[#213943]/55
-          "
+              mt-1
+  
+              max-w-[650px]
+  
+              text-[7px]
+              font-light
+  
+              leading-[1.35]
+  
+              text-[#213943]/55
+  
+              sm:text-[8px]
+  
+              md:mt-2
+              md:text-[11px]
+  
+              lg:text-xs
+            "
         >
           {founder.intro}
         </p>
 
-        {/* Statement */}
-
-        <p
-          className="
-            mt-7
-            max-w-[680px]
-
-            text-[clamp(1.8rem,3.2vw,3.8rem)]
-
-            font-light
-            leading-[1.04]
-
-            tracking-[-0.055em]
-
-            md:mt-9
-          "
-        >
-          {founder.statement}
-        </p>
-
-        {/* Journey */}
+        {/* STATEMENT */}
 
         <div
-          ref={journeyRef}
           className="
-            mt-10
+              mt-1
+  
+              max-w-[720px]
+  
+              text-[9px]
+              font-light
+  
+              leading-[1.15]
+  
+              tracking-[-0.025em]
+  
+              sm:text-[10px]
+  
+              md:mt-2
+  
+              md:text-[clamp(1rem,1.4vw,1.4rem)]
+  
+              md:leading-[1.1]
+  
+              lg:mt-3
+            "
+        >
+          {founder.statement}
+        </div>
 
-            flex
-            max-w-[720px]
+        {/* JOURNEY */}
 
-            flex-wrap
-            items-center
-
-            gap-x-3
-            gap-y-3
-
-            md:mt-12
-            md:gap-x-4
-          "
+        <div
+          className="
+              mt-2
+  
+              flex
+              max-w-[720px]
+  
+              flex-wrap
+              items-center
+  
+              justify-start
+  
+              gap-x-1
+              gap-y-1
+  
+              border-t
+              border-[#213943]/10
+  
+              pt-2
+  
+              md:mt-3
+              md:gap-x-1.5
+              md:pt-3
+            "
         >
           {founder.journey.map((step, stepIndex) => (
-            <div
-              key={step}
-              className="
-                  flex
-                  items-center
-                  gap-3
-                "
-            >
+            <React.Fragment key={step}>
               <span
                 className="
-                    text-[14px]
+                    text-[5px]
                     font-medium
                     uppercase
-                    tracking-[0.2em]
-
+  
+                    tracking-[0.1em]
+  
                     text-[#213943]
-
-                    md:text-[18px]
+  
+                    sm:text-[6px]
+  
+                    md:text-[7px]
+  
+                    lg:text-[8px]
                   "
               >
                 {step}
@@ -744,222 +691,663 @@ function FounderRow({
               {stepIndex !== founder.journey.length - 1 && (
                 <span
                   className="
-                      text-sm
-                      font-light
-
-                      text-[#F54A00]/70
+                      mx-0.5
+  
+                      text-[7px]
+  
+                      text-[#F54A00]/75
+  
+                      md:text-[9px]
                     "
                 >
                   →
                 </span>
               )}
-            </div>
+            </React.Fragment>
           ))}
         </div>
       </div>
+
+      {/* ========================================================
+            VERY SUBTLE ROW DIVIDER
+            ======================================================== */}
+
+      {index === 0 && (
+        <div
+          aria-hidden
+          className="
+              pointer-events-none
+  
+              absolute
+  
+              bottom-[-0.55rem]
+              left-0
+              right-0
+  
+              h-px
+  
+              bg-[#213943]/10
+  
+              sm:bottom-[-0.75rem]
+  
+              md:bottom-[-1rem]
+            "
+        />
+      )}
+    </article>
+  );
+}
+/* ==========================================================================
+   FOUNDER IMAGE
+   ========================================================================== */
+
+function FounderImage({ founder }: { founder: (typeof FOUNDERS)[number] }) {
+  return (
+    <div
+      className="
+          relative
+  
+          aspect-[4/5]
+  
+          w-full
+  
+          max-w-[88px]
+  
+          overflow-hidden
+  
+          rounded-[0.8rem]
+  
+          bg-[#213943]
+  
+          shadow-[0_14px_36px_rgba(33,57,67,.14)]
+  
+          sm:max-w-[110px]
+  
+          md:max-w-[180px]
+  
+          md:rounded-[1.15rem]
+  
+          lg:max-w-[210px]
+  
+          xl:max-w-[230px]
+        "
+    >
+      <Image
+        src={founder.image}
+        alt={founder.name}
+        fill
+        sizes="
+            (max-width: 639px) 88px,
+            (max-width: 767px) 110px,
+            (max-width: 1023px) 180px,
+            (max-width: 1279px) 210px,
+            230px
+          "
+        className="
+            select-none
+            object-cover
+          "
+        style={{
+          objectPosition: founder.imagePosition,
+        }}
+        draggable={false}
+      />
+
+      {/* subtle image depth */}
+
+      <div
+        aria-hidden
+        className="
+            pointer-events-none
+  
+            absolute
+            inset-0
+  
+            bg-linear-to-t
+  
+            from-[#152B34]/20
+            via-transparent
+            to-transparent
+          "
+      />
+
+      {/* INDEX */}
+
+      <span
+        className="
+            absolute
+  
+            left-2
+            top-2
+  
+            grid
+  
+            h-6
+            w-6
+  
+            place-items-center
+  
+            rounded-full
+  
+            border
+            border-white/25
+  
+            bg-black/15
+  
+            text-[7px]
+            font-medium
+  
+            text-white
+  
+            backdrop-blur-md
+  
+            md:left-3
+            md:top-3
+  
+            md:h-8
+            md:w-8
+  
+            md:text-[8px]
+          "
+      >
+        {founder.number}
+      </span>
     </div>
   );
 }
 
 /* ==========================================================================
-   IMAGE
+   CONTACT / FOOTER
    ========================================================================== */
 
-function FounderImage({
-  founder,
-  index,
+function ContactSection({
+  contactRef,
 }: {
-  founder: (typeof FOUNDERS)[number];
-
-  index: number;
+  contactRef: React.RefObject<HTMLDivElement | null>;
 }) {
   return (
-    <div
+    <footer
+      ref={contactRef}
       className="
-    relative
-  
-    mx-auto
-  
-    w-[78vw]
-    max-w-[340px]
-  
-    sm:w-[62vw]
-    sm:max-w-[380px]
-  
-    md:w-[32vw]
-    md:max-w-[430px]
-  
-    lg:w-[28vw]
-    lg:max-w-[460px]
-  
-    xl:w-[25vw]
-    xl:max-w-[480px]
-  
-    md:mx-auto
-  "
+        relative
+
+        min-h-[72svh]
+
+        overflow-hidden
+
+        bg-[#213943]
+
+        text-[#F5F0E8]
+
+        md:min-h-[68svh]
+      "
     >
-      {/* giant number behind */}
+      {/* background */}
 
       <div
         aria-hidden
-        className={`
+        className="
+          pointer-events-none
+          absolute
+          inset-0
+        "
+        style={{
+          background: `
+            radial-gradient(
+              circle at 82% 12%,
+              rgba(245,74,0,.13),
+              transparent 28%
+            ),
+
+            radial-gradient(
+              circle at 12% 90%,
+              rgba(255,255,255,.035),
+              transparent 30%
+            )
+          `,
+        }}
+      />
+
+      {/* giant word */}
+
+      <div
+        aria-hidden
+        className="
           pointer-events-none
 
           absolute
-          -top-[12%]
 
-          ${index === 0 ? "-left-[8%]" : "-right-[8%]"}
+          bottom-[-5%]
+          left-1/2
 
-          z-0
+          -translate-x-1/2
 
-          text-[clamp(8rem,17vw,17rem)]
+          whitespace-nowrap
+
+          text-[clamp(8rem,24vw,25rem)]
 
           font-light
           leading-none
 
           tracking-[-0.1em]
 
-          text-[#213943]/[0.035]
-        `}
+          text-black/10
+        "
       >
-        {founder.number}
+        HELLO
       </div>
-
-      {/* orange mark */}
-
-      <div
-        aria-hidden
-        className={`
-          absolute
-
-          ${index === 0 ? "-left-3 top-[16%]" : "-right-3 top-[16%]"}
-
-          z-20
-
-          h-[18%]
-          w-[3px]
-
-          bg-[#F54A00]
-        `}
-      />
-
-      {/* portrait */}
 
       <div
         className="
-          group
           relative
           z-10
 
-          aspect-[4/5]
+          mx-auto
 
-          overflow-hidden
+          flex
 
-          rounded-[1.8rem]
+          min-h-[72svh]
 
-          bg-[#213943]
+          w-full
+          max-w-[1500px]
 
-          shadow-[0_35px_90px_rgba(33,57,67,0.16)]
+          flex-col
+          justify-between
 
-          md:rounded-[2.5rem]
+          px-5
+          py-10
+
+          md:min-h-[68svh]
+
+          md:px-10
+          md:py-14
         "
       >
-        <Image
-          src={founder.image}
-          alt={founder.name}
-          fill
-          sizes="
-  (max-width: 639px) 78vw,
-  (max-width: 767px) 62vw,
-  (max-width: 1279px) 32vw,
-  25vw
-"
-          className="
-            select-none
-
-            object-cover
-
-            transition-transform
-            duration-700
-            ease-out
-
-            group-hover:scale-[1.025]
-          "
-          style={{
-            objectPosition: founder.imagePosition,
-          }}
-          draggable={false}
-        />
-
-        {/* image wash */}
-
-        <div
-          aria-hidden
-          className="
-            pointer-events-none
-            absolute
-            inset-0
-
-            bg-linear-to-t
-
-            from-[#152B34]/30
-            via-transparent
-            to-white/[0.04]
-          "
-        />
-
-        {/* corner index */}
+        {/* ======================================================
+            CTA / CONTACT
+            ====================================================== */}
 
         <div
           className="
-            absolute
+            grid
+            gap-10
 
-            left-5
-            top-5
+            md:grid-cols-[1.2fr_0.8fr]
 
-            flex
-            h-10
-            w-10
-
-            items-center
-            justify-center
-
-            rounded-full
-
-            border
-            border-white/25
-
-            bg-black/10
-
-            text-[9px]
-            font-medium
-            tracking-[0.1em]
-
-            text-white
-
-            backdrop-blur-md
+            md:gap-16
           "
         >
-          {founder.number}
+          <div>
+            <p
+              className="
+                text-[8px]
+                font-medium
+                uppercase
+
+                tracking-[0.28em]
+
+                text-[#F54A00]
+
+                md:text-[9px]
+              "
+            >
+              Contact us
+            </p>
+
+            <h2
+              className="
+                mt-4
+
+                max-w-[850px]
+
+                text-[clamp(3rem,8vw,8rem)]
+
+                font-light
+                leading-[0.82]
+
+                tracking-[-0.075em]
+              "
+            >
+              Have an idea?
+              <br />
+              Let&apos;s build it.
+            </h2>
+
+            <a
+              href="mailto:eleviastudio25@gmail.com"
+              className="
+                mt-7
+
+                inline-flex
+
+                items-center
+                gap-3
+
+                border-b
+                border-white/25
+
+                pb-2
+
+                text-sm
+                font-light
+
+                transition-colors
+
+                hover:border-[#F54A00]
+                hover:text-[#F54A00]
+
+                md:mt-10
+                md:text-base
+              "
+            >
+              Start a conversation
+              <ArrowUpRight
+                className="
+                  h-4
+                  w-4
+                "
+              />
+            </a>
+          </div>
+
+          {/* INFO */}
+
+          <div
+            className="
+              flex
+              flex-col
+
+              justify-end
+
+              gap-5
+
+              border-t
+              border-white/10
+
+              pt-6
+
+              md:border-l
+              md:border-t-0
+
+              md:pl-10
+              md:pt-0
+            "
+          >
+            <ContactLink
+              icon={<Mail />}
+              label="Email"
+              value="eleviastudio25@gmail.com"
+              href="mailto:eleviastudio25@gmail.com"
+            />
+
+            <ContactLink
+              icon={<Phone />}
+              label="Phone"
+              value="+91 79907 50320"
+              href="tel:+917990750320"
+            />
+
+            <ContactLink
+              icon={<MapPin />}
+              label="Studio"
+              value="A-808, PNTC, Satellite, Ahmedabad-380015"
+            />
+          </div>
         </div>
 
-        {/* orange dot */}
+        {/* ======================================================
+            FOOTER BOTTOM
+            ====================================================== */}
+
+        <div
+          className="
+            mt-16
+
+            flex
+            flex-col
+
+            gap-5
+
+            border-t
+            border-white/10
+
+            pt-5
+
+            text-[8px]
+            uppercase
+
+            tracking-[0.2em]
+
+            text-white/40
+
+            md:mt-20
+
+            md:flex-row
+            md:items-center
+            md:justify-between
+          "
+        >
+          <div>
+            <p
+              className="
+                text-[10px]
+                font-medium
+
+                tracking-[0.18em]
+
+                text-white/80
+              "
+            >
+              Elevia Studio
+            </p>
+
+            <p
+              className="
+                mt-1
+
+                normal-case
+                tracking-normal
+
+                text-white/35
+              "
+            >
+              Engineering meets creative direction.
+            </p>
+          </div>
+
+          {/* Instagram only */}
+
+          <SocialLink
+            href="https://www.instagram.com/eleviastudio_?igsh=MW5qeTFtaWp2OTByNw=="
+            label="Instagram"
+          />
+
+          <div
+            className="
+              flex
+              items-center
+              justify-between
+
+              gap-8
+
+              md:justify-end
+            "
+          >
+            <span>© {new Date().getFullYear()} Elevia Studio</span>
+
+            <span>All rights reserved</span>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+/* ==========================================================================
+   CONTACT ITEM
+   ========================================================================== */
+
+function ContactLink({
+  icon,
+  label,
+  value,
+  href,
+}: {
+  icon: React.ReactNode;
+
+  label: string;
+
+  value: string;
+
+  href?: string;
+}) {
+  const content = (
+    <>
+      <span
+        className="
+          grid
+
+          h-9
+          w-9
+
+          shrink-0
+
+          place-items-center
+
+          rounded-full
+
+          border
+          border-white/10
+
+          text-[#F54A00]
+
+          [&>svg]:h-4
+          [&>svg]:w-4
+        "
+      >
+        {icon}
+      </span>
+
+      <span>
+        <span
+          className="
+            block
+
+            text-[7px]
+            uppercase
+
+            tracking-[0.22em]
+
+            text-white/35
+          "
+        >
+          {label}
+        </span>
 
         <span
           className="
-            absolute
-            bottom-5
-            right-5
+            mt-1
 
-            h-2
-            w-2
+            block
 
-            rounded-full
+            text-sm
+            font-light
 
-            bg-[#F54A00]
+            text-white/80
           "
-        />
-      </div>
+        >
+          {value}
+        </span>
+      </span>
+    </>
+  );
+
+  if (href) {
+    return (
+      <a
+        href={href}
+        className="
+          flex
+          items-center
+          gap-3
+
+          transition-opacity
+
+          hover:opacity-70
+        "
+      >
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <div
+      className="
+        flex
+        items-center
+        gap-3
+      "
+    >
+      {content}
     </div>
+  );
+}
+
+/* ==========================================================================
+   SOCIAL
+   ========================================================================== */
+
+function SocialLink({
+  href,
+  label,
+}: {
+  href: string;
+
+  label: string;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={label}
+      className="
+        relative
+
+        grid
+
+        h-9
+        w-9
+
+        place-items-center
+
+        overflow-hidden
+
+        rounded-full
+
+        border
+        border-white/10
+
+        transition-all
+
+        hover:border-[#F54A00]
+        hover:bg-[#F54A00]
+      "
+    >
+      <Image
+        src="/social/instagram.svg"
+        alt=""
+        fill
+        aria-hidden="true"
+        draggable={false}
+        className="
+          select-none
+          object-contain
+
+          p-2
+        "
+      />
+    </a>
   );
 }

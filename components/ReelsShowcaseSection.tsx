@@ -3,7 +3,11 @@
 import { gsap } from "gsap";
 import Link from "next/link";
 import { type RefObject, useEffect, useLayoutEffect, useRef } from "react";
-import SectionHeading from "./SectionHeading";
+import SectionHeading, {
+  SECTION_FLOW_CONTENT_OFFSET_CLASS,
+  SECTION_SHELL_CLASS,
+} from "./SectionHeading";
+import { EASE } from "@/lib/motion";
 
 type Reel = {
   video: string;
@@ -119,7 +123,7 @@ export default function ReelsShowcaseSection() {
         {
           xPercent: -50,
           duration,
-          ease: "none",
+          ease: EASE.linear,
           repeat: -1,
           force3D: true,
         },
@@ -210,16 +214,13 @@ export default function ReelsShowcaseSection() {
     <section
       ref={rootRef}
       aria-label="Social media reels"
-      className="
-        relative
-        isolate
-        z-1
+      className={`
+        ${SECTION_SHELL_CLASS}
+        z-[1]
         min-h-svh
-        w-full
-        overflow-hidden
         bg-[#f1eadf]
         text-[#152d34]
-      "
+      `}
     >
       <div
         aria-hidden="true"
@@ -241,26 +242,14 @@ export default function ReelsShowcaseSection() {
       >
         SOCIAL
       </div>
-      <div className="pointer-events-none absolute inset-0 z-10">
-        <SectionHeading
-          number="07"
-          title="Creatives"
-          subtitle="Visuals built to stop the scroll."
-          className="
-        absolute
-        left-1/2
-        top-5
-        z-50
-        w-[92vw]
-    
-        -translate-x-1/2
-    
-        md:top-7
-  "
-        />
-      </div>
+      <SectionHeading
+        number="07"
+        title="Creatives"
+        subtitle="Visuals built to stop the scroll."
+      />
       <div
-        className="
+        className={`
+          ${SECTION_FLOW_CONTENT_OFFSET_CLASS}
           relative
           z-20
           mx-auto
@@ -274,7 +263,7 @@ export default function ReelsShowcaseSection() {
           px-5
           md:mb-20
           md:px-10
-        "
+        `}
       >
         <h2
           className="

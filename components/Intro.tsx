@@ -2,12 +2,24 @@
 import { gsap } from "gsap";
 import { type ReactNode, useLayoutEffect, useRef, useState } from "react";
 
+import { HeroRevealProvider } from "@/context/HeroRevealContext";
+
 type IntroProps = {
   children: ReactNode;
 };
 
 export default function Intro({ children }: IntroProps) {
   const [introVisible, setIntroVisible] = useState(true);
+
+  /*
+   * Flips to true the instant the doors begin unzipping — i.e. the
+   * first moment the Hero underneath starts becoming visible. Provided
+   * to descendants via context so Hero can start its own entrance
+   * animation and video in sync with the reveal, instead of the video
+   * having played (unseen) since page load or the Hero popping in late.
+   */
+  const [heroRevealed, setHeroRevealed] = useState(false);
+
   const rootRef = useRef<HTMLDivElement>(null);
 
   const counterRef = useRef<HTMLDivElement>(null);
@@ -278,7 +290,9 @@ export default function Intro({ children }: IntroProps) {
        */
 
       timeline.addLabel("doors", "unzip+=0.72");
-
+      timeline.add(() => {
+        setHeroRevealed(true);
+      }, "doors");
       timeline.to(
         zipperHead,
         {
@@ -377,7 +391,7 @@ export default function Intro({ children }: IntroProps) {
   };
 
   return (
-    <>
+    <HeroRevealProvider value={heroRevealed}>
       {children}
       {introVisible && (
         <div
@@ -624,6 +638,6 @@ export default function Intro({ children }: IntroProps) {
           </div>
         </div>
       )}
-    </>
+    </HeroRevealProvider>
   );
 }

@@ -4,7 +4,18 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLayoutEffect, useRef } from "react";
 
-import SectionHeading from "@/components/SectionHeading";
+import SectionHeading, {
+  SECTION_FLOW_CONTENT_OFFSET_CLASS,
+  SECTION_SHELL_CLASS,
+} from "@/components/SectionHeading";
+import {
+  BLUR,
+  DISTANCE,
+  EASE,
+  PARALLAX_SCRUB,
+  REVEAL_TRIGGER,
+  prefersReducedMotion,
+} from "@/lib/motion";
 
 export default function FeaturedReelSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -22,7 +33,21 @@ export default function FeaturedReelSection() {
 
     gsap.registerPlugin(ScrollTrigger);
 
+    const reducedMotion = prefersReducedMotion();
+
     const ctx = gsap.context(() => {
+      if (reducedMotion) {
+        gsap.set(reel, {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          rotation: 0,
+          filter: "blur(0px)",
+        });
+
+        return;
+      }
+
       /* ==========================================================
          REEL ENTRANCE
          ========================================================== */
@@ -32,13 +57,13 @@ export default function FeaturedReelSection() {
         {
           autoAlpha: 0,
 
-          y: 110,
+          y: DISTANCE.lg * 2,
 
           scale: 0.88,
 
           rotation: -2,
 
-          filter: "blur(12px)",
+          filter: `blur(${BLUR.md}px)`,
 
           force3D: true,
         },
@@ -55,16 +80,16 @@ export default function FeaturedReelSection() {
 
           duration: 1.15,
 
-          ease: "power4.out",
+          ease: EASE.entranceStrong,
 
           scrollTrigger: {
             trigger: reel,
 
-            start: "top 88%",
+            start: REVEAL_TRIGGER.start,
 
             end: "center 58%",
 
-            scrub: 0.85,
+            scrub: PARALLAX_SCRUB,
 
             invalidateOnRefresh: true,
           },
@@ -78,7 +103,7 @@ export default function FeaturedReelSection() {
       gsap.to(reel, {
         y: -35,
 
-        ease: "none",
+        ease: EASE.linear,
 
         scrollTrigger: {
           trigger: section,
@@ -140,16 +165,12 @@ export default function FeaturedReelSection() {
     <section
       ref={sectionRef}
       aria-label="Production Film"
-      className="
-        relative
-        isolate
+      className={`
+        ${SECTION_SHELL_CLASS}
         min-h-[125svh]
-        w-full
-        overflow-hidden
-
         bg-[#111015]
         text-[#F5F0F2]
-      "
+      `}
     >
       {/* ==========================================================
           BACKGROUND
@@ -229,20 +250,7 @@ export default function FeaturedReelSection() {
       <SectionHeading
         number="02"
         title="Production"
-        subtitle="Stories brought to life, frame by frame "
-        className="
-    relative
-    z-30
-
-    mx-auto
-
-    w-[92vw]
-    max-w-[1500px]
-
-    pt-16
-
-    md:pt-20
-  "
+        subtitle="Stories brought to life, frame by frame."
       />
 
       {/* ==========================================================
@@ -250,10 +258,10 @@ export default function FeaturedReelSection() {
           ========================================================== */}
 
       <div
-        className="
+        className={`
+          ${SECTION_FLOW_CONTENT_OFFSET_CLASS}
           relative
           z-20
-
           flex
           min-h-[92svh]
           w-full
@@ -263,11 +271,9 @@ export default function FeaturedReelSection() {
 
           px-5
           pb-24
-          pt-16
 
           md:pb-28
-          md:pt-20
-        "
+        `}
       >
         <div
           ref={reelRef}

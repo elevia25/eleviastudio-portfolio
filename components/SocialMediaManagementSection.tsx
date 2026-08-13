@@ -4,7 +4,18 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import { useLayoutEffect, useRef } from "react";
-import SectionHeading from "./SectionHeading";
+import SectionHeading, {
+  SECTION_SHELL_CLASS,
+  SECTION_VIEWPORT_CLASS,
+} from "./SectionHeading";
+import {
+  BLUR,
+  DISTANCE,
+  EASE,
+  PINNED_SCRUB,
+  PINNED_SNAP,
+  prefersReducedMotion,
+} from "@/lib/motion";
 
 const SOCIAL_PLATFORMS = [
   {
@@ -128,9 +139,7 @@ export default function SocialMediaManagementSection() {
       .map((icon) => icon.querySelector<HTMLElement>("[data-floating-icon]"))
       .filter((element): element is HTMLElement => Boolean(element));
 
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const reducedMotion = prefersReducedMotion();
 
     let refreshFrame = 0;
 
@@ -152,7 +161,7 @@ export default function SocialMediaManagementSection() {
         autoAlpha: 0,
         y: () => Math.min(window.innerHeight * 0.32, 280),
         scale: 0.92,
-        filter: "blur(12px)",
+        filter: `blur(${BLUR.md}px)`,
       });
 
       gsap.set([accounts, growth], {
@@ -163,7 +172,7 @@ export default function SocialMediaManagementSection() {
 
       gsap.set(hint, {
         autoAlpha: 0,
-        y: 12,
+        y: DISTANCE.xs,
       });
 
       /*
@@ -202,7 +211,7 @@ export default function SocialMediaManagementSection() {
         });
       };
 
-      if (prefersReducedMotion) {
+      if (reducedMotion) {
         icons.forEach((icon, index) => {
           const position =
             window.innerWidth < 640
@@ -281,20 +290,17 @@ export default function SocialMediaManagementSection() {
               pin: section,
               pinSpacing: true,
 
-              scrub: 1.05,
+              scrub: PINNED_SCRUB.desktop,
               anticipatePin: 1,
               invalidateOnRefresh: true,
 
               snap: {
-                snapTo: "labelsDirectional",
+                snapTo: PINNED_SNAP.snapTo,
 
-                duration: {
-                  min: 0.25,
-                  max: 0.65,
-                },
+                duration: PINNED_SNAP.duration,
 
-                delay: 0.1,
-                ease: "power3.inOut",
+                delay: PINNED_SNAP.delay,
+                ease: PINNED_SNAP.ease,
               },
 
               onEnter: startFloating,
@@ -320,7 +326,7 @@ export default function SocialMediaManagementSection() {
                   each: 0.04,
                   from: "center",
                 },
-                ease: "power2.out",
+                ease: EASE.entranceSoft,
               },
               0,
             )
@@ -383,7 +389,7 @@ export default function SocialMediaManagementSection() {
               autoAlpha: 0,
               y: () => Math.min(window.innerHeight * 0.32, 280),
               scale: 0.92,
-              filter: "blur(12px)",
+              filter: `blur(${BLUR.md}px)`,
             },
             {
               autoAlpha: 1,
@@ -391,7 +397,7 @@ export default function SocialMediaManagementSection() {
               scale: 1,
               filter: "blur(0px)",
               duration: 0.78,
-              ease: "power3.out",
+              ease: EASE.entrance,
               immediateRender: false,
             },
             1.34,
@@ -401,13 +407,13 @@ export default function SocialMediaManagementSection() {
             hint,
             {
               autoAlpha: 0,
-              y: 12,
+              y: DISTANCE.xs,
             },
             {
               autoAlpha: 1,
               y: 0,
               duration: 0.36,
-              ease: "power2.out",
+              ease: EASE.entranceSoft,
             },
             1.85,
           );
@@ -431,7 +437,7 @@ export default function SocialMediaManagementSection() {
               y: 0,
               scale: 1,
               duration: 0.72,
-              ease: "power3.out",
+              ease: EASE.entrance,
               immediateRender: false,
             },
             2.12,
@@ -470,7 +476,7 @@ export default function SocialMediaManagementSection() {
               y: 0,
               scale: 1,
               duration: 0.72,
-              ease: "power3.out",
+              ease: EASE.entrance,
               immediateRender: false,
             },
             "<0.18",
@@ -513,21 +519,9 @@ export default function SocialMediaManagementSection() {
     <section
       ref={sectionRef}
       aria-label="Social media management"
-      className="relative isolate
-      z-0
-      h-svh
-      w-fulll bg-[#102A33]"
+      className={`${SECTION_SHELL_CLASS} z-0 h-svh bg-[#102A33] text-[#E6F0E3]`}
     >
-      <div
-        ref={stageRef}
-        className="
-          relative
-          h-svh
-          w-full
-          overflow-hidden
-          bg-[#102A33]
-        "
-      >
+      <div ref={stageRef} className={`${SECTION_VIEWPORT_CLASS} bg-[#102A33]`}>
         {/* Soft background depth */}
 
         <div
@@ -550,38 +544,13 @@ export default function SocialMediaManagementSection() {
 
         {/* Static title behind all social icons */}
 
-        <div className="pointer-events-none absolute inset-0 z-10">
-          <SectionHeading
-            ref={titleRef}
-            titleClassName="flex
-            w-full
-            items-start
-            justify-center
-            whitespace-nowrap
-            text-center
-            text-[clamp(3rem,10.5vw,11.5rem)]
-            font-light
-            leading-[0.8]
-            tracking-[-0.075em]
-            text-[#E6F0E3]"
-            subtitleClassName="text-[#E6F0E3]"
-            number="06"
-            title="Social Management"
-            subtitle="Building brands where their audience already lives."
-            className="
-    absolute
-    left-1/2
-    top-5
-    z-50
-
-    w-[92vw]
-
-    -translate-x-1/2
-
-    md:top-7
-  "
-          />
-        </div>
+        <SectionHeading
+          ref={titleRef}
+          number="06"
+          title="Social Management"
+          subtitle="Building brands where their audience already lives."
+          className="opacity-0"
+        />
 
         {/* Metrics */}
 
@@ -685,8 +654,9 @@ export default function SocialMediaManagementSection() {
             pointer-events-none
             absolute
             left-1/2
-            top-1/2
+            top-[56%]
             z-30
+            md:top-1/2
             h-0
             w-0
           "
