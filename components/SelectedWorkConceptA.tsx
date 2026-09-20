@@ -11,6 +11,7 @@ import { useLayoutEffect, useRef } from "react";
  * Change this import to the real path of your existing Elevro HeroCanvas.
  */
 import HeroCanvas from "@/components/HeroCanvas";
+import { KineticHero } from "@/components/canvas/KineticHero";
 import SectionHeading, {
   SECTION_SHELL_CLASS,
   SECTION_VIEWPORT_CLASS,
@@ -27,7 +28,7 @@ import {
    TYPES
    ========================================================================== */
 
-type ProjectVisual = "elevro" | "kpwood" | "shuruup" | "anmol";
+type ProjectVisual = "studiomotion" | "elevro" | "kpwood" | "anmol";
 
 type ProjectIdentity =
   | {
@@ -59,6 +60,31 @@ type Project = {
    ========================================================================== */
 
 const PROJECTS: Project[] = [
+  {
+    category: "Kinetic Design · Installations",
+
+    visual: "studiomotion",
+
+    identity: {
+      type: "logo",
+      /*
+       * Drop your actual Studio Motion logo file in /public/projects
+       * and point this at it.
+       */
+      src: "/projects/studio-motion-logo.svg",
+      alt: "Studio Motion",
+    },
+
+    /*
+     * Light theme values, taken straight from globals.css (.light):
+     * background = --color-void, foreground = --color-ink,
+     * accent = --color-bronze.
+     */
+    background: "#F5F5F0",
+    foreground: "#121212",
+    accent: "#A8843F",
+  },
+
   {
     category: "Enterprise Engineering",
 
@@ -93,23 +119,6 @@ const PROJECTS: Project[] = [
     accent: "#C8843C",
 
     href: "https://kpwoodcraft.in",
-  },
-
-  {
-    category: "Private Markets",
-
-    visual: "shuruup",
-
-    identity: {
-      type: "text",
-      value: "Shuruup",
-    },
-
-    background: "#000000",
-    foreground: "#F5F5F5",
-    accent: "#5C8FC7",
-
-    href: "https://shuruup.com",
   },
 
   {
@@ -415,7 +424,7 @@ export default function SelectedWorkConceptA() {
              SWITCH WEB → APP HEADER
              ================================================================ */
 
-        if (projectIndex === 3) {
+        if (projectIndex === PROJECTS.length - 1) {
           timeline.to(
             webHeading,
             {
@@ -504,7 +513,7 @@ export default function SelectedWorkConceptA() {
         timeline.to(
           {},
           {
-            duration: project.visual === "shuruup" ? 0.65 : 0.8,
+            duration: 0.8,
           },
         );
 
@@ -885,18 +894,96 @@ function IdentityUnderline({ color }: { color: string }) {
 
 function ProjectHeroVisual({ project }: { project: Project }) {
   switch (project.visual) {
+    case "studiomotion":
+      return <StudioMotionHeroVisual />;
+
     case "elevro":
       return <ElevroHeroVisual />;
 
     case "kpwood":
       return <KPWoodHeroVisual />;
 
-    case "shuruup":
-      return <ShuruupHeroVisual />;
-
     case "anmol":
       return <AnmolHeroVisual />;
   }
+}
+
+/* ==========================================================================
+   STUDIO MOTION
+   ========================================================================== */
+
+function StudioMotionHeroVisual() {
+  return (
+    <div className="relative h-full w-full">
+      {/* ========================================================
+            AMBIENT GLOW
+            ======================================================== */}
+
+      <div
+        aria-hidden
+        className="
+            pointer-events-none
+            absolute
+  
+            top-[57%]
+  
+            h-[52%]
+            w-[105%]
+  
+            -translate-y-1/2
+  
+            rounded-full
+  
+            bg-[#A8843F]/20
+            blur-[90px]
+  
+            md:left-1/2
+            md:top-1/2
+  
+            md:h-[55%]
+            md:w-[58%]
+  
+            md:-translate-x-1/2
+          "
+      />
+
+      {/* ========================================================
+            KINETIC 3D MODEL
+            ======================================================== */}
+
+      <div
+        className="
+            absolute
+
+            top-[57%]
+  
+            h-[60%]
+            w-[115%]
+  
+            -translate-y-1/2
+            sm:h-[63%]
+            sm:w-full
+  
+            md:left-1/2
+            md:top-1/2
+  
+            md:h-[68%]
+            md:w-[72%]
+  
+            md:-translate-x-1/2
+  
+            lg:h-[70%]
+  
+            xl:h-[72%]
+            
+  
+            will-change-transform
+          "
+      >
+        <KineticHero />
+      </div>
+    </div>
+  );
 }
 
 /* ==========================================================================
@@ -1145,98 +1232,6 @@ function KPWoodHeroVisual() {
 }
 
 /* ==========================================================================
-   SHURUUP
-   ========================================================================== */
-
-function ShuruupHeroVisual() {
-  return (
-    <div
-      className="
-          relative
-  
-          flex
-          h-full
-          w-full
-  
-          items-center
-          justify-center
-        "
-    >
-      {/* subtle background depth */}
-
-      <div
-        aria-hidden
-        className="
-            pointer-events-none
-  
-            absolute
-            left-1/2
-            top-1/2
-  
-            h-[58%]
-            w-[72%]
-  
-            -translate-x-1/2
-            -translate-y-1/2
-  
-            rounded-full
-  
-            bg-[#5C8FC7]/[0.07]
-  
-            blur-[90px]
-          "
-      />
-
-      {/* VIDEO */}
-
-      <div
-        className="
-            relative
-            z-10
-  
-            flex
-            h-[68%]
-            w-[86%]
-  
-            max-w-[860px]
-  
-            items-center
-            justify-center
-  
-            overflow-hidden
-  
-            md:h-[72%]
-            md:w-[82%]
-  
-            xl:h-[74%]
-            xl:w-[78%]
-          "
-      >
-        <video
-          autoPlay
-          muted
-          playsInline
-          loop
-          preload="metadata"
-          className="
-              block
-  
-              max-h-full
-              max-w-full
-  
-              object-contain
-              object-center
-            "
-        >
-          <source src="/projects/home_video.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-      </div>
-    </div>
-  );
-}
-
-/* ==========================================================================
    ANMOL MEDICARE
    ========================================================================== */
 function AnmolHeroVisual() {
@@ -1455,15 +1450,6 @@ function appendSpecialVisualAnimation(
       );
     }
 
-    return;
-  }
-
-  /* ----------------------------------------------------------------------
-     SHURUUP
-     ---------------------------------------------------------------------- */
-
-  if (visual === "shuruup") {
-    timeline.to({}, { duration: 0.22 });
     return;
   }
 

@@ -16,8 +16,8 @@ export default function Home() {
 
         <LogoDiceSection />
         <FeaturedReelSection />
-        <PackagingShowcaseSection />
         <SelectedWorkConceptA />
+        <PackagingShowcaseSection />
         <SocialMediaManagementSection />
         <ReelsShowcaseSection />
         <AboutUsSection />

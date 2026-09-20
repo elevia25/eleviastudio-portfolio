@@ -6,7 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLayoutEffect, useRef } from "react";
 
 import SectionHeading from "./SectionHeading";
-import { EASE, PINNED_SCRUB, prefersReducedMotion } from "@/lib/motion";
+import { EASE, prefersReducedMotion } from "@/lib/motion";
 
 /* ==========================================================================
    DATA
@@ -40,20 +40,89 @@ const BRANDING_ITEMS = [
 ] as const;
 
 /* ==========================================================================
+   CARD-STACK GEOMETRY
+
+   depth 0 is the front image (fully visible, caption showing).
+   Every depth after that sits further back - offset to alternating
+   sides, rotated, scaled down and dimmed - so it reads as a
+   scattered stack of photos with only the top one fully in view.
+   ========================================================================== */
+
+const TOTAL_CARDS = BRANDING_ITEMS.length;
+
+type StackStyle = {
+  xPercent: number;
+  yPercent: number;
+  rotation: number;
+  scale: number;
+  autoAlpha: number;
+  zIndex: number;
+};
+
+const getStackStyle = (depth: number, side: number): StackStyle => {
+  if (depth === 0) {
+    return {
+      xPercent: 0,
+      yPercent: 0,
+      rotation: 0,
+      scale: 1,
+      autoAlpha: 1,
+      zIndex: TOTAL_CARDS + 1,
+    };
+  }
+
+  return {
+    xPercent: side * (38 + (depth - 1) * 22),
+    yPercent: 0,
+    rotation: 0,
+    scale: 1 - depth * 0.045,
+    autoAlpha: Math.max(1 - depth * 0.18, 0.55),
+    zIndex: TOTAL_CARDS - depth,
+  };
+};
+
+/*
+ * With an odd stack, the item right after the active one and the
+ * item right before it should look identical (same depth, mirrored
+ * side) so the front card reads as truly centered instead of one
+ * neighbour appearing closer/brighter than the other.
+ */
+
+const getRelativeSlot = (i: number, activeIndex: number) => {
+  const relative = (i - activeIndex + TOTAL_CARDS) % TOTAL_CARDS;
+
+  if (relative === 0) {
+    return { depth: 0, side: 0 };
+  }
+
+  const mirrored = TOTAL_CARDS - relative;
+
+  const depth = Math.min(relative, mirrored);
+
+  const side = relative <= mirrored ? 1 : -1;
+
+  return { depth, side };
+};
+
+/* ==========================================================================
    COMPONENT
    ========================================================================== */
 
 export default function BrandingShowcaseSection() {
   const sectionRef = useRef<HTMLElement>(null);
 
+  const stageRef = useRef<HTMLDivElement>(null);
+
   const posterRefs = useRef<Array<HTMLDivElement | null>>([]);
 
-  const contentRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const overlayRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
 
-    if (!section) {
+    const stage = stageRef.current;
+
+    if (!section || !stage) {
       return;
     }
 
@@ -61,13 +130,13 @@ export default function BrandingShowcaseSection() {
       (element): element is HTMLDivElement => Boolean(element),
     );
 
-    const contents = contentRefs.current.filter(
+    const overlays = overlayRefs.current.filter(
       (element): element is HTMLDivElement => Boolean(element),
     );
 
     if (
       posters.length !== BRANDING_ITEMS.length ||
-      contents.length !== BRANDING_ITEMS.length
+      overlays.length !== BRANDING_ITEMS.length
     ) {
       return;
     }
@@ -76,382 +145,118 @@ export default function BrandingShowcaseSection() {
 
     const reducedMotion = prefersReducedMotion();
 
-    const ctx = gsap.context(() => {
-      if (reducedMotion) {
-        posters.forEach((poster, index) => {
-          gsap.set(poster, {
-            autoAlpha: index === 0 ? 1 : 0,
-            yPercent: 0,
-            scale: 1,
-            rotation: 0,
-          });
-        });
+    let activeIndex = 0;
 
-        contents.forEach((content, index) => {
-          gsap.set(content, { autoAlpha: index === 0 ? 1 : 0, y: 0 });
-        });
+    let autoCycleTimeline: gsap.core.Timeline | null = null;
+
+    /*
+     * Move every image to the slot that matches its distance behind
+     * whichever one is currently "front". `animate: false` snaps
+     * instantly (initial paint); `animate: true` tweens into place
+     * for the auto-shuffle. The caption only shows on the front
+     * image.
+     */
+
+    const applyStack = (index: number, animate: boolean) => {
+      posters.forEach((poster, i) => {
+        const { depth, side } = getRelativeSlot(i, index);
+
+        const style = getStackStyle(depth, side);
+
+        gsap.set(poster, { zIndex: style.zIndex });
+
+        if (animate) {
+          gsap.to(poster, {
+            xPercent: style.xPercent,
+            yPercent: style.yPercent,
+            rotation: style.rotation,
+            scale: style.scale,
+            autoAlpha: style.autoAlpha,
+            duration: 0.9,
+            ease: EASE.entranceStrong,
+          });
+        } else {
+          gsap.set(poster, {
+            xPercent: style.xPercent,
+            yPercent: style.yPercent,
+            rotation: style.rotation,
+            scale: style.scale,
+            autoAlpha: style.autoAlpha,
+            transformOrigin: "50% 65%",
+            force3D: true,
+          });
+        }
+      });
+
+      overlays.forEach((overlay, i) => {
+        const isActive = i === index;
+
+        if (animate) {
+          gsap.to(overlay, {
+            autoAlpha: isActive ? 1 : 0,
+            y: isActive ? 0 : 14,
+            duration: 0.5,
+            ease: isActive ? EASE.entrance : EASE.exit,
+          });
+        } else {
+          gsap.set(overlay, {
+            autoAlpha: isActive ? 1 : 0,
+            y: 0,
+            force3D: true,
+          });
+        }
+      });
+    };
+
+    const ctx = gsap.context(() => {
+      applyStack(0, false);
+
+      if (reducedMotion) {
+        gsap.set(stage, { autoAlpha: 1, y: 0 });
 
         return;
       }
 
-      const media = gsap.matchMedia();
+      gsap.set(stage, { autoAlpha: 0, y: 40 });
 
-      /* ==================================================================
-         DESKTOP
-         ================================================================== */
+      /*
+       * Auto-shuffle: once the stack has entered, it keeps cycling
+       * through every image forever - each becomes the fully
+       * visible front card in turn, no scrolling required.
+       */
 
-      media.add("(min-width: 768px)", () => {
-        /* --------------------------------------------------------------
-           INITIAL STATE
+      const startAutoCycle = () => {
+        autoCycleTimeline = gsap.timeline({ repeat: -1 });
 
-           First project is already visible when Branding enters.
-           -------------------------------------------------------------- */
+        for (let step = 0; step < TOTAL_CARDS; step += 1) {
+          autoCycleTimeline
+            .call(() => {
+              activeIndex = (activeIndex + 1) % TOTAL_CARDS;
 
-        posters.forEach((poster, index) => {
-          gsap.set(poster, {
-            autoAlpha: index === 0 ? 1 : 0,
-
-            yPercent: index === 0 ? 4 : 42,
-
-            scale: index === 0 ? 0.98 : 0.9,
-
-            rotation: index === 0 ? -0.8 : 3,
-
-            transformOrigin: "50% 70%",
-
-            force3D: true,
-          });
-        });
-
-        contents.forEach((content, index) => {
-          gsap.set(content, {
-            autoAlpha: index === 0 ? 1 : 0,
-
-            y: index === 0 ? 0 : 32,
-
-            force3D: true,
-          });
-        });
-
-        /* --------------------------------------------------------------
-           MAIN SCROLL TIMELINE
-           -------------------------------------------------------------- */
-
-        const timeline = gsap.timeline({
-          scrollTrigger: {
-            trigger: section,
-
-            start: "top top",
-
-            end: "bottom bottom",
-
-            scrub: PINNED_SCRUB.desktop,
-
-            invalidateOnRefresh: true,
-          },
-        });
-
-        /* --------------------------------------------------------------
-           FIRST POSTER SETTLES QUICKLY
-           -------------------------------------------------------------- */
-
-        timeline.to(
-          posters[0],
-          {
-            yPercent: 0,
-
-            scale: 1,
-
-            rotation: 0,
-
-            duration: 0.26,
-
-            ease: EASE.entrance,
-          },
-          0,
-        );
-
-        timeline.addLabel("branding-01");
-
-        /*
-         * Small hold only.
-         *
-         * Do not waste a large portion of the
-         * section before the next project starts.
-         */
-
-        timeline.to(
-          {},
-          {
-            duration: 0.18,
-          },
-        );
-
-        /* --------------------------------------------------------------
-           PROJECT 02 → 04
-           -------------------------------------------------------------- */
-
-        for (let index = 1; index < BRANDING_ITEMS.length; index += 1) {
-          const previousPoster = posters[index - 1];
-
-          const currentPoster = posters[index];
-
-          const previousContent = contents[index - 1];
-
-          const currentContent = contents[index];
-
-          /* previous text leaves */
-
-          timeline.to(previousContent, {
-            autoAlpha: 0,
-
-            y: -24,
-
-            duration: 0.26,
-
-            ease: EASE.exit,
-          });
-
-          /* previous artwork sinks */
-
-          timeline.to(
-            previousPoster,
-            {
-              autoAlpha: 0.12,
-
-              yPercent: -9,
-
-              scale: 0.8,
-
-              rotation: index % 2 === 0 ? -2 : 2,
-
-              duration: 0.42,
-
-              ease: EASE.timeline,
-            },
-            "<",
-          );
-
-          /* new artwork rises */
-
-          timeline.to(
-            currentPoster,
-            {
-              autoAlpha: 1,
-
-              yPercent: 0,
-
-              scale: 1,
-
-              rotation: 0,
-
-              duration: 0.58,
-
-              ease: EASE.entranceStrong,
-            },
-            "<0.12",
-          );
-
-          /* new text arrives */
-
-          timeline.to(
-            currentContent,
-            {
-              autoAlpha: 1,
-
-              y: 0,
-
-              duration: 0.38,
-
-              ease: EASE.entrance,
-            },
-            "<0.14",
-          );
-
-          timeline.addLabel(`branding-0${index + 1}`);
-
-          /*
-           * Short readable pause.
-           */
-
-          timeline.to(
-            {},
-            {
-              duration: 0.26,
-            },
-          );
+              applyStack(activeIndex, true);
+            })
+            .to({}, { duration: 3.2 });
         }
-
-        /*
-         * IMPORTANT:
-         *
-         * Do not fade the final state.
-         * Do not change the Branding background.
-         * Do not add another artificial outro.
-         *
-         * Sticky simply releases and the next
-         * section naturally enters.
-         */
-      });
-
-      /* ==================================================================
-         MOBILE
-         ================================================================== */
-
-      media.add("(max-width: 767px)", () => {
-        posters.forEach((poster, index) => {
-          gsap.set(poster, {
-            autoAlpha: index === 0 ? 1 : 0,
-
-            yPercent: index === 0 ? 3 : 34,
-
-            scale: index === 0 ? 0.98 : 0.92,
-
-            rotation: index === 0 ? -0.5 : 2,
-
-            force3D: true,
-          });
-        });
-
-        contents.forEach((content, index) => {
-          gsap.set(content, {
-            autoAlpha: index === 0 ? 1 : 0,
-
-            y: index === 0 ? 0 : 22,
-
-            force3D: true,
-          });
-        });
-
-        const timeline = gsap.timeline({
-          scrollTrigger: {
-            trigger: section,
-
-            start: "top top",
-
-            end: "bottom bottom",
-
-            scrub: PINNED_SCRUB.mobile,
-
-            invalidateOnRefresh: true,
-          },
-        });
-
-        /* first state */
-
-        timeline.to(
-          posters[0],
-          {
-            yPercent: 0,
-
-            scale: 1,
-
-            rotation: 0,
-
-            duration: 0.24,
-
-            ease: EASE.entrance,
-          },
-          0,
-        );
-
-        timeline.addLabel("branding-mobile-01");
-
-        timeline.to(
-          {},
-          {
-            duration: 0.15,
-          },
-        );
-
-        /* remaining states */
-
-        for (let index = 1; index < BRANDING_ITEMS.length; index += 1) {
-          const previousPoster = posters[index - 1];
-
-          const currentPoster = posters[index];
-
-          const previousContent = contents[index - 1];
-
-          const currentContent = contents[index];
-
-          timeline.to(previousContent, {
-            autoAlpha: 0,
-
-            y: -16,
-
-            duration: 0.22,
-
-            ease: EASE.exit,
-          });
-
-          timeline.to(
-            previousPoster,
-            {
-              autoAlpha: 0,
-
-              yPercent: -6,
-
-              scale: 0.82,
-
-              duration: 0.34,
-
-              ease: EASE.timeline,
-            },
-            "<",
-          );
-
-          timeline.to(
-            currentPoster,
-            {
-              autoAlpha: 1,
-
-              yPercent: 0,
-
-              scale: 1,
-
-              rotation: 0,
-
-              duration: 0.48,
-
-              ease: EASE.entrance,
-            },
-            "<0.08",
-          );
-
-          timeline.to(
-            currentContent,
-            {
-              autoAlpha: 1,
-
-              y: 0,
-
-              duration: 0.32,
-
-              ease: EASE.entrance,
-            },
-            "<0.12",
-          );
-
-          timeline.addLabel(`branding-mobile-0${index + 1}`);
-
-          timeline.to(
-            {},
-            {
-              duration: 0.22,
-            },
-          );
-        }
-      });
-
-      return () => {
-        media.revert();
       };
-    }, section);
 
-    /*
-     * One refresh after layout/assets have mounted.
-     */
+      gsap
+        .timeline({
+          scrollTrigger: {
+            trigger: section,
+            start: "top 75%",
+            toggleActions: "play none none none",
+            once: true,
+          },
+
+          onComplete: startAutoCycle,
+        })
+        .to(stage, {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.8,
+          ease: EASE.entrance,
+        });
+    }, section);
 
     const refreshFrame = requestAnimationFrame(() => {
       ScrollTrigger.refresh();
@@ -459,6 +264,8 @@ export default function BrandingShowcaseSection() {
 
     return () => {
       cancelAnimationFrame(refreshFrame);
+
+      autoCycleTimeline?.kill();
 
       ctx.revert();
     };
@@ -472,586 +279,199 @@ export default function BrandingShowcaseSection() {
         relative
         isolate
 
-        min-h-[340svh]
+        h-svh
         w-full
 
-        bg-[#160E18]
+        overflow-hidden
 
-        md:min-h-[360svh]
+        bg-[#160E18]
+        text-[#F1E9F2]
       "
     >
-      {/* ==========================================================
-          STICKY VIEWPORT
+      {/* ========================================================
+          COMMON SECTION HEADING
 
-          IMPORTANT:
-          Do NOT put overflow-hidden on the outer section.
-          ========================================================== */}
+          Static and immediately visible.
+          ======================================================== */}
+
+      <SectionHeading
+        number="05"
+        title="Branding"
+        subtitle="Making the first impression before the product speaks."
+      />
+
+      {/* ========================================================
+          STAGE
+
+          Scattered photo stack, centered on screen. Only the
+          front image is fully visible; the rest peek out from
+          behind it. Fades/rises in once, then the auto-shuffle
+          takes over.
+          ======================================================== */}
 
       <div
+        ref={stageRef}
         className="
-          sticky
-          top-0
+          absolute
 
-          h-svh
-          w-full
+          left-1/2
+          top-[190px]
 
-          overflow-hidden
+          z-10
 
-          bg-[#160E18]
-          text-[#F1E9F2]
+          h-[50vh]
+          w-[70vw]
+
+          max-w-[380px]
+
+          -translate-x-1/2
+
+          sm:top-[200px]
+          sm:h-[54vh]
+          sm:w-[58vw]
+          sm:max-w-[440px]
+
+          md:top-[220px]
+          md:h-[56vh]
+          md:w-[34vw]
+          md:max-w-[520px]
+
+          lg:top-[240px]
+          lg:h-[58vh]
+          lg:w-[30vw]
+          lg:max-w-[560px]
         "
       >
-        {/* ========================================================
-            BACKGROUND DEPTH
-            ======================================================== */}
-
-        <div
-          aria-hidden
-          className="
-            pointer-events-none
-            absolute
-            inset-0
-            z-0
-          "
-          style={{
-            background: `
-              radial-gradient(
-                circle at 72% 40%,
-                rgba(168,121,181,.08),
-                transparent 34%
-              ),
-
-              radial-gradient(
-                circle at 14% 86%,
-                rgba(255,255,255,.025),
-                transparent 28%
-              ),
-
-              linear-gradient(
-                135deg,
-                rgba(255,255,255,.012),
-                transparent 38%,
-                rgba(0,0,0,.15)
-              )
-            `,
-          }}
-        />
-
-        {/* ========================================================
-            MATERIAL GRAIN
-            ======================================================== */}
-
-        <div
-          aria-hidden
-          className="
-            pointer-events-none
-            absolute
-            inset-0
-
-            z-0
-
-            opacity-30
-          "
-          style={{
-            backgroundImage: `
-              repeating-linear-gradient(
-                8deg,
-                transparent 0,
-                transparent 48px,
-                rgba(255,255,255,.012) 49px,
-                transparent 50px
-              )
-            `,
-          }}
-        />
-
-        {/* ========================================================
-            GIANT BACKGROUND WORD
-            ======================================================== */}
-
-        <div
-          aria-hidden
-          className="
-            pointer-events-none
-
-            absolute
-            left-1/2
-            top-[48%]
-
-            z-[1]
-
-            -translate-x-1/2
-            -translate-y-1/2
-
-            whitespace-nowrap
-
-            text-[clamp(7rem,19vw,21rem)]
-
-            font-light
-            leading-none
-
-            tracking-[-0.09em]
-          "
-          style={{
-            color: "rgba(0,0,0,.24)",
-
-            textShadow: `
-              0 1px 0 rgba(255,255,255,.035),
-              0 -1px 1px rgba(0,0,0,.5)
-            `,
-          }}
-        >
-          BRANDING
-        </div>
-
-        {/* ========================================================
-            COMMON SECTION HEADING
-
-            Static and immediately visible.
-            ======================================================== */}
-
-        <SectionHeading
-          number="05"
-          title="Branding"
-          subtitle="Making the first impression before the product speaks."
-        />
-
-        {/* ========================================================
-            PROJECT COUNT
-
-            Desktop only so it does not fight the mobile heading.
-            ======================================================== */}
-
-        <div
-          className="
-            pointer-events-none
-
-            absolute
-
-            right-8
-            top-8
-
-            z-[60]
-
-            hidden
-
-            text-[8px]
-            uppercase
-
-            tracking-[0.22em]
-
-            text-current/45
-
-            lg:block
-          "
-        >
-          04 selected pieces
-        </div>
-
-        {/* ========================================================
-            PROJECT CONTENT
-            ======================================================== */}
-
         {BRANDING_ITEMS.map((item, index) => (
           <div
-            key={item.number}
+            key={`${item.number}-${item.image}`}
             ref={(element) => {
-              contentRefs.current[index] = element;
+              posterRefs.current[index] = element;
             }}
             className="
-              pointer-events-none
-
               absolute
-
-              left-5
-              top-[9.75rem]
-
-              z-30
-
-              w-[88vw]
+              inset-0
 
               opacity-0
 
-              sm:left-7
+              overflow-hidden
+              rounded-[1.25rem]
 
-              md:left-[5vw]
-              md:top-[56%]
+              shadow-[0_35px_90px_rgba(0,0,0,0.45)]
 
-              md:w-[34vw]
-              md:max-w-[500px]
-
-              md:-translate-y-1/2
+              will-change-[transform,opacity]
             "
           >
-            {/* NUMBER */}
+            {/* IMAGE - no mount, no card, just the photo */}
+
+            <Image
+              src={item.image}
+              alt={`${item.title} branding artwork`}
+              fill
+              sizes="
+                (max-width: 639px) 74vw,
+                (max-width: 1023px) 40vw,
+                32vw
+              "
+              className="
+                object-contain
+                object-center
+              "
+              onLoad={() => {
+                ScrollTrigger.refresh();
+              }}
+            />
+
+            {/* BOTTOM CAPTION OVERLAY */}
 
             <div
+              aria-hidden
               className="
-                mb-2
+                pointer-events-none
+                absolute
+                inset-x-0
+                bottom-0
 
-                flex
-                items-center
-                gap-3
+                h-2/3
 
-                text-[13px]
-                uppercase
-                tracking-[0.3em]
-
-                opacity-45
-
-                md:mb-5
-                md:text-[14px]
+                bg-gradient-to-t
+                from-black/85
+                via-black/35
+                to-transparent
               "
-            >
-              <span>{item.number}</span>
-
-              <span>/</span>
-
-              <span>04</span>
-            </div>
-
-            {/* CATEGORY */}
-
-            <p
-              className="
-                mb-2
-
-                text-[13px]
-                uppercase
-                tracking-[0.24em]
-
-                text-[#A879B5]
-
-                md:mb-4
-                md:text-[15px]
-              "
-            >
-              {item.category}
-            </p>
-
-            {/* TITLE */}
-
-            <h2
-              className="
-                max-w-[560px]
-
-                text-[clamp(2.35rem,5.2vw,6rem)]
-
-                font-light
-                leading-[0.84]
-
-                tracking-[-0.065em]
-              "
-            >
-              {item.title}
-            </h2>
-
-            {/* DESCRIPTION */}
-
-            <p
-              className="
-                mt-3
-
-                max-w-[390px]
-
-                text-[15px]
-                font-light
-                leading-[1.5]
-
-                opacity-55
-
-                md:mt-6
-                md:text-sm
-
-                lg:text-base
-              "
-            >
-              {item.description}
-            </p>
-
-            {/* META */}
+            />
 
             <div
-              className="
-                mt-3
-
-                flex
-                flex-wrap
-                items-center
-
-                gap-x-3
-                gap-y-1
-
-                text-[7px]
-                uppercase
-                tracking-[0.18em]
-
-                opacity-35
-
-                md:mt-7
-                md:text-[8px]
-              "
-            >
-              <span>Branding</span>
-
-              <span>/</span>
-
-              <span>Identity</span>
-
-              <span>/</span>
-
-              <span>Print</span>
-            </div>
-          </div>
-        ))}
-
-        {/* ========================================================
-            ARTWORK AREA
-
-            Mobile:
-            intentionally below heading + project copy.
-
-            Desktop:
-            sits on right and slightly below the common heading.
-            ======================================================== */}
-
-        <div
-          className="
-            absolute
-
-            left-1/2
-            top-[58%]
-
-            z-20
-
-            h-[39vh]
-            w-[72vw]
-
-            max-w-[380px]
-
-            -translate-x-1/2
-
-            sm:h-[41vh]
-            sm:w-[68vw]
-            sm:max-w-[420px]
-
-            md:left-auto
-            md:right-[5vw]
-            md:top-[60%]
-
-            md:h-[62vh]
-            md:w-[41vw]
-
-            md:max-w-[640px]
-
-            md:translate-x-0
-            md:-translate-y-1/2
-
-            lg:right-[6vw]
-
-            lg:h-[64vh]
-            lg:w-[40vw]
-
-            lg:max-w-[670px]
-
-            xl:right-[7vw]
-
-            xl:h-[65vh]
-            xl:w-[39vw]
-
-            xl:max-w-[700px]
-          "
-        >
-          {BRANDING_ITEMS.map((item, index) => (
-            <div
-              key={`${item.number}-${item.image}`}
               ref={(element) => {
-                posterRefs.current[index] = element;
+                overlayRefs.current[index] = element;
               }}
               className="
                 absolute
-                inset-0
+                inset-x-0
+                bottom-0
+
+                p-5
 
                 opacity-0
 
-                will-change-[transform,opacity]
+                sm:p-7
+
+                md:p-8
               "
             >
-              {/* CONTACT SHADOW */}
-
-              <div
-                aria-hidden
+              <p
                 className="
-                  absolute
+                  mb-1.5
 
-                  bottom-[-3%]
-                  left-[7%]
-
-                  h-[13%]
-                  w-[86%]
-
-                  rounded-[50%]
-
-                  bg-black/35
-
-                  blur-2xl
-                "
-              />
-
-              {/* PAPER BACK EDGE */}
-
-              <div
-                aria-hidden
-                className="
-                  absolute
-                  inset-0
-
-                  translate-x-[5px]
-                  translate-y-[6px]
-
-                  bg-[#9B8F98]
-
-                  md:translate-x-[8px]
-                  md:translate-y-[9px]
-                "
-              />
-
-              {/* SECOND PAPER EDGE */}
-
-              <div
-                aria-hidden
-                className="
-                  absolute
-                  inset-0
-
-                  translate-x-[2px]
-                  translate-y-[3px]
-
-                  bg-[#CFC5CC]
-                "
-              />
-
-              {/* ====================================================
-                  ARTWORK
-                  ==================================================== */}
-
-              <div
-                className="
-                  relative
-
-                  h-full
-                  w-full
-
-                  overflow-hidden
-
-                  bg-[#EEE8EC]
-
-                  shadow-[0_35px_90px_rgba(0,0,0,0.34)]
-                "
-              >
-                <Image
-                  src={item.image}
-                  alt={`${item.title} branding artwork`}
-                  fill
-                  sizes="
-                    (max-width: 767px) 72vw,
-                    (max-width: 1279px) 41vw,
-                    39vw
-                  "
-                  className="
-                    object-contain
-                    object-center
-                  "
-                  onLoad={() => {
-                    ScrollTrigger.refresh();
-                  }}
-                />
-
-                {/* PAPER LIGHT */}
-
-                <div
-                  aria-hidden
-                  className="
-                    pointer-events-none
-                    absolute
-                    inset-0
-                  "
-                  style={{
-                    background: `
-                      linear-gradient(
-                        120deg,
-                        rgba(255,255,255,.07),
-                        transparent 27%,
-                        transparent 73%,
-                        rgba(0,0,0,.04)
-                      )
-                    `,
-                  }}
-                />
-              </div>
-
-              {/* PIECE LABEL */}
-
-              <div
-                className="
-                  absolute
-
-                  -bottom-6
-                  left-0
-
-                  flex
-                  items-center
-                  gap-2
-
-                  text-[7px]
+                  text-[11px]
                   uppercase
-                  tracking-[0.2em]
+                  tracking-[0.24em]
 
-                  opacity-35
+                  text-[#A879B5]
 
-                  md:-bottom-7
-                  md:text-[8px]
+                  md:mb-2
+                  md:text-[12px]
                 "
               >
-                <span>Selected piece</span>
+                {item.category}
+              </p>
 
-                <span>/</span>
+              <h2
+                className="
+                  text-[clamp(1.5rem,3.6vw,2.6rem)]
 
-                <span>{item.number}</span>
-              </div>
+                  font-light
+                  leading-[0.95]
+
+                  tracking-[-0.03em]
+
+                  text-[#F1E9F2]
+                "
+              >
+                {item.title}
+              </h2>
+
+              <p
+                className="
+                  mt-2
+
+                  max-w-[38ch]
+
+                  text-[13px]
+                  font-light
+                  leading-[1.45]
+
+                  text-[#F1E9F2]/70
+
+                  md:mt-3
+                  md:text-sm
+                "
+              >
+                {item.description}
+              </p>
             </div>
-          ))}
-        </div>
-
-        {/* ========================================================
-            BOTTOM DESCRIPTOR
-            ======================================================== */}
-
-        <div
-          className="
-            pointer-events-none
-
-            absolute
-
-            bottom-7
-            left-8
-
-            z-50
-
-            hidden
-
-            text-[8px]
-            uppercase
-
-            tracking-[0.24em]
-
-            opacity-30
-
-            md:block
-          "
-        >
-          Brand systems / visual identity
-        </div>
+          </div>
+        ))}
       </div>
     </section>
   );

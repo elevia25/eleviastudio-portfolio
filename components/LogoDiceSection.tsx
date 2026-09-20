@@ -9,38 +9,38 @@ import SectionHeading, {
   SECTION_SHELL_CLASS,
   SECTION_VIEWPORT_CLASS,
 } from "./SectionHeading";
-import { BLUR, EASE, PINNED_SCRUB, PINNED_SNAP } from "@/lib/motion";
+import { BLUR, EASE } from "@/lib/motion";
 
 const SLIDES = [
   {
     background: "#FED623",
     textColor: "#062145",
-    logo: "/logos/dice/logo-1.png",
+    logo: "/logos/dice/logo-1.svg",
   },
   {
     background: "#06363B",
     textColor: "#CEDEC2",
-    logo: "/logos/dice/logo-2.png",
+    logo: "/logos/dice/logo-2.svg",
   },
   {
     background: "#32A544",
     textColor: "#062145",
-    logo: "/logos/dice/logo-3.png",
+    logo: "/logos/dice/logo-3.svg",
   },
   {
     background: "#F3B83D",
     textColor: "#062145",
-    logo: "/logos/dice/logo-4.png",
+    logo: "/logos/dice/logo-4.svg",
   },
   {
     background: "#193B0C",
     textColor: "#CEDEC2",
-    logo: "/logos/dice/logo-5.png",
+    logo: "/logos/dice/logo-5.svg",
   },
   {
     background: "#CEDEC2",
     textColor: "#193B0C",
-    logo: "/logos/dice/logo-6.png",
+    logo: "/logos/dice/logo-6.svg",
   },
 ] as const;
 
@@ -105,7 +105,6 @@ export default function LogoDiceSection() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const shadowRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
-  const scrollHintRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
@@ -113,9 +112,8 @@ export default function LogoDiceSection() {
     const canvas = canvasRef.current;
     const shadow = shadowRef.current;
     const title = titleRef.current;
-    const scrollHint = scrollHintRef.current;
 
-    if (!section || !stage || !canvas || !shadow || !title || !scrollHint) {
+    if (!section || !stage || !canvas || !shadow || !title) {
       return;
     }
 
@@ -377,6 +375,14 @@ export default function LogoDiceSection() {
         orientations.push(currentOrientation.clone());
       });
 
+      /*
+       * Closing orientation for an infinite loop: identical to the
+       * starting orientation, so rolling from face 5 back to face 0
+       * lands exactly where the cycle began with no visible snap.
+       */
+
+      orientations.push(orientations[0].clone());
+
       const scrollState = {
         value: 0,
       };
@@ -453,11 +459,6 @@ export default function LogoDiceSection() {
         scale: 0.45,
       });
 
-      gsap.set(scrollHint, {
-        autoAlpha: 0,
-        y: 12,
-      });
-
       let gsapContext: ReturnType<typeof gsap.context> | null = null;
 
       /*
@@ -486,43 +487,103 @@ export default function LogoDiceSection() {
             scale: 1,
           });
 
-          gsap.set(scrollHint, {
-            autoAlpha: 1,
-            y: 0,
-          });
-
           render();
 
           return;
         }
 
         gsapContext = gsap.context(() => {
+          /*
+           * Auto-roll: once the entrance has played, the dice keeps
+           * rolling through all 6 faces forever on its own timeline
+           * (no scroll input required). The loop closes on the extra
+           * 7th orientation added above, which matches the starting
+           * orientation, so the cycle repeats with no visible snap.
+           */
+
+          const startAutoRoll = () => {
+            if (disposed) {
+              return;
+            }
+
+            const rollTimeline = gsap.timeline({
+              repeat: -1,
+
+              onUpdate: () => {
+                applyDiceProgress();
+                render();
+              },
+            });
+
+            for (let step = 1; step <= SLIDES.length; step += 1) {
+              const slideIndex = step % SLIDES.length;
+              const transitionStart = rollTimeline.duration();
+
+              rollTimeline.to(
+                scrollState,
+                {
+                  value: step,
+                  duration: 1.25,
+                  ease: "none",
+                },
+                transitionStart,
+              );
+
+              rollTimeline.to(
+                stage,
+                {
+                  backgroundColor: SLIDES[slideIndex].background,
+                  duration: 1.25,
+                  ease: EASE.crossfade,
+                },
+                transitionStart,
+              );
+
+              rollTimeline.to(
+                title,
+                {
+                  color: SLIDES[slideIndex].textColor,
+                  duration: 1.25,
+                  ease: EASE.crossfade,
+                },
+                transitionStart,
+              );
+
+              rollTimeline.to(
+                shadow,
+                {
+                  scale: 0.88,
+                  autoAlpha: 0.18,
+                  duration: 0.4,
+                  repeat: 1,
+                  yoyo: true,
+                  ease: "sine.inOut",
+                },
+                transitionStart + 0.08,
+              );
+
+              /*
+               * Brief pause on each resting face before the next roll.
+               */
+
+              rollTimeline.to({}, { duration: 0.6 });
+            }
+          };
+
           const timeline = gsap.timeline({
             onUpdate: () => {
               applyDiceProgress();
               render();
             },
 
+            onComplete: startAutoRoll,
+
             scrollTrigger: {
               trigger: section,
-              start: "top top",
-
-              end: () => `+=${Math.round(window.innerHeight * 8.5)}`,
-
-              pin: true,
-              pinSpacing: true,
-              scrub: PINNED_SCRUB.desktop,
-              anticipatePin: 1,
+              start: "top 75%",
+              toggleActions: "play none none none",
+              once: true,
               invalidateOnRefresh: true,
-
-              snap: {
-                snapTo: PINNED_SNAP.snapTo,
-
-                duration: PINNED_SNAP.duration,
-
-                delay: PINNED_SNAP.delay,
-                ease: PINNED_SNAP.ease,
-              },
             },
           });
 
@@ -532,6 +593,7 @@ export default function LogoDiceSection() {
            * 1. Dice rises first.
            * 2. Dice gently settles.
            * 3. Static title rises from behind it.
+           * 4. Auto-roll takes over (see startAutoRoll above).
            */
 
           timeline
@@ -623,81 +685,6 @@ export default function LogoDiceSection() {
             },
             1.15,
           );
-
-          timeline.fromTo(
-            scrollHint,
-            {
-              autoAlpha: 0,
-              y: 12,
-            },
-            {
-              autoAlpha: 1,
-              y: 0,
-              duration: 0.45,
-              ease: "power2.out",
-            },
-            1.7,
-          );
-
-          timeline.addLabel("face-0", 2);
-
-          /*
-           * Roll through the remaining five faces.
-           *
-           * Text content stays:
-           * "01 Logo Design"
-           *
-           * Only background and text color change.
-           */
-
-          for (let index = 1; index < SLIDES.length; index += 1) {
-            const transitionStart = timeline.duration();
-
-            timeline.to(
-              scrollState,
-              {
-                value: index,
-                duration: 1.25,
-                ease: "none",
-              },
-              transitionStart,
-            );
-
-            timeline.to(
-              stage,
-              {
-                backgroundColor: SLIDES[index].background,
-                duration: 1.25,
-                ease: EASE.crossfade,
-              },
-              transitionStart,
-            );
-
-            timeline.to(
-              title,
-              {
-                color: SLIDES[index].textColor,
-                duration: 1.25,
-                ease: EASE.crossfade,
-              },
-              transitionStart,
-            );
-
-            timeline.to(
-              shadow,
-              {
-                scale: 0.88,
-                autoAlpha: 0.18,
-                duration: 0.4,
-                repeat: 1,
-                yoyo: true,
-                ease: "sine.inOut",
-              },
-              transitionStart + 0.08,
-            );
-
-            timeline.addLabel(`face-${index}`, transitionStart + 1.25);
-          }
         }, section);
 
         refreshFrame = window.requestAnimationFrame(() => {
@@ -807,10 +794,10 @@ export default function LogoDiceSection() {
             absolute
             left-1/2
             top-[65%]
-            z-[15]
+            z-15
             h-8
             w-[25vw]
-            max-w-[270px]
+            max-w-67.5
             -translate-x-1/2
             rounded-full
             bg-black/40
@@ -832,27 +819,6 @@ export default function LogoDiceSection() {
             will-change-transform
           "
         />
-
-        <div
-          ref={scrollHintRef}
-          className="
-            pointer-events-none
-            absolute
-            bottom-8
-            left-1/2
-            z-30
-            -translate-x-1/2
-            text-center
-            text-xs
-            font-medium
-            uppercase
-            tracking-[0.25em]
-            text-white
-            mix-blend-difference
-          "
-        >
-          Scroll to roll
-        </div>
       </div>
     </section>
   );

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { JetBrains_Mono, Syne, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 
@@ -15,16 +15,33 @@ const jetBrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   display: "swap",
 });
+
 const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
-  weight: ["400", "400"], // Specify weights you need
+  weight: ["400"],
   variable: "--font-instrument",
   display: "swap",
 });
+
 export const metadata: Metadata = {
   title: "ELEVIA STUDIO | Cinematic Excellence Portfolio",
   description:
     "Elevia Studio — an Ahmedabad-based creative studio delivering cinematic storytelling, strategic design, and motion experiences.",
+  manifest: "/site.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+    shortcut: ["/favicon.ico"],
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#000000", // Adjust to match your theme color or site.webmanifest
 };
 
 export default function RootLayout({
@@ -37,9 +54,6 @@ export default function RootLayout({
       lang="en"
       className={`${syne.variable} ${instrumentSerif.variable} ${jetBrainsMono.variable}`}
     >
-      <head>
-    
-      </head>
       <body className="bg-background font-body-md text-on-background antialiased selection:bg-primary selection:text-on-primary">
         {children}
       </body>
